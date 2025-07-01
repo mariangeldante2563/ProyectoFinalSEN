@@ -8,7 +8,7 @@
   <meta name="description" content="IN OUT MANAGER: Soluciones tecnológicas, desarrollo de software, integración de sistemas, consultoría y más.">
   <meta name="keywords" content="software, tecnología, integración, consultoría, desarrollo, sistemas, web, UI/UX, modernización, portfolio, tecnologías">
   <link rel="stylesheet" href="styles.css">
-  <link rel="icon" type="image/png" href="img/icon.png">
+  <link rel="icon" type="image/jpeg" href="img/icon.jpg">
   <script src="script.js" defer></script>
 </head>
 
@@ -21,98 +21,330 @@
     <nav class="main-nav" aria-label="Navegación principal">
       <ul>
         <li class="nav-logo">
-          <img src="img/icon.jpg" alt="Logo IN OUT MANAGER" class="icon" loading="lazy">
+          <img src="img/icon.jpg" alt="Logo IN OUT MANAGER" class="icon" loading="eager">
         </li>
-        <li><a href="#inicio" class="nav-btn">Inicio</a></li>
+        <li><a href="#servicios" class="nav-btn">Inicio</a></li>
         <li class="dropdown">
           <a href="#servicios" class="nav-btn dropdown-toggle" aria-haspopup="true" aria-expanded="false">Servicios</a>
           <ul class="dropdown-content">
-            <li><a href="#software">Desarrollo de Software a Medida</a></li>
-            <li><a href="#web">Desarrollo de Aplicaciones Web</a></li>
-            <li><a href="#legacy">Modernización de Sistemas (Legacy)</a></li>
-            <li><a href="#apis">Integración de Sistemas y APIs</a></li>
-            <li><a href="#uiux">Diseño de Interfaces y Experiencia de Usuario (UI/UX)</a></li>
-            <li><a href="#consultoria">Consultoría Tecnológica</a></li>
+            <li><a href="#portfolio">Soluciones que Generan Impacto</a></li>
+            <li><a href="#tecnologias">Tecnologías</a></li>
+            <li><a href="#nosotros">Sobre Nosotros</a></li>
           </ul>
         </li>
         <li><a href="#portfolio" class="nav-btn">Portfolio</a></li>
         <li><a href="#tecnologias" class="nav-btn">Tecnologías</a></li>
         <li><a href="#nosotros" class="nav-btn">Sobre Nosotros</a></li>
         <li><a href="#contacto" class="nav-btn">Contacto</a></li>
+        <li class="nav-spacer"></li>
+        <li class="auth-buttons">
+          <button class="auth-btn register-btn" id="registerBtn">Registrarse</button>
+          <button class="auth-btn login-btn" id="loginBtn">Ingresar</button>
+        </li>
       </ul>
     </nav>
   </header>
 
   <!-- MAIN CONTENT -->
   <main>
-    <section id="inicio">
-      <!-- Imagen destacada u otra bienvenida -->
+    <!-- CARRUSEL DE SERVICIOS -->
+    <section id="servicios" class="carousel-section">
+      <div class="carousel-container">
+        <div class="carousel-header">
+          <h2>Nuestros Servicios</h2>
+          <p>Soluciones tecnológicas innovadoras para impulsar su negocio</p>
+        </div>
+        
+        <div class="carousel-wrapper">
+          <div class="carousel-track" id="carouselTrack">
+            <div class="carousel-slide active" data-service="software">
+              <div class="slide-content">
+                <div class="slide-image">
+                  <img src="img/software.jpg" alt="Software a medida" loading="lazy">
+                </div>
+                <div class="slide-text">
+                  <h3>Desarrollo de Software a Medida</h3>
+                  <p>Cuando las soluciones de software genéricas no son suficientes, creamos aplicaciones personalizadas que se adaptan perfectamente a sus procesos de negocio. Desarrollamos desde sistemas de gestión empresarial hasta aplicaciones especializadas que optimizan sus operaciones.</p>
+                  <div class="slide-features">
+                    <span class="feature-tag">Desarrollo Personalizado</span>
+                    <span class="feature-tag">Metodologías Ágiles</span>
+                    <span class="feature-tag">Soporte 24/7</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="carousel-slide" data-service="web">
+              <div class="slide-content">
+                <div class="slide-image">
+                  <img src="img/web.jpg" alt="Aplicaciones web" loading="lazy">
+                </div>
+                <div class="slide-text">
+                  <h3>Desarrollo de Aplicaciones Web</h3>
+                  <p>Llevamos su negocio al mundo digital con aplicaciones web modernas, rápidas y seguras. Utilizamos las últimas tecnologías para crear experiencias web excepcionales que conectan con sus usuarios y generan resultados medibles.</p>
+                  <div class="slide-features">
+                    <span class="feature-tag">Responsive Design</span>
+                    <span class="feature-tag">PWA</span>
+                    <span class="feature-tag">SEO Optimizado</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="carousel-slide" data-service="legacy">
+              <div class="slide-content">
+                <div class="slide-image">
+                  <img src="img/legacy.jpg" alt="Sistemas legacy" loading="lazy">
+                </div>
+                <div class="slide-text">
+                  <h3>Modernización de Sistemas Legacy</h3>
+                  <p>Inyectamos nueva vida a sus sistemas heredados sin comprometer la estabilidad de su negocio. Migramos y modernizamos sus aplicaciones legacy para mejorar el rendimiento, la seguridad y la experiencia del usuario.</p>
+                  <div class="slide-features">
+                    <span class="feature-tag">Migración Segura</span>
+                    <span class="feature-tag">Zero Downtime</span>
+                    <span class="feature-tag">Arquitectura Moderna</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="carousel-slide" data-service="apis">
+              <div class="slide-content">
+                <div class="slide-image">
+                  <img src="img/api.jpg" alt="Integración de sistemas" loading="lazy">
+                </div>
+                <div class="slide-text">
+                  <h3>Integración de Sistemas y APIs</h3>
+                  <p>En el ecosistema digital actual, la conectividad es clave. Desarrollamos APIs robustas y integraciones seamless que permiten que sus sistemas trabajen en perfecta armonía, optimizando flujos de trabajo y datos.</p>
+                  <div class="slide-features">
+                    <span class="feature-tag">APIs RESTful</span>
+                    <span class="feature-tag">Microservicios</span>
+                    <span class="feature-tag">Real-time Sync</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="carousel-slide" data-service="uiux">
+              <div class="slide-content">
+                <div class="slide-image">
+                  <img src="img/uiux.jpg" alt="Diseño UI UX" loading="lazy">
+                </div>
+                <div class="slide-text">
+                  <h3>Diseño de Interfaces y Experiencia de Usuario</h3>
+                  <p>Un software poderoso debe ser también intuitivo y agradable. Diseñamos interfaces que no solo se ven bien, sino que proporcionan experiencias excepcionales que aumentan la productividad y satisfacción del usuario.</p>
+                  <div class="slide-features">
+                    <span class="feature-tag">UX Research</span>
+                    <span class="feature-tag">Prototipado</span>
+                    <span class="feature-tag">Testing Usuario</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="carousel-slide" data-service="consultoria">
+              <div class="slide-content">
+                <div class="slide-image">
+                  <img src="img/consultoria.jpg" alt="Consultoría tecnológica" loading="lazy">
+                </div>
+                <div class="slide-text">
+                  <h3>Consultoría Tecnológica</h3>
+                  <p>Más allá del desarrollo, actuamos como su socio estratégico en la transformación digital. Analizamos, diseñamos y ejecutamos estrategias tecnológicas que impulsan el crecimiento y la competitividad de su organización.</p>
+                  <div class="slide-features">
+                    <span class="feature-tag">Auditoría Tech</span>
+                    <span class="feature-tag">Roadmap Digital</span>
+                    <span class="feature-tag">Optimización</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Controles del carrusel -->
+          <button class="carousel-btn carousel-btn-prev" id="prevBtn">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <button class="carousel-btn carousel-btn-next" id="nextBtn">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+
+          <!-- Indicadores -->
+          <div class="carousel-indicators" id="carouselIndicators">
+            <button class="indicator active" data-slide="0"></button>
+            <button class="indicator" data-slide="1"></button>
+            <button class="indicator" data-slide="2"></button>
+            <button class="indicator" data-slide="3"></button>
+            <button class="indicator" data-slide="4"></button>
+            <button class="indicator" data-slide="5"></button>
+          </div>
+        </div>
+      </div>
     </section>
 
-    <section id="servicios">
-      <article id="software">
-        <h2>Desarrollo de Software a Medida</h2>
-        <img src="img/software.jpg" alt="Software a medida" loading="lazy">
-        <p>Cuando las soluciones de software genéricas no son suficientes...</p>
-      </article>
-      <article id="web">
-        <h2>Desarrollo de Aplicaciones Web</h2>
-        <img src="img/web.jpg" alt="Aplicaciones web" loading="lazy">
-        <p>Llevamos su negocio al mundo digital con aplicaciones web...</p>
-      </article>
-      <article id="legacy">
-        <h2>Modernización de Sistemas (Legacy)</h2>
-        <img src="img/legacy.jpg" alt="Sistemas legacy" loading="lazy">
-        <p>Inyectamos nueva vida a sus sistemas heredados...</p>
-      </article>
-      <article id="apis">
-        <h2>Integración de Sistemas y APIs</h2>
-        <img src="img/api.jpg" alt="Integración de sistemas" loading="lazy">
-        <p>En el ecosistema digital actual, la conectividad es clave...</p>
-      </article>
-      <article id="uiux">
-        <h2>Diseño UI/UX</h2>
-        <img src="img/uiux.jpg" alt="Diseño UI UX" loading="lazy">
-        <p>Un software poderoso debe ser también intuitivo y agradable...</p>
-      </article>
-      <article id="consultoria">
-        <h2>Consultoría Tecnológica</h2>
-        <img src="img/consultoria.jpg" alt="Consultoría tecnológica" loading="lazy">
-        <p>Más allá del desarrollo, actuamos como su socio estratégico...</p>
-      </article>
+    <section id="portfolio" class="modern-section">
+      <div class="section-container">
+        <div class="section-header">
+          <h2>Soluciones que Generan Impacto</h2>
+          <div class="header-line"></div>
+        </div>
+        <div class="section-content">
+          <div class="section-image">
+            <div class="image-wrapper">
+              <img src="img/portfolio.jpg" alt="Proyectos destacados" loading="lazy">
+              <div class="image-overlay"></div>
+            </div>
+          </div>
+          <div class="section-text">
+            <p class="intro-text">Creemos que el mejor testimonio de nuestra capacidad es el éxito de nuestros clientes. En IN OUT MANAGER, transformamos ideas en soluciones digitales que generan un impacto real y medible.</p>
+            
+            <h3>Nuestros Proyectos Destacados:</h3>
+            <ul class="styled-list">
+              <li><strong>Sistemas de Gestión Empresarial:</strong> Plataformas integrales que optimizan procesos administrativos y operativos.</li>
+              <li><strong>E-commerce Avanzado:</strong> Tiendas online con funcionalidades personalizadas y experiencias de usuario excepcionales.</li>
+              <li><strong>Aplicaciones Móviles:</strong> Apps nativas e híbridas que conectan tu negocio con tus clientes.</li>
+              <li><strong>Dashboards Analíticos:</strong> Herramientas de visualización de datos para toma de decisiones estratégicas.</li>
+            </ul>
+            
+            <p class="closing-text">Cada proyecto es una oportunidad para superar expectativas y establecer nuevos estándares de calidad en el desarrollo tecnológico.</p>
+          </div>
+        </div>
+      </div>
     </section>
 
-    <section id="portfolio">
-      <h2>Soluciones que Generan Impacto</h2>
-      <img src="img/portfolio.jpg" alt="Proyectos destacados" loading="lazy">
-      <p>Creemos que el mejor testimonio de nuestra capacidad es el éxito de nuestros clientes...</p>
+    <section id="tecnologias" class="modern-section">
+      <div class="section-container">
+        <div class="section-header">
+          <h2>Tecnologías</h2>
+          <div class="header-line"></div>
+        </div>
+        <div class="section-content">
+          <div class="section-image">
+            <div class="image-wrapper">
+              <img src="img/tecnologias.jpg" alt="Tecnologías utilizadas" loading="lazy">
+              <div class="image-overlay"></div>
+            </div>
+          </div>
+          <div class="section-text">
+            <p class="intro-text">En IN OUT MANAGER, nos enorgullece trabajar con un stack tecnológico robusto y actualizado que nos permite ofrecer soluciones innovadoras y escalables.</p>
+            
+            <h3>Nuestro Stack Tecnológico:</h3>
+            <div class="tech-categories">
+              <div class="tech-category">
+                <h4>Frontend Development</h4>
+                <ul class="tech-list">
+                  <li>React.js & Next.js</li>
+                  <li>Vue.js & Nuxt.js</li>
+                  <li>Angular & TypeScript</li>
+                  <li>HTML5, CSS3, JavaScript ES6+</li>
+                </ul>
+              </div>
+              
+              <div class="tech-category">
+                <h4>Backend Development</h4>
+                <ul class="tech-list">
+                  <li>Node.js & Express</li>
+                  <li>Python & Django/Flask</li>
+                  <li>PHP & Laravel</li>
+                  <li>Java & Spring Boot</li>
+                </ul>
+              </div>
+              
+              <div class="tech-category">
+                <h4>Bases de Datos & Cloud</h4>
+                <ul class="tech-list">
+                  <li>MySQL, PostgreSQL, MongoDB</li>
+                  <li>AWS, Google Cloud, Azure</li>
+                  <li>Docker & Kubernetes</li>
+                  <li>Redis, ElasticSearch</li>
+                </ul>
+              </div>
+            </div>
+            
+            <p class="closing-text">Mantenemos nuestras habilidades actualizadas constantemente para estar siempre a la vanguardia tecnológica.</p>
+          </div>
+        </div>
+      </div>
     </section>
 
-    <section id="tecnologias">
-      <h2>Tecnologías</h2>
-      <img src="img/tecnologias.jpg" alt="Tecnologías utilizadas" loading="lazy">
-      <p>En IN OUT MANAGER, nos enorgullece trabajar con un stack tecnológico robusto...</p>
+    <section id="nosotros" class="modern-section">
+      <div class="section-container">
+        <div class="section-header">
+          <h2>Sobre Nosotros</h2>
+          <div class="header-line"></div>
+        </div>
+        <div class="section-content">
+          <div class="section-image">
+            <div class="image-wrapper">
+              <img src="img/nosotros.jpg" alt="Sobre nosotros" loading="lazy">
+              <div class="image-overlay"></div>
+            </div>
+          </div>
+          <div class="section-text">
+            <div class="text-block">
+              <h3>Nuestra Misión</h3>
+              <p>Transformar las ideas de nuestros clientes en soluciones tecnológicas innovadoras y efectivas, proporcionando herramientas digitales que impulsen el crecimiento y la eficiencia de sus negocios.</p>
+            </div>
+            
+            <div class="text-block">
+              <h3>Nuestra Visión</h3>
+              <p>Ser reconocidos como líderes en el desarrollo de software y consultoría tecnológica, creando un impacto positivo en la digitalización de empresas a nivel nacional e internacional.</p>
+            </div>
+            
+            <div class="text-block">
+              <h3>Nuestra Historia</h3>
+              <p>Desde nuestros inicios, hemos estado comprometidos con la excelencia técnica y la satisfacción del cliente. Nuestro equipo multidisciplinario combina experiencia, creatividad y pasión por la tecnología.</p>
+            </div>
+            
+            <div class="text-block">
+              <h3>Nuestra Metodología</h3>
+              <ul class="methodology-list">
+                <li><strong>Análisis Profundo:</strong> Entendemos completamente las necesidades del cliente.</li>
+                <li><strong>Diseño Centrado en el Usuario:</strong> Creamos experiencias intuitivas y funcionales.</li>
+                <li><strong>Desarrollo Ágil:</strong> Implementamos soluciones con metodologías modernas.</li>
+                <li><strong>Testing Riguroso:</strong> Garantizamos calidad en cada entrega.</li>
+                <li><strong>Soporte Continuo:</strong> Acompañamos a nuestros clientes post-implementación.</li>
+              </ul>
+            </div>
+            
+            <p class="closing-text">Nuestro compromiso es superar expectativas y establecer relaciones a largo plazo basadas en la confianza y los resultados.</p>
+          </div>
+        </div>
+      </div>
     </section>
 
-    <section id="nosotros">
-      <h2>Sobre Nosotros</h2>
-      <img src="img/nosotros.jpg" alt="Sobre nosotros" loading="lazy">
-      <p>Nuestra Misión, Visión, Historia y Metodología...</p>
-    </section>
-
-    <section id="contacto">
-      <h2>Formulario de Contacto</h2>
-      <form autocomplete="on" aria-label="Formulario de contacto">
-        <label for="nombre">Nombre:</label>
-        <input type="text" id="nombre" name="nombre" required>
-        <label for="email">Correo Electrónico:</label>
-        <input type="email" id="email" name="email" required>
-        <label for="whatsapp">Número de Contacto (WhatsApp):</label>
-        <input type="text" id="whatsapp" name="whatsapp" required pattern="[0-9]+">
-        <label for="mensaje">Mensaje:</label>
-        <textarea id="mensaje" name="mensaje" required></textarea>
-        <button type="submit">Enviar Mensaje</button>
-      </form>
+    <section id="contacto" class="contact-section">
+      <div class="contact-container">
+        <h2>Formulario de Contacto</h2>
+        <div class="contact-intro">
+          <p>¿Tienes un proyecto en mente? ¡Nos encantaría escucharte! Completa el formulario y nos pondremos en contacto contigo.</p>
+        </div>
+        <form autocomplete="on" aria-label="Formulario de contacto" class="modern-form">
+          <div class="form-group">
+            <label for="nombre">Nombre Completo</label>
+            <input type="text" id="nombre" name="nombre" required placeholder="Ingresa tu nombre completo">
+          </div>
+          <div class="form-group">
+            <label for="email">Correo Electrónico</label>
+            <input type="email" id="email" name="email" required placeholder="tu@email.com">
+          </div>
+          <div class="form-group">
+            <label for="whatsapp">Número de Contacto (WhatsApp)</label>
+            <input type="text" id="whatsapp" name="whatsapp" required pattern="[0-9]+" placeholder="+57 123 456 7890">
+          </div>
+          <div class="form-group">
+            <label for="mensaje">Mensaje</label>
+            <textarea id="mensaje" name="mensaje" required placeholder="Cuéntanos sobre tu proyecto o consulta..."></textarea>
+          </div>
+          <button type="submit" class="submit-btn">
+            <span>Enviar Mensaje</span>
+            <div class="btn-shine"></div>
+          </button>
+        </form>
+      </div>
     </section>
   </main>
 
@@ -122,15 +354,32 @@
       <p>Email: <a href="mailto:inoutmanager@gmail.com">inoutmanager@gmail.com</a></p>
       <p>WhatsApp: <a href="https://wa.me/573125923458" target="_blank" rel="noopener">3125923458</a></p>
     </div>
+    
     <div class="footer-redes">
-      <a href="#" aria-label="Facebook"><img src="img/facebook.jpg" alt="Facebook" loading="lazy"></a>
-      <a href="#" aria-label="Instagram"><img src="img/instagram.jpg" alt="Instagram" loading="lazy"></a>
-      <a href="#" aria-label="TikTok"><img src="img/tiktok.jpg" alt="TikTok" loading="lazy"></a>
+      <a href="#" aria-label="Facebook" class="social-link">
+        <img src="img/facebook.jpg" alt="Facebook" loading="lazy">
+        <span>Facebook</span>
+      </a>
+
+      <a href="#" aria-label="WhatsApp" class="social-link">
+        <img src="img/whatsapp.JPG" alt="WhatsApp" loading="lazy">
+        <span>WhatsApp</span>
+      </a>
+
+      <a href="#" aria-label="Instagram" class="social-link">
+        <img src="img/instagram.jpg" alt="Instagram" loading="lazy">
+        <span>Instagram</span>
+      </a>
+      <a href="#" aria-label="TikTok" class="social-link">
+        <img src="img/tiktok.jpg" alt="TikTok" loading="lazy">
+        <span>TikTok</span>
+      </a>
     </div>
     <div class="footer-copy">
       <small>&copy; 2025 IN OUT MANAGER. Todos los derechos reservados.</small>
     </div>
   </footer>
+
 </body>
 
 </html>
