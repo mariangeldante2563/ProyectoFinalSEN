@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard de Administrador - IN OUT MANAGER</title>
+  <meta name="description" content="Panel de administración para el sistema IN OUT MANAGER">
+  <meta name="keywords" content="dashboard, administrador, IN OUT MANAGER">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/jpeg" href="img/icon.jpg">
+  <script src="dashboard-admin.js" defer></script>
+</head>
+
+<body>
+  <!------------------------------AQUÍ ESTA EL HEADER----------------------------------->
+  <header class="site-header">
+    <div class="header-title">
+      <h4>IN OUT MANAGER</h4>
+    </div>
+    <nav class="main-nav" aria-label="Navegación principal">
+      <ul>
+        <li class="nav-logo">
+          <img src="img/icon.jpg" alt="Logo IN OUT MANAGER" class="icon" loading="lazy">
+        </li>
+        <li><a href="index.html" class="nav-btn">Inicio</a></li>
+        <li><button id="logoutBtn" class="nav-btn">Cerrar Sesión</button></li>
+        <li class="nav-spacer"></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-----------------------AQUÍ VA EL CONTENIDO PRINCIPAL --------------------->
+  <main>
+    <section class="dashboard-section">
+      <div class="dashboard-container">
+        <div class="dashboard-header">
+          <h2>Dashboard de Administrador</h2>
+          <p>Bienvenido/a <span id="adminName">Administrador</span></p>
+        </div>
+
+        <div class="dashboard-content">
+          <div class="dashboard-card admin-card">
+            <div class="card-header">
+              <span class="card-icon">👥</span>
+              <h3>Gestión de Empleados</h3>
+            </div>
+            <div class="card-body">
+              <div class="search-bar">
+                <input type="text" id="employeeSearch" placeholder="Buscar empleado...">
+                <button id="searchBtn">Buscar</button>
+              </div>
+              <div id="employeesList" class="employees-list">
+                <p>No hay empleados registrados.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="dashboard-card admin-card">
+            <div class="card-header">
+              <span class="card-icon">📊</span>
+              <h3>Registros de Asistencia</h3>
+            </div>
+            <div class="card-body">
+              <div class="filters">
+                <select id="dateFilter">
+                  <option value="today">Hoy</option>
+                  <option value="week">Esta semana</option>
+                  <option value="month">Este mes</option>
+                  <option value="all">Todos</option>
+                </select>
+                <button id="exportBtn">Exportar Datos</button>
+              </div>
+              <div id="attendanceRecords" class="records-list">
+                <p>No hay registros disponibles.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="dashboard-card admin-card">
+            <div class="card-header">
+              <span class="card-icon">⚙️</span>
+              <h3>Administración</h3>
+            </div>
+            <div class="card-body">
+              <div class="admin-tools">
+                <button class="admin-tool-btn" id="newEmployeeBtn">
+                  <span class="btn-icon">➕</span>
+                  <span class="btn-text">Nuevo Empleado</span>
+                </button>
+                <button class="admin-tool-btn" id="reportsBtn">
+                  <span class="btn-icon">📝</span>
+                  <span class="btn-text">Informes</span>
+                </button>
+                <button class="admin-tool-btn" id="settingsBtn">
+                  <span class="btn-icon">⚙️</span>
+                  <span class="btn-text">Configuración</span>
+                </button>
+              </div>
+              <div class="department-info">
+                <h4>Información de Departamento</h4>
+                <p><strong>Departamento:</strong> <span id="adminDepartment">--</span></p>
+                <p><strong>Empleados activos:</strong> <span id="activeEmployees">0</span></p>
+                <p><strong>Asistencia hoy:</strong> <span id="todayAttendance">0%</span></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!---------------------------FOOTER --------------------->
+  <footer class="site-footer">
+    <div class="footer-content">
+      <div class="footer-social">
+        <a href="#" aria-label="Facebook">
+          <img src="img/facebook.jpg" alt="Facebook" loading="lazy">
+        </a>
+        <a href="#" aria-label="WhatsApp">
+          <img src="img/whatsapp.jpg" alt="WhatsApp" loading="lazy">
+        </a>
+        <a href="#" aria-label="Instagram">
+          <img src="img/instagram.jpg" alt="Instagram" loading="lazy">
+        </a>
+        <a href="#" aria-label="TikTok">
+          <img src="img/tiktok.jpg" alt="TikTok" loading="lazy">
+        </a>
+      </div>
+      <div class="footer-copy">
+        <small>&copy; 2025 IN OUT MANAGER. Todos los derechos reservados.</small>
+      </div>
+    </div>
+  </footer>
+
+</body>
+
+</html>

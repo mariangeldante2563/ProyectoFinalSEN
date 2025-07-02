@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Iniciar Sesión - IN OUT MANAGER</title>
+  <meta name="description" content="Iniciar sesión en el sistema IN OUT MANAGER - Acceda con sus credenciales">
+  <meta name="keywords" content="login, iniciar sesión, acceso, IN OUT MANAGER">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/jpeg" href="img/icon.jpg">
+  <script src="login.js" defer></script>
+</head>
+
+<body>
+  <!------------------------------AQUÍ ESTA EL HEADER----------------------------------->
+  <header class="site-header">
+    <div class="header-title">
+      <h4>IN OUT MANAGER</h4>
+    </div>
+    <nav class="main-nav" aria-label="Navegación principal">
+      <ul>
+        <li class="nav-logo">
+          <img src="img/icon.jpg" alt="Logo IN OUT MANAGER" class="icon" loading="lazy">
+        </li>
+        <li><a href="index.html" class="nav-btn">← Volver al Inicio</a></li>
+        <li class="nav-spacer"></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-----------------------AQUÍ VA EL CONTENIDO PRINCIPAL --------------------->
+  <main>
+    <!-------------------------FORMULARIO DE LOGIN------------------------->
+    <section id="login" class="registro-section">
+      <div class="registro-container">
+        <div class="registro-header">
+          <h2>Iniciar Sesión</h2>
+          <p>Ingrese sus credenciales para acceder al sistema</p>
+        </div>
+
+        <!---------------------------Selector de Tipo de Usuario ------------------------->
+        <div class="role-selector">
+          <div class="role-tabs" role="tablist" aria-label="Tipo de usuario">
+            <button type="button" class="role-tab active" data-role="empleado" id="tab-empleado" role="tab" aria-selected="true" tabindex="0">
+              <span class="tab-icon" aria-hidden="true">👤</span>
+              <span class="tab-text">Empleado</span>
+            </button>
+            <button type="button" class="role-tab" data-role="administrador" id="tab-admin" role="tab" aria-selected="false" tabindex="-1">
+              <span class="tab-icon" aria-hidden="true">⚙️</span>
+              <span class="tab-text">Administrador</span>
+            </button>
+          </div>
+          <div class="role-description" id="roleDescription">
+            <span>Ingrese sus credenciales de empleado.</span>
+          </div>
+        </div>
+
+        <!---------------------------Formulario de Login ------------------------->
+        <form id="loginForm" class="registro-form">
+          <input type="hidden" id="tipoUsuario" name="tipoUsuario" value="empleado">
+          
+          <div class="form-sections">
+            <!-- Sección de credenciales -->
+            <div class="form-section credentials">
+              <div class="section-header">
+                <span class="section-icon"></span>
+                <h3>Credenciales de Acceso</h3>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="numeroDocumento">Número de Documento *</label>
+                  <input type="text" id="numeroDocumento" name="numeroDocumento" required 
+                         placeholder="Ej: 12345678"
+                         pattern="[0-9]{6,12}"
+                         title="Solo números, entre 6 y 12 dígitos">
+                </div>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="password">Contraseña *</label>
+                  <input type="password" id="password" name="password" required 
+                         placeholder="Ingrese su contraseña"
+                         minlength="6"
+                         title="Mínimo 6 caracteres">
+                </div>
+              </div>
+
+              <!---------------------------Campo adicional para Administrador --------------------->
+              <div id="adminFields" class="admin-fields form-section" style="display: none;">
+                <div class="section-header admin-header">
+                  <span class="section-icon admin-icon">⚙️</span>
+                  <h3>Información Adicional de Administrador</h3>
+                  <p class="admin-desc">Solo los administradores deben completar este campo.</p>
+                </div>
+                
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="codigoAdmin">Código de Administrador *</label>
+                    <input type="password" id="codigoAdmin" name="codigoAdmin" 
+                           placeholder="Ingrese el código de administrador"
+                           title="Código especial requerido para administradores"
+                           aria-required="true">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-options">
+            <div class="remember-me">
+              <input type="checkbox" id="rememberMe" name="rememberMe">
+              <label for="rememberMe">Recordar mis datos</label>
+            </div>
+            <a href="recuperar-password.html" class="forgot-password">¿Olvidó su contraseña?</a>
+          </div>
+
+          <div class="form-submit">
+            <button type="submit" class="registro-submit-btn">
+              <span class="btn-icon">🔐</span>
+              <span class="btn-text">Iniciar Sesión</span>
+              <div class="btn-shine"></div>
+            </button>
+          </div>
+
+          <div class="register-link">
+            <span>¿No tiene una cuenta?</span>
+            <a href="registro.html">Registrarse</a>
+          </div>
+
+          <!---------------------------Mensaje de resultado ----------------------->
+          <div id="loginMensaje" class="registro-mensaje" style="display: none;"></div>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <!---------------------------FOOTER --------------------->
+  <footer class="site-footer">
+    <div class="footer-content">
+      <div class="footer-social">
+        <a href="#" aria-label="Facebook">
+          <img src="img/facebook.jpg" alt="Facebook" loading="lazy">
+        </a>
+        <a href="#" aria-label="WhatsApp">
+          <img src="img/whatsapp.jpg" alt="WhatsApp" loading="lazy">
+        </a>
+        <a href="#" aria-label="Instagram">
+          <img src="img/instagram.jpg" alt="Instagram" loading="lazy">
+        </a>
+        <a href="#" aria-label="TikTok">
+          <img src="img/tiktok.jpg" alt="TikTok" loading="lazy">
+        </a>
+      </div>
+      <div class="footer-copy">
+        <small>&copy; 2025 IN OUT MANAGER. Todos los derechos reservados.</small>
+      </div>
+    </div>
+  </footer>
+
+</body>
+
+</html>

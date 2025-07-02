@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro de Usuario - IN OUT MANAGER</title>
+  <meta name="description" content="Registro de usuarios para el sistema IN OUT MANAGER - Complete sus datos para acceder al sistema.">
+  <meta name="keywords" content="registro, usuario, empleado, administrador, IN OUT MANAGER">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/jpeg" href="img/icon.jpg">
+  <script src="registro.js" defer></script>
+</head>
+
+<body>
+  <!------------------------------AQUÍ ESTA EL HEADER----------------------------------->
+  <header class="site-header">
+    <div class="header-title">
+      <h4>IN OUT MANAGER</h4>
+    </div>
+    <nav class="main-nav" aria-label="Navegación principal">
+      <ul>
+        <li class="nav-logo">
+          <img src="img/icon.jpg" alt="Logo IN OUT MANAGER" class="icon" loading="lazy">
+        </li>
+        <li><a href="index.html" class="nav-btn">← Volver al Inicio</a></li>
+        <li class="nav-spacer"></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-----------------------AQUÍ VA EL CONTENIDO PRINCIPAL --------------------->
+  <main>
+    <!-------------------------FORMULARIO DE REGISTRO------------------------->
+    <section id="registro" class="registro-section">
+      <div class="registro-container">
+        <div class="registro-header">
+          <h2>Registro de Usuario</h2>
+          <p>Complete sus datos para registrarse en el sistema</p>
+        </div>
+
+        <!---------------------------Selector de Tipo de Usuario ------------------------->
+        <div class="role-selector">
+          <div class="role-tabs" role="tablist" aria-label="Tipo de usuario">
+            <button type="button" class="role-tab active" data-role="empleado" id="tab-empleado" role="tab" aria-selected="true" tabindex="0">
+              <span class="tab-icon" aria-hidden="true">👤</span>
+              <span class="tab-text">Empleado</span>
+            </button>
+            <button type="button" class="role-tab" data-role="administrador" id="tab-admin" role="tab" aria-selected="false" tabindex="-1">
+              <span class="tab-icon" aria-hidden="true">⚙️</span>
+              <span class="tab-text">Administrador</span>
+            </button>
+          </div>
+          <div class="role-description" id="roleDescription">
+            <span>Complete los campos para registro de empleado.</span>
+          </div>
+        </div>
+
+        <!---------------------------Formulario de Registro ------------------------->
+        <form id="registroForm" class="registro-form">
+          <input type="hidden" id="tipoUsuario" name="tipoUsuario" value="empleado">
+          
+          <div class="form-sections">
+            <!-- Sección de datos personales común para ambos roles -->
+            <div class="form-section personal-info">
+              <div class="section-header">
+                <span class="section-icon"></span>
+                <h3>Información Personal</h3>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="nombreCompleto">Nombre Completo *</label>
+                  <input type="text" id="nombreCompleto" name="nombreCompleto" required 
+                        placeholder="Ingrese su nombre completo"
+                        pattern="[A-Za-zÀ-ÿ\s]{2,50}"
+                        title="Solo letras y espacios, entre 2 y 50 caracteres">
+                </div>
+                <div class="form-group">
+                  <label for="numeroDocumento">Número de Documento *</label>
+                  <input type="text" id="numeroDocumento" name="numeroDocumento" required 
+                        placeholder="Ej: 12345678"
+                        pattern="[0-9]{6,12}"
+                        title="Solo números, entre 6 y 12 dígitos">
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="edad">Edad</label>
+                  <input type="number" id="edad" name="edad" 
+                        placeholder="Edad" min="18" max="100"
+                        title="Edad entre 18 y 100 años">
+                </div>
+                <div class="form-group">
+                  <label for="direccion">Dirección de Domicilio</label>
+                  <input type="text" id="direccion" name="direccion" 
+                        placeholder="Ingrese su dirección completa"
+                        maxlength="100"
+                        title="Dirección de residencia completa">
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="telefono">Número de Teléfono</label>
+                  <input type="tel" id="telefono" name="telefono" 
+                        placeholder="+57 123 456 7890"
+                        pattern="[\+]?[0-9\s\-\(\)]{7,15}"
+                        title="Formato: +57 123 456 7890">
+                </div>
+                <div class="form-group">
+                  <label for="correoElectronico">Correo Electrónico *</label>
+                  <input type="email" id="correoElectronico" name="correoElectronico" required 
+                        placeholder="usuario@correo.com"
+                        title="Correo electrónico válido">
+                </div>
+              </div>
+            </div>
+            
+            <!-- Sección de información laboral para empleados -->
+            <div class="form-section work-info">
+              <div class="section-header">
+                <span class="section-icon"></span>
+                <h3>Información Laboral</h3>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="fechaIngreso">Fecha de Ingreso a Laborar</label>
+                  <input type="date" id="fechaIngreso" name="fechaIngreso"
+                        title="Fecha de inicio laboral">
+                </div>
+                <div class="form-group">
+                  <label for="cargo">Cargo/Vinculación Laboral</label>
+                  <select id="cargo" name="cargo">
+                    <option value="">Seleccione un cargo</option>
+                    <option value="vendedor">Vendedor</option>
+                    <option value="mantenimiento">Mantenimiento</option>
+                    <option value="sistemas">Sistemas</option>
+                    <option value="contador">Contador</option>
+                    <option value="marketing">Marketing</option>
+                    <option value="gerente">Gerente</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="horarioAsignado">Horario Asignado</label>
+                  <select id="horarioAsignado" name="horarioAsignado">
+                    <option value="">Seleccione un horario</option>
+                    <option value="mañana">Mañana (6:00 AM - 2:00 PM)</option>
+                    <option value="tarde">Tarde (2:00 PM - 10:00 PM)</option>
+                    <option value="noche">Noche (10:00 PM - 6:00 AM)</option>
+                    <option value="completo">Tiempo completo (8:00 AM - 5:00 PM)</option>
+                    <option value="medio">Medio tiempo (4 horas)</option>
+                    <option value="flexible">Horario flexible</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Sección de credenciales -->
+            <div class="form-section credentials">
+              <div class="section-header">
+                <span class="section-icon"></span>
+                <h3>Credenciales de Acceso</h3>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="password">Contraseña *</label>
+                  <input type="password" id="password" name="password" required 
+                        placeholder="Ingrese su contraseña"
+                        minlength="6"
+                        title="Mínimo 6 caracteres">
+                </div>
+                <div class="form-group">
+                  <label for="confirmPassword">Confirmar Contraseña *</label>
+                  <input type="password" id="confirmPassword" name="confirmPassword" required 
+                        placeholder="Confirme su contraseña"
+                        minlength="6"
+                        title="Debe coincidir con la contraseña">
+                </div>
+              </div>
+            </div>
+
+            <!---------------------------Campos adicionales para Administrador --------------------->
+            <div id="adminFields" class="admin-fields form-section" style="display: none;">
+              <div class="section-header admin-header">
+                <span class="section-icon admin-icon">⚙️</span>
+                <h3>Información Adicional de Administrador</h3>
+                <p class="admin-desc">Solo los administradores deben completar estos campos.</p>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="codigoAdmin">Código de Administrador *</label>
+                  <input type="password" id="codigoAdmin" name="codigoAdmin" 
+                        placeholder="Ingrese el código de administrador"
+                        title="Código especial requerido para administradores"
+                        aria-required="true">
+                </div>
+                <div class="form-group">
+                  <label for="departamento">Departamento</label>
+                  <select id="departamento" name="departamento">
+                    <option value="">Seleccione un departamento</option>
+                    <option value="sistemas">Sistemas</option>
+                    <option value="rrhh">Recursos Humanos</option>
+                    <option value="operaciones">Operaciones</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-submit">
+            <button type="submit" class="registro-submit-btn">
+              <span class="btn-icon"></span>
+              <span class="btn-text">Registrar Usuario</span>
+              <div class="btn-shine"></div>
+            </button>
+          </div>
+
+          <!---------------------------Mensaje de resultado ----------------------->
+          <div id="registroMensaje" class="registro-mensaje" style="display: none;"></div>
+        </form>
+
+        <!---------------------------Panel de usuarios registrados --------------------->
+        <div class="users-panel" id="usersPanel" style="display: none;">
+          <div class="panel-header">
+            <h3>Usuarios Registrados</h3>
+            <button type="button" class="panel-toggle" id="togglePanel">
+              <span>Mostrar/Ocultar Lista</span>
+            </button>
+          </div>
+          <div class="users-list" id="usersList">
+            <!-----------------------Los usuarios se mostrarán aquí ----------------------->
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!---------------------------FOOTER --------------------->
+   <footer class="site-footer">
+    <div class="footer-content">
+      <div class="footer-social">
+        <a href="#" aria-label="Facebook">
+          <img src="img/facebook.jpg" alt="Facebook" loading="lazy">
+        </a>
+        <a href="#" aria-label="WhatsApp">
+          <img src="img/whatsapp.jpg" alt="WhatsApp" loading="lazy">
+        </a>
+        <a href="#" aria-label="Instagram">
+          <img src="img/instagram.jpg" alt="Instagram" loading="lazy">
+        </a>
+        <a href="#" aria-label="TikTok">
+          <img src="img/tiktok.jpg" alt="TikTok" loading="lazy">
+        </a>
+      </div>
+      <div class="footer-copy">
+        <small>&copy; 2025 IN OUT MANAGER. Todos los derechos reservados.</small>
+      </div>
+    </div>
+  </footer>
+
+
+</body>
+
+</html>

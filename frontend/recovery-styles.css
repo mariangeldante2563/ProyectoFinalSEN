@@ -1,0 +1,127 @@
+/* Estilos para la recuperación de contraseña */
+
+/* Pasos de recuperación */
+.recovery-steps {
+  display: flex;
+  justify-content: space-between;
+  margin: 30px 0;
+  padding: 0 20px;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  flex: 1;
+}
+
+.step:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 20px;
+  right: -50%;
+  width: 100%;
+  height: 3px;
+  background-color: #e0e0e0;
+  z-index: 1;
+}
+
+.step.active:not(:last-child)::after,
+.step.completed:not(:last-child)::after {
+  background-color: #4caf50;
+}
+
+.step-number {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #e0e0e0;
+  color: #555;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  margin-bottom: 10px;
+  position: relative;
+  z-index: 2;
+  transition: all 0.3s ease;
+}
+
+.step.active .step-number {
+  background-color: #3b82f6;
+  color: white;
+  transform: scale(1.1);
+  box-shadow: 0 4px 6px rgba(59, 130, 246, 0.2);
+}
+
+.step.completed .step-number {
+  background-color: #4caf50;
+  color: white;
+}
+
+.step-text {
+  font-size: 0.9rem;
+  color: #666;
+  transition: all 0.3s ease;
+}
+
+.step.active .step-text,
+.step.completed .step-text {
+  color: #333;
+  font-weight: 600;
+}
+
+/* Campo de verificación */
+.verification-code input {
+  letter-spacing: 3px;
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+/* Botón de reenvío */
+.resend-btn {
+  background-color: transparent;
+  border: none;
+  color: #3b82f6;
+  cursor: pointer;
+  font-size: 0.9rem;
+  margin-top: 15px;
+  text-decoration: underline;
+  transition: color 0.3s ease;
+}
+
+.resend-btn:hover {
+  color: #2563eb;
+}
+
+/* Enlace a recuperación */
+.forgot-password {
+  color: #3b82f6;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: color 0.3s ease;
+}
+
+.forgot-password:hover {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+/* Animaciones */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.active .step-number {
+  animation: pulse 1.5s ease infinite;
+}
