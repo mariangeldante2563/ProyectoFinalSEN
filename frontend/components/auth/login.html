@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Iniciar Sesión - IN OUT MANAGER</title>
+  <meta name="description" content="Iniciar sesión en el sistema IN OUT MANAGER - Acceda con sus credenciales">
+  <meta name="keywords" content="login, iniciar sesión, acceso, IN OUT MANAGER">
+  <link rel="stylesheet" href="../../assets/css/styles.css">
+  <link rel="stylesheet" href="../../assets/css/auth.css">
+  <link rel="icon" type="image/jpeg" href="../../assets/img/icon.jpg">
+  <script src="../../assets/js/login.js" defer></script>
+</head>
+
+<body>
+  <div class="auth-container">
+    <div class="auth-card">
+      <div class="auth-header">
+        <img src="../../assets/img/icon.jpg" alt="Logo IN OUT MANAGER" class="auth-logo" loading="eager">
+        <h1>Iniciar Sesión</h1>
+      </div>
+      
+      <!-- Selector de rol -->
+      <div class="role-selector">
+        <div class="role-tabs" role="tablist" aria-label="Tipo de usuario">
+          <button type="button" class="role-tab active" data-role="empleado" id="tab-empleado" role="tab" aria-selected="true" tabindex="0">
+            <span class="tab-icon" aria-hidden="true">👤</span>
+            <span class="tab-text">Empleado</span>
+          </button>
+          <button type="button" class="role-tab" data-role="administrador" id="tab-admin" role="tab" aria-selected="false" tabindex="-1">
+            <span class="tab-icon" aria-hidden="true">⚙️</span>
+            <span class="tab-text">Administrador</span>
+          </button>
+        </div>
+      </div>
+      
+      <form id="loginForm" class="auth-form" novalidate>
+        <div class="form-group">
+          <label for="email">Correo Electrónico</label>
+          <input type="email" id="email" name="email" required pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" aria-describedby="emailError">
+          <div class="error-message" id="emailError" aria-live="polite"></div>
+        </div>
+        
+        <div class="form-group">
+          <label for="password">Contraseña</label>
+          <input type="password" id="password" name="password" required minlength="8" aria-describedby="passwordError">
+          <div class="error-message" id="passwordError" aria-live="polite"></div>
+          <div class="password-toggle">
+            <input type="checkbox" id="showPassword">
+            <label for="showPassword">Mostrar contraseña</label>
+          </div>
+        </div>
+        
+        <div class="form-actions">
+          <button type="submit" class="btn-primary">Iniciar Sesión</button>
+        </div>
+        
+        <div class="auth-links">
+          <a href="recuperar-password.html">¿Olvidaste tu contraseña?</a>
+          <a href="registro.html">¿No tienes cuenta? Regístrate</a>
+        </div>
+      </form>
+      
+      <div class="auth-footer">
+        <a href="../../proyectopages/index.html" class="btn-back">Volver al inicio</a>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>

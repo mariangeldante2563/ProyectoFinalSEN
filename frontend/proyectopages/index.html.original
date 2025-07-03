@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IN OUT MANAGER</title>
+  <meta name="description" content="IN OUT MANAGER: Soluciones tecnológicas, desarrollo de software, integración de sistemas, consultoría y más.">
+  <meta name="keywords" content="software, tecnología, integración, consultoría, desarrollo, sistemas, web, UI/UX, modernización, portfolio, tecnologías">
+  
+  <!-- Precargar recursos críticos -->
+  <link rel="preload" href="../assets/img/icon.jpg" as="image">
+  <link rel="preload" href="../assets/css/styles.css?v=20250702" as="style">
+  <link rel="preload" href="../assets/js/script.js" as="script">
+  
+  <link rel="stylesheet" href="../assets/css/styles.css?v=20250702">
+  <link rel="icon" type="image/jpeg" href="../assets/img/icon.jpg">
+  <script src="../assets/js/script.js" defer></script>
+</head>
+<body>
+  <!-- Header y navegación principal -->
+  <header class="site-header">
+    <div class="header-title">
+      <h1>IN OUT MANAGER</h1>
+      <button id="mobileMenuToggle" class="mobile-menu-toggle" aria-label="Abrir menú">
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+      </button>
+    </div>
+    <nav class="main-nav" aria-label="Navegación principal">
+      <ul id="mainNavList" style="display: flex; justify-content: space-between; width: 100%; padding: 0; margin: 0;">
+        <li class="nav-logo" style="margin-right: auto; padding-left: 1.5rem;">
+          <img src="../assets/img/icon.jpg" alt="Logo de IN OUT MANAGER" class="icon" loading="eager">
+        </li>
+        <li class="nav-item" style="margin: 0 0.75rem;"><a href="#tecnologias" class="nav-btn btn-animated">Tecnologías</a></li>
+        <li class="nav-item" style="margin: 0 0.75rem;"><a href="#nosotros" class="nav-btn btn-animated">Sobre Nosotros</a></li>
+        <li class="nav-item" style="margin: 0 0.75rem;"><a href="#portfolio" class="nav-btn btn-animated">Portfolio</a></li>
+        <li class="nav-item" style="margin: 0 0.75rem;"><a href="#contacto" class="nav-btn btn-animated">Contacto</a></li>
+        <li class="auth-buttons" style="margin-left: auto; margin-right: 1.5rem; display: flex; gap: 0.75rem;">
+          <a href="../components/auth/registro.html" class="nav-btn auth-btn register-btn btn-animated" id="registerBtn">Registrarse</a>
+          <a href="../components/auth/login.html" class="nav-btn auth-btn login-btn btn-animated" id="loginBtn">Ingresar</a>
+        </li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- Contenido principal -->
+  <main class="site-content">
+    <!-- Carrusel de servicios destacados -->
+    <section id="carrusel" class="carousel-section animate-entry">
+      <h2>Servicios Destacados</h2>
+      <div class="carousel-wrapper">
+        <div id="carouselTrack" class="carousel-track">
+          <div class="carousel-slide">
+            <picture>
+              <source srcset="../assets/img/software.webp" type="image/webp">
+              <source srcset="../assets/img/software.jpg" type="image/jpeg">
+              <img src="../assets/img/software.jpg" alt="Desarrollo de Software" loading="lazy" width="800" height="450">
+            </picture>
+            <p>Desarrollo de Software a medida para optimizar tus procesos.</p>
+          </div>
+          <div class="carousel-slide">
+            <picture>
+              <source srcset="../assets/img/integracion.webp" type="image/webp">
+              <source srcset="../assets/img/integracion.jpg" type="image/jpeg">
+              <img src="../assets/img/integracion.jpg" alt="Integración de Sistemas" loading="lazy" width="800" height="450">
+            </picture>
+            <p>Integración de Sistemas para una mayor eficiencia empresarial.</p>
+          </div>
+          <div class="carousel-slide">
+            <picture>
+              <source srcset="../assets/img/consultoria.webp" type="image/webp">
+              <source srcset="../assets/img/consultoria.jpg" type="image/jpeg">
+              <img src="../assets/img/consultoria.jpg" alt="Consultoría Tecnológica" loading="lazy" width="800" height="450">
+            </picture>
+            <p>Consultoría especializada para adoptar las mejores tecnologías.</p>
+          </div>
+        </div>
+        <button id="prevBtn" class="carousel-control prev" aria-label="Anterior">&#10094;</button>
+        <button id="nextBtn" class="carousel-control next" aria-label="Siguiente">&#10095;</button>
+      </div>
+    </section>
+
+    <!-- Sección de tecnologías -->
+    <section id="tecnologias" class="technologies-section animate-entry">
+      <h2>Tecnologías</h2>
+      <div class="technology-list">
+        <article class="technology-item container-animated">
+          <picture>
+            <source srcset="../assets/img/software.webp" type="image/webp">
+            <source srcset="../assets/img/software.jpg" type="image/jpeg">
+            <img src="../assets/img/software.jpg" alt="Imagen representativa del desarrollo de software" loading="lazy" width="400" height="300">
+          </picture>
+          <h3>Desarrollo de Software</h3>
+          <p>Creación de aplicaciones a medida para optimizar procesos y aumentar la productividad de tu empresa.</p>
+        </article>
+        <article class="technology-item container-animated">
+          <picture>
+            <source srcset="../assets/img/integracion.webp" type="image/webp">
+            <source srcset="../assets/img/integracion.jpg" type="image/jpeg">
+            <img src="../assets/img/integracion.jpg" alt="Imagen representativa de la integración de sistemas" loading="lazy" width="400" height="300">
+          </picture>
+          <h3>Integración de Sistemas</h3>
+          <p>Conexión de diferentes plataformas para un flujo de trabajo eficiente y sin interrupciones.</p>
+        </article>
+        <article class="technology-item container-animated">
+          <picture>
+            <source srcset="../assets/img/consultoria.webp" type="image/webp">
+            <source srcset="../assets/img/consultoria.jpg" type="image/jpeg">
+            <img src="../assets/img/consultoria.jpg" alt="Imagen representativa de la consultoría tecnológica" loading="lazy" width="400" height="300">
+          </picture>
+          <h3>Consultoría Tecnológica</h3>
+          <p>Asesoramiento experto en la adopción y uso de nuevas tecnologías para impulsar tu negocio.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- Sección sobre nosotros -->
+    <section id="nosotros" class="about-section animate-entry">
+      <h2>Sobre Nosotros</h2>
+      <picture>
+        <source srcset="../assets/img/nosotros.webp" type="image/webp">
+        <source srcset="../assets/img/nosotros.jpg" type="image/jpeg">
+        <img src="../assets/img/nosotros.jpg" alt="Equipo de IN OUT MANAGER trabajando en soluciones tecnológicas" loading="lazy" width="800" height="450">
+      </picture>
+      <p>En IN OUT MANAGER, somos un equipo apasionado por la tecnología y la innovación. Nuestro objetivo es ayudar a las empresas a mejorar su productividad y eficiencia a través de soluciones tecnológicas personalizadas. Con años de experiencia en el sector, nos hemos convertido en un socio de confianza para nuestros clientes, ofreciendo soluciones que realmente marcan la diferencia.</p>
+    </section>
+
+    <!-- Sección de portfolio -->
+    <section id="portfolio" class="portfolio-section animate-entry">
+      <h2>Portfolio</h2>
+      <div class="portfolio-gallery">
+        <picture>
+          <source srcset="../assets/img/uiux.webp" type="image/webp">
+          <source srcset="../assets/img/uiux.jpg" type="image/jpeg">
+          <img src="../assets/img/uiux.jpg" alt="Diseño de interfaces UI/UX" loading="lazy" width="400" height="300">
+        </picture>
+        <picture>
+          <source srcset="../assets/img/web.webp" type="image/webp">
+          <source srcset="../assets/img/web.jpg" type="image/jpeg">
+          <img src="../assets/img/web.jpg" alt="Desarrollo de sitios web modernos" loading="lazy" width="400" height="300">
+        </picture>
+        <picture>
+          <source srcset="../assets/img/tecnologias.webp" type="image/webp">
+          <source srcset="../assets/img/tecnologias.jpg" type="image/jpeg">
+          <img src="../assets/img/tecnologias.jpg" alt="Uso de tecnologías avanzadas" loading="lazy" width="400" height="300">
+        </picture>
+      </div>
+    </section>
+
+    <!-- Sección de contacto -->
+    <section id="contacto" class="contact-section animate-entry">
+      <h2>Contacto</h2>
+      <form action="#" method="POST" class="contact-form" id="contactForm" novalidate>
+        <div class="form-group">
+          <label for="name">Nombre:</label>
+          <input type="text" id="name" name="name" required minlength="2" maxlength="50" pattern="[A-Za-zÀ-ÖØ-öø-ÿ\s]+" aria-describedby="nameError">
+          <div class="error-message" id="nameError" aria-live="polite"></div>
+        </div>
+        <div class="form-group">
+          <label for="email">Correo Electrónico:</label>
+          <input type="email" id="email" name="email" required pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" aria-describedby="emailError">
+          <div class="error-message" id="emailError" aria-live="polite"></div>
+        </div>
+        <div class="form-group">
+          <label for="message">Mensaje:</label>
+          <textarea id="message" name="message" rows="4" required minlength="10" maxlength="500" aria-describedby="messageError"></textarea>
+          <div class="error-message" id="messageError" aria-live="polite"></div>
+        </div>
+        <button type="submit" class="submit-btn btn-animated">Enviar Mensaje</button>
+        <div class="form-status" aria-live="assertive"></div>
+      </form>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <p>&copy; 2023 IN OUT MANAGER. Todos los derechos reservados.</p>
+    <div class="social-media">
+      <a href="#" aria-label="Facebook">
+        <picture>
+          <source srcset="../assets/img/facebook.webp" type="image/webp">
+          <source srcset="../assets/img/facebook.jpg" type="image/jpeg">
+          <img src="../assets/img/facebook.jpg" alt="Enlace a Facebook" loading="lazy" width="30" height="30">
+        </picture>
+      </a>
+      <a href="#" aria-label="Instagram">
+        <picture>
+          <source srcset="../assets/img/instagram.webp" type="image/webp">
+          <source srcset="../assets/img/instagram.jpg" type="image/jpeg">
+          <img src="../assets/img/instagram.jpg" alt="Enlace a Instagram" loading="lazy" width="30" height="30">
+        </picture>
+      </a>
+      <a href="#" aria-label="TikTok">
+        <picture>
+          <source srcset="../assets/img/tiktok.webp" type="image/webp">
+          <source srcset="../assets/img/tiktok.jpg" type="image/jpeg">
+          <img src="../assets/img/tiktok.jpg" alt="Enlace a TikTok" loading="lazy" width="30" height="30">
+        </picture>
+      </a>
+    </div>
+  </footer>
+</body>
+</html>

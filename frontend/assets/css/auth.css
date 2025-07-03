@@ -1,0 +1,264 @@
+/* Estilos para componentes de autenticación */
+:root {
+  /* Colores de autenticación */
+  --auth-bg-color: linear-gradient(135deg, var(--color-accent) 0%, var(--color-primary) 100%);
+  --auth-card-bg: white;
+  --auth-text-color: var(--color-dark);
+  --auth-accent-color: var(--color-accent);
+  --auth-border-color: #e5e5e5;
+  
+  /* Dimensiones */
+  --auth-border-radius: var(--radius-md);
+  --auth-box-shadow: var(--shadow-md);
+}
+
+/* Contenedor principal de autenticación */
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: var(--auth-bg-color);
+  padding: var(--spacing-lg);
+}
+
+/* Tarjeta de autenticación */
+.auth-card {
+  background-color: var(--auth-card-bg);
+  border-radius: var(--auth-border-radius);
+  box-shadow: var(--auth-box-shadow);
+  width: 100%;
+  max-width: 500px;
+  padding: var(--spacing-xl);
+  position: relative;
+  animation: scaleUp 0.5s ease forwards;
+}
+
+/* Encabezado de la tarjeta */
+.auth-header {
+  text-align: center;
+  margin-bottom: var(--spacing-lg);
+}
+
+.auth-logo {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  margin-bottom: var(--spacing-md);
+  border: 3px solid var(--auth-accent-color);
+  object-fit: cover;
+}
+
+.auth-header h1 {
+  color: var(--auth-text-color);
+  font-size: var(--text-xl);
+  margin: 0;
+}
+
+/* Formulario de autenticación */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+/* Campos del formulario */
+.auth-form .form-group {
+  margin-bottom: var(--spacing-md);
+}
+
+.auth-form label {
+  display: block;
+  margin-bottom: var(--spacing-xs);
+  color: var(--auth-text-color);
+  font-weight: 500;
+}
+
+.auth-form input {
+  width: 100%;
+  padding: var(--spacing-md);
+  border: 1px solid var(--auth-border-color);
+  border-radius: var(--auth-border-radius);
+  transition: border-color var(--transition-fast),
+              box-shadow var(--transition-fast);
+  font-size: var(--text-md);
+}
+
+.auth-form input:focus {
+  outline: none;
+  border-color: var(--auth-accent-color);
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.3);
+}
+
+/* Botones de acción */
+.form-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--spacing-md);
+}
+
+.btn-primary {
+  background-color: var(--auth-accent-color);
+  color: white;
+  border: none;
+  padding: var(--spacing-md) var(--spacing-xl);
+  border-radius: var(--auth-border-radius);
+  font-size: var(--text-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color var(--transition-fast),
+              transform var(--transition-fast);
+  width: 100%;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-secondary);
+  transform: translateY(-2px);
+}
+
+/* Controlador de contraseña */
+.password-toggle {
+  display: flex;
+  align-items: center;
+  margin-top: var(--spacing-xs);
+}
+
+.password-toggle input[type="checkbox"] {
+  width: auto;
+  margin-right: var(--spacing-xs);
+}
+
+.password-toggle label {
+  display: inline;
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-gray);
+}
+
+/* Enlaces de navegación */
+.auth-links {
+  margin-top: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.auth-links a {
+  color: var(--auth-accent-color);
+  text-decoration: none;
+  font-size: var(--text-sm);
+  transition: color var(--transition-fast);
+}
+
+.auth-links a:hover {
+  color: var(--color-secondary);
+  text-decoration: underline;
+}
+
+/* Pie de la tarjeta */
+.auth-footer {
+  margin-top: var(--spacing-xl);
+  text-align: center;
+}
+
+.btn-back {
+  color: var(--auth-text-color);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: var(--text-sm);
+  transition: color var(--transition-fast);
+}
+
+.btn-back:hover {
+  color: var(--auth-accent-color);
+}
+
+.btn-back::before {
+  content: "←";
+  display: inline-block;
+  margin-right: var(--spacing-xs);
+}
+
+/* Mensajes de validación */
+.validation-message {
+  font-size: var(--text-sm);
+  margin-top: var(--spacing-xs);
+}
+
+.validation-message.error {
+  color: #e53e3e;
+}
+
+.validation-message.success {
+  color: #38a169;
+}
+
+/* Animación de entrada */
+@keyframes scaleUp {
+  0% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Selector de rol */
+.role-selector {
+  margin-bottom: var(--spacing-lg);
+}
+
+.role-tabs {
+  display: flex;
+  border-radius: var(--auth-border-radius);
+  overflow: hidden;
+  border: 1px solid var(--auth-border-color);
+}
+
+.role-tab {
+  flex: 1;
+  padding: var(--spacing-md);
+  text-align: center;
+  background-color: #f9f9f9;
+  border: none;
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.role-tab.active {
+  background-color: var(--auth-accent-color);
+  color: white;
+}
+
+.role-tab:not(.active):hover {
+  background-color: #f0f0f0;
+}
+
+.tab-icon {
+  font-size: var(--text-xl);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .auth-card {
+    padding: var(--spacing-md);
+  }
+  
+  .auth-logo {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .auth-form input {
+    padding: var(--spacing-sm);
+  }
+}
