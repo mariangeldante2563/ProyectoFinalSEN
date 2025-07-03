@@ -31,3 +31,7 @@ yarn-error.log*
 # Archivos de caché
 .cache/
 .temp/
+
+# Archivos específicos del proyecto que no queremos rastrear
+frontend/dashboard-empleado.js
+frontend/styles.css
