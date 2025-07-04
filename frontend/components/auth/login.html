@@ -1,72 +1,264 @@
 <!DOCTYPE html>
 <html lang="es">
-
+<!-- ======================================== -->
+<!-- INICIO: ENCABEZADO DEL DOCUMENTO HTML    -->
+<!-- ======================================== -->
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Iniciar Sesión - IN OUT MANAGER</title>
   <meta name="description" content="Iniciar sesión en el sistema IN OUT MANAGER - Acceda con sus credenciales">
   <meta name="keywords" content="login, iniciar sesión, acceso, IN OUT MANAGER">
-  <link rel="stylesheet" href="../../assets/css/styles.css">
-  <link rel="stylesheet" href="../../assets/css/auth.css">
+  
+  <!-- Precargar recursos críticos -->
+  <link rel="preload" href="../../assets/img/icon.jpg" as="image">
+  <link rel="preload" href="../../assets/css/styles.css?v=20250703001" as="style">
+  <link rel="preload" href="../../assets/js/login.js" as="script">
+  
+  <!-- Estilos principales -->
+  <link rel="stylesheet" href="../../assets/css/styles.css?v=20250703001">
+  <link rel="stylesheet" href="../../assets/css/footer-styles.css?v=20250703001">
+  <link rel="stylesheet" href="../../assets/css/auth.css?v=20250703001">
+  <link rel="stylesheet" href="../../assets/css/login-styles.css?v=20250703001">
+  <link rel="stylesheet" href="../../assets/css/login-animations.css?v=20250703001">
   <link rel="icon" type="image/jpeg" href="../../assets/img/icon.jpg">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  
+  <!-- Script para mejorar la carga y visibilidad inicial -->
+  <script>
+    // Script inline de máxima prioridad para prevenir parpadeos
+    (function() {
+      console.log('🚀 Inicializador temprano - formulario de login');
+      
+      // Marcar el documento como en carga
+      document.documentElement.classList.add('js-loading');
+      
+      // Función para asegurar visibilidad de elementos críticos
+      function ensureFormVisibility() {
+        const criticalElements = [
+          '.site-content',
+          '.login-section',
+          '.auth-container',
+          '.auth-card',
+          '#loginForm',
+          '.auth-header',
+          '.logo-container'
+        ];
+        
+        criticalElements.forEach(selector => {
+          const element = document.querySelector(selector);
+          if (element) {
+            element.style.display = 'flex';
+            element.style.flexDirection = 'column';
+            element.style.justifyContent = 'center';
+            element.style.alignItems = 'center';
+            element.style.visibility = 'visible';
+            element.style.opacity = '1';
+          }
+        });
+      }
+      
+      // Aplicar inmediatamente y en eventos clave
+      ensureFormVisibility();
+      
+      // Eliminar la marca cuando la página esté completamente cargada
+      window.addEventListener('load', function() {
+        document.documentElement.classList.remove('js-loading');
+        document.body.classList.add('loaded');
+        ensureFormVisibility();
+      });
+      
+      // Aplicar también en DOMContentLoaded
+      document.addEventListener('DOMContentLoaded', ensureFormVisibility);
+    })();
+  </script>
+  
+  <!-- Script principal del login (único y optimizado) -->
   <script src="../../assets/js/login.js" defer></script>
 </head>
+<!-- ======================================== -->
+<!-- FIN: ENCABEZADO DEL DOCUMENTO HTML       -->
+<!-- ======================================== -->
 
-<body>
-  <div class="auth-container">
-    <div class="auth-card">
-      <div class="auth-header">
-        <img src="../../assets/img/icon.jpg" alt="Logo IN OUT MANAGER" class="auth-logo" loading="eager">
-        <h1>Iniciar Sesión</h1>
-      </div>
-      
-      <!-- Selector de rol -->
-      <div class="role-selector">
-        <div class="role-tabs" role="tablist" aria-label="Tipo de usuario">
-          <button type="button" class="role-tab active" data-role="empleado" id="tab-empleado" role="tab" aria-selected="true" tabindex="0">
-            <span class="tab-icon" aria-hidden="true">👤</span>
-            <span class="tab-text">Empleado</span>
-          </button>
-          <button type="button" class="role-tab" data-role="administrador" id="tab-admin" role="tab" aria-selected="false" tabindex="-1">
-            <span class="tab-icon" aria-hidden="true">⚙️</span>
-            <span class="tab-text">Administrador</span>
-          </button>
-        </div>
-      </div>
-      
-      <form id="loginForm" class="auth-form" novalidate>
-        <div class="form-group">
-          <label for="email">Correo Electrónico</label>
-          <input type="email" id="email" name="email" required pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" aria-describedby="emailError">
-          <div class="error-message" id="emailError" aria-live="polite"></div>
-        </div>
-        
-        <div class="form-group">
-          <label for="password">Contraseña</label>
-          <input type="password" id="password" name="password" required minlength="8" aria-describedby="passwordError">
-          <div class="error-message" id="passwordError" aria-live="polite"></div>
-          <div class="password-toggle">
-            <input type="checkbox" id="showPassword">
-            <label for="showPassword">Mostrar contraseña</label>
+<body class="auth-page">
+  <!-- ======================================== -->
+  <!-- INICIO: HEADER Y NAVEGACIÓN PRINCIPAL    -->
+  <!-- ======================================== -->
+  <header class="site-header">
+    <div class="header-title">
+      <h1>IN OUT MANAGER</h1>
+      <button id="mobileMenuToggle" class="mobile-menu-toggle" aria-label="Abrir menú">
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+      </button>
+    </div>
+    <nav class="main-nav" aria-label="Navegación principal">
+      <ul id="mainNavList" class="nav-menu-list">
+        <li class="nav-logo">
+          <img src="../../assets/img/icon.jpg" alt="Logo de IN OUT MANAGER" class="icon" loading="eager">
+        </li>
+        <li class="nav-items-container">
+          <ul class="nav-items-group">
+            <li class="nav-item"><a href="../../proyectopages/index.html#tecnologias" class="nav-btn btn-animated">Tecnologías</a></li>
+            <li class="nav-item"><a href="../../proyectopages/index.html#nosotros" class="nav-btn btn-animated">Sobre Nosotros</a></li>
+            <li class="nav-item"><a href="../../proyectopages/index.html#portfolio" class="nav-btn btn-animated">Portfolio</a></li>
+            <li class="nav-item"><a href="../../proyectopages/index.html#contacto" class="nav-btn btn-animated">Contacto</a></li>
+          </ul>
+        </li>
+        <li class="auth-buttons-container">
+          <a href="registro.html" class="nav-btn auth-btn register-btn btn-animated" id="registerBtn">Registrarse</a>
+          <a href="login.html" class="nav-btn auth-btn login-btn btn-animated active" id="loginBtn">Ingresar</a>
+        </li>
+      </ul>
+    </nav>
+  </header>
+  <!-- ======================================== -->
+  <!-- FIN: HEADER Y NAVEGACIÓN PRINCIPAL       -->
+  <!-- ======================================== -->
+
+  <!-- ======================================== -->
+  <!-- INICIO: CONTENIDO PRINCIPAL             -->
+  <!-- ======================================== -->
+  <main class="site-content">
+    <!-- ======================================== -->
+    <!-- INICIO: SECCIÓN DE LOGIN                -->
+    <!-- ======================================== -->
+    <section id="login" class="login-section animate-entry">
+      <div class="auth-container">
+        <div class="auth-card card-effect">
+          <div class="auth-header">
+            <div class="logo-container">
+              <img src="../../assets/img/icon.jpg" alt="Logo IN OUT MANAGER" class="auth-logo" loading="eager">
+            </div>
+            <h2 class="section-title">Iniciar Sesión</h2>
+            <p class="section-subtitle">Acceda a su cuenta para gestionar sus operaciones</p>
+          </div>
+          
+          <!-- Selector de rol -->
+          <div class="role-selector">
+            <div class="role-tabs" role="tablist" aria-label="Tipo de usuario">
+              <button type="button" class="role-tab active" data-role="empleado" id="tab-empleado" role="tab" aria-selected="true" tabindex="0">
+                <span class="tab-icon" aria-hidden="true"><i class="fas fa-user"></i></span>
+                <span class="tab-text">Empleado</span>
+              </button>
+              <button type="button" class="role-tab" data-role="administrador" id="tab-admin" role="tab" aria-selected="false" tabindex="-1">
+                <span class="tab-icon" aria-hidden="true"><i class="fas fa-cog"></i></span>
+                <span class="tab-text">Administrador</span>
+              </button>
+            </div>
+            <div class="role-description" id="roleDescription">
+              <span>Ingrese sus credenciales para acceder como empleado.</span>
+            </div>
+          </div>
+          
+          <form id="loginForm" class="auth-form" novalidate>
+            <div class="form-group">
+              <label for="email">Correo Electrónico <span class="required">*</span></label>
+              <div class="input-container">
+                <i class="fas fa-envelope input-icon"></i>
+                <input type="email" id="email" name="email" required 
+                      pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" 
+                      aria-describedby="emailError"
+                      placeholder="usuario@ejemplo.com">
+                <span class="input-focus-effect"></span>
+              </div>
+              <div class="error-message" id="emailError" aria-live="polite"></div>
+            </div>
+            
+            <div class="form-group">
+              <label for="password">Contraseña <span class="required">*</span></label>
+              <div class="input-container">
+                <i class="fas fa-lock input-icon"></i>
+                <input type="password" id="password" name="password" required 
+                      minlength="8" 
+                      aria-describedby="passwordError"
+                      placeholder="Su contraseña">
+                <span class="input-focus-effect"></span>
+              </div>
+              <div class="error-message" id="passwordError" aria-live="polite"></div>
+              <div class="password-toggle">
+                <input type="checkbox" id="showPassword">
+                <label for="showPassword"><i class="fas fa-eye"></i> Mostrar contraseña</label>
+              </div>
+            </div>
+            
+            <!-- Campo de código de administrador (oculto por defecto) -->
+            <div class="form-group admin-code-group" id="adminCodeGroup" style="display: none;">
+              <label for="adminCode">Código de Administrador <span class="required">*</span></label>
+              <div class="input-container">
+                <i class="fas fa-key input-icon"></i>
+                <input type="text" id="adminCode" name="adminCode" 
+                      minlength="6" 
+                      maxlength="20"
+                      aria-describedby="adminCodeError"
+                      placeholder="Ingrese el código de administrador">
+                <span class="input-focus-effect"></span>
+              </div>
+              <div class="error-message" id="adminCodeError" aria-live="polite"></div>
+              <div class="admin-code-info">
+                <i class="fas fa-info-circle"></i>
+                <span>Ingrese el código de administrador que registró al crear su cuenta.</span>
+              </div>
+            </div>
+            
+            <div class="form-actions">
+              <button type="submit" class="btn-primary login-submit-btn">
+                <span class="btn-icon"><i class="fas fa-sign-in-alt"></i></span>
+                <span class="btn-text">Iniciar Sesión</span>
+                <div class="btn-shine"></div>
+              </button>
+            </div>
+            
+            <div class="auth-links">
+              <a href="recuperar-password.html" class="auth-link"><i class="fas fa-key"></i> ¿Olvidaste tu contraseña?</a>
+              <a href="registro.html" class="auth-link"><i class="fas fa-user-plus"></i> ¿No tienes cuenta? Regístrate</a>
+            </div>
+            
+            <div class="result-message" id="loginResult"></div>
+          </form>
+          
+          <div class="auth-footer">
+            <a href="../../proyectopages/index.html" class="btn-back">
+              <i class="fas fa-home"></i> Volver al inicio
+            </a>
           </div>
         </div>
-        
-        <div class="form-actions">
-          <button type="submit" class="btn-primary">Iniciar Sesión</button>
-        </div>
-        
-        <div class="auth-links">
-          <a href="recuperar-password.html">¿Olvidaste tu contraseña?</a>
-          <a href="registro.html">¿No tienes cuenta? Regístrate</a>
-        </div>
-      </form>
-      
-      <div class="auth-footer">
-        <a href="../../proyectopages/index.html" class="btn-back">Volver al inicio</a>
       </div>
-    </div>
-  </div>
+    </section>
+    <!-- ======================================== -->
+    <!-- FIN: SECCIÓN DE LOGIN                   -->
+    <!-- ======================================== -->
+  </main>
+  <!-- ======================================== -->
+  <!-- FIN: CONTENIDO PRINCIPAL                 -->
+  <!-- ======================================== -->
+
+  <!-- ======================================== -->
+  <!-- INICIO: FOOTER SIMPLE DE REDES SOCIALES  -->
+  <!-- ======================================== -->
+    <footer class="site-footer">
+      <div class="social-footer-container">
+        <div class="social-media-footer">
+          <a href="#" class="social-icon-footer" aria-label="Facebook">
+            <img src="../../assets/img/facebook.jpg" alt="Facebook" class="social-img">
+          </a>
+          <a href="#" class="social-icon-footer" aria-label="Instagram">
+            <img src="../../assets/img/instagram.jpg" alt="Instagram" class="social-img">
+          </a>
+          <a href="#" class="social-icon-footer" aria-label="TikTok">
+            <img src="../../assets/img/tiktok.jpg" alt="TikTok" class="social-img">
+          </a>
+          <a href="mailto:info@inoutmanager.com" class="social-icon-footer" aria-label="Correo">
+            <i class="fas fa-envelope email-icon"></i>
+          </a>
+        </div>
+        <p class="copyright-text">© 2025 IN OUT MANAGER</p>
+      </div>
+    </footer>
+    <!-- ======================================== -->
+    <!-- FIN: FOOTER SIMPLE DE REDES SOCIALES     -->
+    <!-- ======================================== -->
 </body>
 
 </html>

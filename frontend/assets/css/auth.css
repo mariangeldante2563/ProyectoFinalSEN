@@ -14,12 +14,12 @@
 
 /* Contenedor principal de autenticación */
 .auth-container {
-  display: flex;
+  display: flex !important;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  background: var(--auth-bg-color);
+  min-height: 80vh;
   padding: var(--spacing-lg);
+  margin: 1rem auto;
 }
 
 /* Tarjeta de autenticación */

@@ -145,8 +145,33 @@ class RegistroManager {
             this.validateField(confirmPasswordField);
           }
         }
+        
+        // Validación en tiempo real para código de administrador
+        if (input.name === 'codigoAdmin') {
+          this.validateAdminCode(input.value);
+        }
       });
     });
+    
+    // Evento especial para mostrar/ocultar requisitos del código
+    const codigoAdmin = document.getElementById('codigoAdmin');
+    if (codigoAdmin) {
+      codigoAdmin.addEventListener('focus', () => {
+        const requirementsList = codigoAdmin.parentElement.nextElementSibling;
+        if (requirementsList && requirementsList.classList.contains('password-requirements')) {
+          requirementsList.style.display = 'block';
+        }
+      });
+      
+      codigoAdmin.addEventListener('blur', () => {
+        const requirementsList = codigoAdmin.parentElement.nextElementSibling;
+        if (requirementsList && requirementsList.classList.contains('password-requirements')) {
+          setTimeout(() => {
+            requirementsList.style.display = 'none';
+          }, 300);
+        }
+      });
+    }
   }
 
   validateField(field) {
@@ -227,7 +252,7 @@ class RegistroManager {
           errorMessage = 'El código de administrador es requerido';
         } else if (this.tipoUsuarioInput.value === 'administrador' && value && !this.validateAdminCode(value)) {
           isValid = false;
-          errorMessage = 'Código de administrador inválido';
+          errorMessage = 'El código debe cumplir con todos los requisitos de seguridad';
         }
         break;
     }
@@ -307,7 +332,7 @@ class RegistroManager {
       if (formData.tipoUsuario === 'administrador') {
         const isValidAdminCode = this.validateAdminCode(formData.codigoAdmin);
         if (!isValidAdminCode) {
-          this.showMessage('Código de administrador inválido. Códigos válidos: ADMIN2025, MANAGER123, SUPERVISOR456', 'error');
+          this.showMessage('El código de administrador no cumple con los requisitos de seguridad. Revise los requisitos indicados.', 'error');
           return;
         }
       }
@@ -326,7 +351,7 @@ class RegistroManager {
 
       // Mostrar mensaje de éxito con información sobre redirección
       this.showMessage(
-        `¡Registro exitoso! Bienvenido/a ${formData.nombreCompleto}. Su registro como ${formData.tipoUsuario} ha sido completado. Será redirigido/a a su panel de control en unos segundos...`,
+        `¡Registro exitoso! Bienvenido/a ${formData.nombreCompleto}. Su registro como ${formData.tipoUsuario} ha sido completado. Será redirigido/a a la página principal en unos segundos...`,
         'success'
       );
 
@@ -335,6 +360,11 @@ class RegistroManager {
 
       // Mostrar panel de usuarios si hay usuarios registrados
       this.showUsersPanel();
+      
+      // Redireccionar a la página principal después de 3 segundos
+      setTimeout(() => {
+        window.location.href = '../../proyectopages/index.html';
+      }, 3000);
 
     } catch (error) {
       console.error('Error en el envío del formulario:', error);
@@ -371,9 +401,41 @@ class RegistroManager {
   }
 
   validateAdminCode(code) {
-    // Códigos de administrador válidos (en producción esto sería más seguro)
-    const validCodes = ['ADMIN2025', 'MANAGER123', 'SUPERVISOR456'];
-    return validCodes.includes(code);
+    if (!code) return false;
+
+    // Validar los requisitos de seguridad
+    const minLength = code.length >= 15;
+    const hasUppercase = /[A-Z]/.test(code);
+    const hasNumber = /[0-9]/.test(code);
+    const hasSymbol = /[\/\*\+\$\%]/.test(code);
+
+    // Actualizar indicadores visuales si el campo está visible
+    const adminFields = document.getElementById('adminFields');
+    if (adminFields && adminFields.style.display !== 'none') {
+      this.updateRequirementCheck('length-check', minLength);
+      this.updateRequirementCheck('uppercase-check', hasUppercase);
+      this.updateRequirementCheck('number-check', hasNumber);
+      this.updateRequirementCheck('symbol-check', hasSymbol);
+    }
+
+    // Todos los requisitos deben cumplirse
+    return minLength && hasUppercase && hasNumber && hasSymbol;
+  }
+
+  updateRequirementCheck(elementId, isValid) {
+    const element = document.getElementById(elementId);
+    if (element) {
+      const icon = element.querySelector('i');
+      if (isValid) {
+        icon.className = 'fas fa-check-circle';
+        element.classList.add('requirement-met');
+        element.classList.remove('requirement-failed');
+      } else {
+        icon.className = 'fas fa-times-circle';
+        element.classList.add('requirement-failed');
+        element.classList.remove('requirement-met');
+      }
+    }
   }
 
   isDocumentExists(documento) {
@@ -459,7 +521,7 @@ class RegistroManager {
     if (type === 'success') {
       setTimeout(() => {
         this.mensajeContainer.style.display = 'none';
-      }, 8000);
+      }, 5000);
     }
   }
 

@@ -1,67 +1,83 @@
 /**
- * IN OUT MANAGER - Módulo de inicio de sesión
+ * IN OUT MANAGER - Módulo de inicio de sesión (Versión optimizada)
  * 
- * Este archivo contiene la lógica para el proceso de inicio de sesión
- * en el sistema IN OUT MANAGER.
+ * Archivo único que maneja todas las funcionalidades del formulario de login:
+ * - Validación de formularios
+ * - Selector de roles
+ * - Mostrar/ocultar contraseña
+ * - Autenticación de usuarios
+ * - Animaciones y efectos visuales
+ * - Garantía de visibilidad del formulario
+ * 
+ * © 2025 IN OUT MANAGER
  */
 
-// Esperar a que el DOM esté cargado
+// Ejecutar cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', () => {
-  // Inicializar el gestor de inicio de sesión
-  const loginManager = new LoginManager();
-});
-
-/**
- * Clase para gestionar el proceso de inicio de sesión
- */
-class LoginManager {
-  /**
-   * Constructor de la clase
-   */
-  constructor() {
-    // Elementos del DOM
-    this.form = document.getElementById('loginForm');
-    this.emailInput = document.getElementById('email');
-    this.passwordInput = document.getElementById('password');
-    this.showPasswordToggle = document.getElementById('showPassword');
-    this.roleTabs = document.querySelectorAll('.role-tab');
-    this.submitButton = document.querySelector('.btn-primary');
-    
-    // Estado
-    this.selectedRole = 'empleado'; // Valor predeterminado
-    
-    // Inicializar componentes
-    this.init();
+  // Logging para debugging
+  console.log('🚀 Inicializando módulo de login...');
+  
+  // ======================================
+  // INICIALIZACIÓN Y CARGA
+  // ======================================
+  
+  // Asegurar visibilidad de elementos críticos inmediatamente
+  ensureFormVisibility();
+  
+  // Elementos del DOM
+  const form = document.getElementById('loginForm');
+  const emailInput = document.getElementById('email');
+  const passwordInput = document.getElementById('password');
+  const passwordToggle = document.getElementById('showPassword');
+  const roleTabs = document.querySelectorAll('.role-tab');
+  const submitButton = document.querySelector('.login-submit-btn');
+  const resultMessage = document.getElementById('loginResult');
+  const logoContainer = document.querySelector('.logo-container');
+  const adminCodeGroup = document.getElementById('adminCodeGroup');
+  const adminCodeInput = document.getElementById('adminCode');
+  
+  // Verificación de elementos críticos
+  if (!form || !emailInput || !passwordInput) {
+    console.error('Error: Elementos esenciales del formulario no encontrados.');
+    return;
   }
   
-  /**
-   * Inicializa todos los componentes y eventos
-   */
-  init() {
-    if (!this.form) {
-      console.error('No se encontró el formulario de inicio de sesión');
-      return;
-    }
-    
-    // Configurar eventos
-    this.setupRoleTabs();
-    this.setupPasswordToggle();
-    this.setupFormSubmission();
-    
-    // Animación de entrada
-    this.animateFormEntry();
-  }
+  // Estado inicial
+  let selectedRole = 'empleado'; // Rol predeterminado
+  
+  // ======================================
+  // INICIALIZACIÓN DE FUNCIONALIDADES
+  // ======================================
+  
+  // Inicializar selector de rol
+  initRoleTabs();
+  
+  // Inicializar toggle de contraseña
+  initPasswordToggle();
+  
+  // Inicializar validación del formulario
+  initFormValidation();
+  
+  // Animar entrada del formulario
+  animateFormEntry();
+  
+  // Configurar observer para garantizar visibilidad
+  setupVisibilityObserver();
+  
+  // ======================================
+  // FUNCIONES DE INICIALIZACIÓN
+  // ======================================
   
   /**
-   * Configura la funcionalidad de las pestañas de selección de rol
+   * Inicializa el selector de roles
    */
-  setupRoleTabs() {
-    if (!this.roleTabs.length) return;
+  function initRoleTabs() {
+    if (!roleTabs.length) return;
     
-    this.roleTabs.forEach(tab => {
+    roleTabs.forEach(tab => {
       tab.addEventListener('click', () => {
         // Actualizar UI
-        this.roleTabs.forEach(t => {
+        roleTabs.forEach(t => {
           t.classList.remove('active');
           t.setAttribute('aria-selected', 'false');
           t.setAttribute('tabindex', '-1');
@@ -72,304 +88,493 @@ class LoginManager {
         tab.setAttribute('tabindex', '0');
         
         // Actualizar estado
-        this.selectedRole = tab.dataset.role;
+        selectedRole = tab.dataset.role;
         
-        // Efectos visuales
-        this.animateRoleChange();
+        // Actualizar descripción
+        updateRoleDescription(selectedRole);
+        
+        // Mostrar/ocultar campo de código de administrador
+        toggleAdminCodeField(selectedRole);
       });
     });
   }
   
   /**
-   * Configura el botón para mostrar/ocultar la contraseña
+   * Inicializa el toggle para mostrar/ocultar contraseña
    */
-  setupPasswordToggle() {
-    if (!this.showPasswordToggle || !this.passwordInput) return;
+  function initPasswordToggle() {
+    if (!passwordToggle || !passwordInput) return;
     
-    this.showPasswordToggle.addEventListener('change', () => {
-      this.passwordInput.type = this.showPasswordToggle.checked ? 'text' : 'password';
+    passwordToggle.addEventListener('change', () => {
+      passwordInput.type = passwordToggle.checked ? 'text' : 'password';
     });
   }
   
   /**
-   * Configura el envío del formulario y la validación
+   * Inicializa la validación del formulario
    */
-  setupFormSubmission() {
-    if (!this.form) return;
+  function initFormValidation() {
+    // Validación en tiempo real para email
+    emailInput.addEventListener('input', () => validateEmail());
     
-    this.form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      
-      // Obtener los valores del formulario
-      const email = this.emailInput.value.trim();
-      const password = this.passwordInput.value;
-      const role = this.selectedRole;
-      
-      // Validar datos
-      if (!this.validateForm(email, password)) {
-        return;
-      }
-      
-      // Intentar iniciar sesión
-      this.attemptLogin(email, password, role);
+    // Validación en tiempo real para password
+    passwordInput.addEventListener('input', () => validatePassword());
+    
+    // Validación en tiempo real para código de administrador
+    if (adminCodeInput) {
+      adminCodeInput.addEventListener('input', () => validateAdminCode());
+    }
+    
+    // Envío del formulario
+    form.addEventListener('submit', handleFormSubmit);
+  }
+  
+  // ======================================
+  // FUNCIONES DE MANIPULACIÓN DE UI
+  // ======================================
+  
+  /**
+   * Actualiza la descripción del rol seleccionado
+   * @param {string} role - El rol seleccionado
+   */
+  function updateRoleDescription(role) {
+    const roleDescription = document.getElementById('roleDescription');
+    if (!roleDescription) return;
+    
+    const descriptions = {
+      'empleado': 'Ingrese sus credenciales para acceder como empleado.',
+      'administrador': 'Ingrese sus credenciales y el código de administrador para acceder como administrador.'
+    };
+    
+    // Animar cambio de descripción
+    fadeElement(roleDescription, () => {
+      roleDescription.innerHTML = `<span>${descriptions[role] || ''}</span>`;
     });
   }
   
   /**
-   * Valida los campos del formulario
-   * 
-   * @param {string} email - El correo electrónico ingresado
-   * @param {string} password - La contraseña ingresada
-   * @returns {boolean} - Verdadero si la validación es exitosa
+   * Desvanece un elemento, ejecuta una función, y lo vuelve a mostrar
+   * @param {HTMLElement} element - El elemento a animar
+   * @param {Function} callback - Función a ejecutar mientras está desvanecido
    */
-  validateForm(email, password) {
-    let isValid = true;
+  function fadeElement(element, callback) {
+    element.style.opacity = '0';
+    element.style.transform = 'translateY(-10px)';
     
-    // Validar email
+    setTimeout(() => {
+      callback();
+      
+      element.style.transition = 'all 0.3s ease';
+      element.style.opacity = '1';
+      element.style.transform = 'translateY(0)';
+    }, 200);
+  }
+  
+  /**
+   * Muestra un mensaje de resultado
+   * @param {string} message - El mensaje a mostrar
+   * @param {string} type - El tipo de mensaje ('success' o 'error')
+   */
+  function showResultMessage(message, type = 'success') {
+    if (!resultMessage) return;
+    
+    resultMessage.textContent = message;
+    resultMessage.className = `result-message ${type}`;
+    resultMessage.style.display = 'block';
+    
+    fadeElement(resultMessage, () => {});
+  }
+  
+  /**
+   * Establece el estado de carga del botón de envío
+   * @param {boolean} isLoading - Indica si está cargando
+   */
+  function setButtonLoading(isLoading) {
+    if (!submitButton) return;
+    
+    if (isLoading) {
+      submitButton.disabled = true;
+      submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Iniciando sesión...';
+    } else {
+      submitButton.disabled = false;
+      submitButton.innerHTML = '<span class="btn-icon"><i class="fas fa-sign-in-alt"></i></span><span class="btn-text">Iniciar Sesión</span><div class="btn-shine"></div>';
+    }
+  }
+  
+  // ======================================
+  // VALIDACIÓN DE FORMULARIO
+  // ======================================
+  
+  /**
+   * Valida el campo de email
+   * @returns {boolean} - Verdadero si es válido
+   */
+  function validateEmail() {
+    const email = emailInput.value.trim();
+    const errorElement = document.getElementById('emailError');
+    
     if (!email) {
-      this.showError(this.emailInput, 'El correo electrónico es obligatorio');
-      isValid = false;
-    } else if (!this.isValidEmail(email)) {
-      this.showError(this.emailInput, 'Formato de correo electrónico inválido');
-      isValid = false;
+      showInputError(emailInput, errorElement, 'El correo electrónico es obligatorio');
+      return false;
+    } else if (!isValidEmail(email)) {
+      showInputError(emailInput, errorElement, 'El formato del correo electrónico no es válido');
+      return false;
     } else {
-      this.clearError(this.emailInput);
+      clearInputError(emailInput, errorElement);
+      return true;
     }
-    
-    // Validar contraseña
-    if (!password) {
-      this.showError(this.passwordInput, 'La contraseña es obligatoria');
-      isValid = false;
-    } else {
-      this.clearError(this.passwordInput);
-    }
-    
-    return isValid;
   }
   
   /**
-   * Verifica si un correo electrónico tiene un formato válido
-   * 
-   * @param {string} email - El correo electrónico a validar
-   * @returns {boolean} - Verdadero si el formato es válido
+   * Valida el campo de contraseña
+   * @returns {boolean} - Verdadero si es válido
    */
-  isValidEmail(email) {
+  function validatePassword() {
+    const password = passwordInput.value;
+    const errorElement = document.getElementById('passwordError');
+    
+    if (!password) {
+      showInputError(passwordInput, errorElement, 'La contraseña es obligatoria');
+      return false;
+    } else if (password.length < 8) {
+      showInputError(passwordInput, errorElement, 'La contraseña debe tener al menos 8 caracteres');
+      return false;
+    } else {
+      clearInputError(passwordInput, errorElement);
+      return true;
+    }
+  }
+  
+  /**
+   * Valida el campo de código de administrador
+   * @returns {boolean} - Verdadero si es válido
+   */
+  function validateAdminCode() {
+    if (!adminCodeInput || selectedRole !== 'administrador') return true;
+    
+    const adminCode = adminCodeInput.value.trim();
+    const errorElement = document.getElementById('adminCodeError');
+    
+    if (!adminCode) {
+      showInputError(adminCodeInput, errorElement, 'El código de administrador es obligatorio');
+      return false;
+    } else if (adminCode.length < 6) {
+      showInputError(adminCodeInput, errorElement, 'El código debe tener al menos 6 caracteres');
+      return false;
+    } else if (adminCode.length > 20) {
+      showInputError(adminCodeInput, errorElement, 'El código no puede tener más de 20 caracteres');
+      return false;
+    } else {
+      clearInputError(adminCodeInput, errorElement);
+      return true;
+    }
+  }
+  
+  /**
+   * Verifica si un email tiene formato válido
+   * @param {string} email - Email a validar
+   * @returns {boolean} - Verdadero si es válido
+   */
+  function isValidEmail(email) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   }
   
   /**
-   * Muestra un mensaje de error para un campo
-   * 
-   * @param {HTMLElement} inputElement - El elemento input con error
+   * Muestra un error en un campo de entrada
+   * @param {HTMLElement} input - El campo con error
+   * @param {HTMLElement} errorElement - El elemento donde mostrar el error
    * @param {string} message - El mensaje de error
    */
-  showError(inputElement, message) {
-    // Buscar o crear el contenedor de mensaje
-    let errorElement = inputElement.parentElement.querySelector('.validation-message');
+  function showInputError(input, errorElement, message) {
+    if (!input || !errorElement) return;
     
-    if (!errorElement) {
-      errorElement = document.createElement('div');
-      errorElement.className = 'validation-message error';
-      inputElement.parentElement.appendChild(errorElement);
-    }
-    
-    // Agregar clase de error al input y mostrar mensaje
-    inputElement.classList.add('error-input');
+    input.classList.add('error-input');
     errorElement.textContent = message;
     errorElement.style.display = 'block';
   }
   
   /**
-   * Limpia el mensaje de error para un campo
-   * 
-   * @param {HTMLElement} inputElement - El elemento input a limpiar
+   * Elimina un error de un campo de entrada
+   * @param {HTMLElement} input - El campo a limpiar
+   * @param {HTMLElement} errorElement - El elemento de error a limpiar
    */
-  clearError(inputElement) {
-    const errorElement = inputElement.parentElement.querySelector('.validation-message');
+  function clearInputError(input, errorElement) {
+    if (!input || !errorElement) return;
     
-    if (errorElement) {
-      errorElement.textContent = '';
-      errorElement.style.display = 'none';
+    input.classList.remove('error-input');
+    errorElement.textContent = '';
+    errorElement.style.display = 'none';
+  }
+  
+  // ======================================
+  // MANEJO DE EVENTOS DEL FORMULARIO
+  // ======================================
+  
+  /**
+   * Maneja el envío del formulario
+   * @param {Event} e - El evento de envío
+   */
+  function handleFormSubmit(e) {
+    e.preventDefault();
+    
+    // Validar todos los campos
+    const isEmailValid = validateEmail();
+    const isPasswordValid = validatePassword();
+    const isAdminCodeValid = validateAdminCode();
+    
+    if (!isEmailValid || !isPasswordValid || !isAdminCodeValid) {
+      return;
     }
     
-    inputElement.classList.remove('error-input');
+    // Iniciar proceso de login
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
+    const adminCode = selectedRole === 'administrador' ? adminCodeInput.value.trim() : null;
+    
+    attemptLogin(email, password, selectedRole, adminCode);
   }
   
   /**
    * Intenta realizar el inicio de sesión
-   * 
-   * @param {string} email - El correo electrónico del usuario
+   * @param {string} email - El email del usuario
    * @param {string} password - La contraseña del usuario
-   * @param {string} role - El rol seleccionado (empleado o administrador)
+   * @param {string} role - El rol seleccionado
+   * @param {string} adminCode - El código de administrador (si aplica)
    */
-  attemptLogin(email, password, role) {
+  function attemptLogin(email, password, role, adminCode = null) {
     // Mostrar estado de carga
-    this.setLoadingState(true);
+    setButtonLoading(true);
     
-    // En un entorno real, esto sería una llamada a una API
-    // Aquí simulamos el proceso con un temporizador
+    // En un entorno real, aquí iría una llamada a la API
+    // Simulamos con un timeout
     setTimeout(() => {
       try {
-        // Obtener usuarios registrados de localStorage
-        const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+        // Simulación de autenticación con localStorage
+        const usersJSON = localStorage.getItem('registeredUsers');
+        const users = usersJSON ? JSON.parse(usersJSON) : [];
         
-        // Buscar el usuario
-        const user = users.find(u => 
+        let user = users.find(u => 
           u.email === email && 
           u.password === password &&
           u.tipoUsuario === role
         );
         
+        // Validación adicional para administradores
+        if (user && role === 'administrador') {
+          if (!adminCode || user.codigoAdministrador !== adminCode) {
+            showResultMessage('Código de administrador incorrecto', 'error');
+            setButtonLoading(false);
+            return;
+          }
+        }
+        
         if (user) {
-          // Autenticación exitosa
-          this.handleSuccessfulLogin(user);
+          handleSuccessfulLogin(user);
         } else {
-          // Autenticación fallida
-          this.handleFailedLogin();
+          handleFailedLogin();
         }
       } catch (error) {
         console.error('Error durante el inicio de sesión:', error);
-        this.showLoginError('Ocurrió un error durante el inicio de sesión');
+        showResultMessage('Ocurrió un error inesperado', 'error');
       } finally {
-        this.setLoadingState(false);
-      }
-    }, 1000); // Simular retraso de red
-  }
-  
-  /**
-   * Maneja un inicio de sesión exitoso
-   * 
-   * @param {Object} user - El objeto usuario autenticado
-   */
-  handleSuccessfulLogin(user) {
-    // Guardar usuario actual en localStorage
-    localStorage.setItem('currentUser', JSON.stringify(user));
-    
-    // Mostrar mensaje de éxito brevemente
-    this.showLoginSuccess('¡Inicio de sesión exitoso! Redirigiendo...');
-    
-    // Redirigir según el tipo de usuario
-    setTimeout(() => {
-      if (user.tipoUsuario === 'administrador') {
-        window.location.href = '../admin/dashboard-admin.html';
-      } else {
-        window.location.href = '../empleado/dashboard-empleado.html';
+        setButtonLoading(false);
       }
     }, 1000);
   }
   
   /**
+   * Maneja un inicio de sesión exitoso
+   * @param {Object} user - El usuario autenticado
+   */
+  function handleSuccessfulLogin(user) {
+    // Guardar usuario en localStorage
+    localStorage.setItem('currentUser', JSON.stringify(user));
+    
+    // Mostrar mensaje de éxito
+    showResultMessage('¡Inicio de sesión exitoso! Redirigiendo...', 'success');
+    
+    // Animar éxito
+    animateSuccess();
+    
+    // Redirigir según el tipo de usuario
+    setTimeout(() => {
+      const redirectPath = user.tipoUsuario === 'administrador' 
+        ? '../admin/dashboard-admin.html'
+        : '../empleado/dashboard-empleado.html';
+      
+      window.location.href = redirectPath;
+    }, 1500);
+  }
+  
+  /**
    * Maneja un inicio de sesión fallido
    */
-  handleFailedLogin() {
-    this.showLoginError('Credenciales incorrectas o usuario no encontrado');
-    this.animateErrorShake();
+  function handleFailedLogin() {
+    showResultMessage('Credenciales incorrectas o usuario no encontrado', 'error');
+    animateErrorShake();
   }
   
   /**
-   * Muestra un mensaje de error de inicio de sesión
-   * 
-   * @param {string} message - El mensaje de error
+   * Muestra u oculta el campo de código de administrador según el rol seleccionado
+   * @param {string} role - El rol seleccionado
    */
-  showLoginError(message) {
-    this.showStatusMessage(message, 'error');
-  }
-  
-  /**
-   * Muestra un mensaje de éxito de inicio de sesión
-   * 
-   * @param {string} message - El mensaje de éxito
-   */
-  showLoginSuccess(message) {
-    this.showStatusMessage(message, 'success');
-  }
-  
-  /**
-   * Muestra un mensaje de estado (error o éxito)
-   * 
-   * @param {string} message - El mensaje a mostrar
-   * @param {string} type - El tipo de mensaje ('error' o 'success')
-   */
-  showStatusMessage(message, type) {
-    // Buscar o crear el contenedor de mensajes
-    let messageContainer = document.querySelector('.login-status-message');
+  function toggleAdminCodeField(role) {
+    if (!adminCodeGroup) return;
     
-    if (!messageContainer) {
-      messageContainer = document.createElement('div');
-      messageContainer.className = 'login-status-message';
-      this.form.insertBefore(messageContainer, this.form.firstChild);
-    }
-    
-    // Configurar el mensaje
-    messageContainer.textContent = message;
-    messageContainer.className = `login-status-message ${type}`;
-    messageContainer.style.display = 'block';
-  }
-  
-  /**
-   * Establece el estado de carga del formulario
-   * 
-   * @param {boolean} isLoading - Indica si se está cargando
-   */
-  setLoadingState(isLoading) {
-    if (!this.submitButton) return;
-    
-    if (isLoading) {
-      this.submitButton.disabled = true;
-      this.submitButton.innerHTML = '<span class="loading-spinner"></span> Iniciando sesión...';
+    if (role === 'administrador') {
+      // Mostrar campo de código de administrador
+      adminCodeGroup.style.display = 'block';
+      setTimeout(() => {
+        adminCodeGroup.classList.remove('hide');
+        adminCodeGroup.classList.add('show');
+      }, 10);
+      
+      // Hacer que el campo sea requerido
+      if (adminCodeInput) {
+        adminCodeInput.setAttribute('required', 'true');
+      }
     } else {
-      this.submitButton.disabled = false;
-      this.submitButton.textContent = 'Iniciar Sesión';
+      // Ocultar campo de código de administrador
+      adminCodeGroup.classList.remove('show');
+      adminCodeGroup.classList.add('hide');
+      
+      setTimeout(() => {
+        adminCodeGroup.style.display = 'none';
+        adminCodeGroup.classList.remove('hide');
+      }, 400);
+      
+      // Remover la validación requerida y limpiar el campo
+      if (adminCodeInput) {
+        adminCodeInput.removeAttribute('required');
+        adminCodeInput.value = '';
+        clearInputError(adminCodeInput, document.getElementById('adminCodeError'));
+      }
     }
   }
+
+  // ======================================
+  // ANIMACIONES Y EFECTOS VISUALES
+  // ======================================
   
   /**
    * Anima la entrada del formulario
    */
-  animateFormEntry() {
+  function animateFormEntry() {
     const authCard = document.querySelector('.auth-card');
-    if (authCard) {
-      authCard.style.opacity = '0';
-      authCard.style.transform = 'translateY(20px)';
-      
-      setTimeout(() => {
-        authCard.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-        authCard.style.opacity = '1';
-        authCard.style.transform = 'translateY(0)';
-      }, 100);
-    }
+    if (!authCard) return;
+    
+    // Aplicar animación de entrada
+    authCard.style.opacity = '0';
+    authCard.style.transform = 'translateY(20px)';
+    
+    setTimeout(() => {
+      authCard.style.transition = 'all 0.5s ease';
+      authCard.style.opacity = '1';
+      authCard.style.transform = 'translateY(0)';
+    }, 100);
   }
   
   /**
-   * Anima el cambio de rol
+   * Anima un efecto de sacudida para errores
    */
-  animateRoleChange() {
-    const formFields = document.querySelectorAll('.form-group');
+  function animateErrorShake() {
+    const authCard = document.querySelector('.auth-card');
+    if (!authCard) return;
     
-    formFields.forEach((field, index) => {
-      field.style.transition = 'none';
-      field.style.opacity = '0';
-      field.style.transform = 'translateX(10px)';
-      
-      setTimeout(() => {
-        field.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-        field.style.opacity = '1';
-        field.style.transform = 'translateX(0)';
-      }, 50 * index);
+    authCard.classList.add('shake-animation');
+    setTimeout(() => authCard.classList.remove('shake-animation'), 500);
+  }
+  
+  /**
+   * Anima un efecto de éxito
+   */
+  function animateSuccess() {
+    const authCard = document.querySelector('.auth-card');
+    if (!authCard) return;
+    
+    authCard.classList.add('success-animation');
+  }
+  
+  // ======================================
+  // GARANTÍA DE VISIBILIDAD
+  // ======================================
+  
+  /**
+   * Asegura que los elementos del formulario sean visibles
+   */
+  function ensureFormVisibility() {
+    const criticalElements = [
+      '.site-content',
+      '.login-section',
+      '.auth-container',
+      '.auth-card',
+      '#loginForm',
+      '.auth-header',
+      '.logo-container',
+      '#adminCodeGroup'
+    ];
+    
+    criticalElements.forEach(selector => {
+      const element = document.querySelector(selector);
+      if (element) {
+        // Asegurar que el elemento sea visible
+        element.style.display = selector === '.auth-container' ? 'flex' : 'block';
+        element.style.visibility = 'visible';
+        element.style.opacity = '1';
+      }
     });
   }
   
   /**
-   * Anima un efecto de sacudida para errores de inicio de sesión
+   * Configura un observador para garantizar la visibilidad del formulario
    */
-  animateErrorShake() {
+  function setupVisibilityObserver() {
+    // Crear un observador para detectar cambios de visibilidad
+    const observer = new MutationObserver(mutations => {
+      let needsCheck = false;
+      
+      mutations.forEach(mutation => {
+        if (mutation.type === 'attributes' && 
+            (mutation.attributeName === 'style' || 
+             mutation.attributeName === 'class')) {
+          needsCheck = true;
+        }
+      });
+      
+      if (needsCheck) {
+        ensureFormVisibility();
+      }
+    });
+    
+    // Observar elementos críticos
+    const criticalElements = [
+      document.querySelector('.site-content'),
+      document.querySelector('.login-section'),
+      document.querySelector('.auth-container'),
+      document.querySelector('.auth-card')
+    ].filter(el => el !== null);
+    
+    criticalElements.forEach(element => {
+      observer.observe(element, {
+        attributes: true,
+        attributeFilter: ['style', 'class']
+      });
+    });
+  }
+});
+
+// Garantizar visibilidad incluso si DOMContentLoaded ya ocurrió
+if (document.readyState === 'loading') {
+  console.log('🔄 Documento cargando - esperando a DOMContentLoaded');
+} else {
+  console.log('🔄 Documento ya cargado - asegurando visibilidad inmediata');
+  setTimeout(() => {
     const authCard = document.querySelector('.auth-card');
     if (authCard) {
-      authCard.classList.add('shake-animation');
-      setTimeout(() => {
-        authCard.classList.remove('shake-animation');
-      }, 500);
+      authCard.style.display = 'block';
+      authCard.style.visibility = 'visible';
+      authCard.style.opacity = '1';
     }
-  }
+  }, 0);
 }

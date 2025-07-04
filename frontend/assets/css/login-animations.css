@@ -1,0 +1,117 @@
+/* ==================================
+   ANIMACIONES PARA EL FORMULARIO DE LOGIN
+   ================================== */
+
+/* Animación de entrada para el formulario */
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Animación de sacudida para errores */
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-5px);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateX(5px);
+  }
+}
+
+.shake-animation {
+  animation: shake 0.6s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+/* Animación de éxito */
+@keyframes success-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(72, 187, 120, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(72, 187, 120, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(72, 187, 120, 0);
+  }
+}
+
+.success-animation {
+  animation: success-pulse 1.5s ease forwards;
+}
+
+/* Animación para cambio de rol */
+@keyframes form-change {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  20% {
+    transform: translateY(5px) scale(0.98);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.form-change {
+  animation: form-change 0.5s ease;
+}
+
+/* Animación para botón de envío */
+@keyframes button-pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.btn-primary:active {
+  animation: button-pulse 0.3s ease;
+}
+
+/* Asegurarse de que las tarjetas y contenedores sean visibles */
+.auth-container, 
+.auth-card,
+#loginForm,
+.login-section,
+.site-content {
+  display: flex !important;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Fix para problemas de visualización */
+.login-section, 
+.auth-container {
+  min-height: 70vh;
+}
+
+/* Asegurarse que la sección de login tenga espacio suficiente */
+.site-content {
+  min-height: calc(100vh - 180px);
+  padding: 2rem 0;
+}
+
+/* Evitar que el contenedor principal se oculte */
+main.site-content {
+  display: block !important;
+}

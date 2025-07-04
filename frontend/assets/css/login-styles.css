@@ -1,0 +1,765 @@
+/* ==================================
+   ESTILOS DE LA PÁGINA DE LOGIN - v2.0
+   FORMULARIO CON EFECTOS VISUALES Y VISIBILIDAD MEJORADA
+   ================================== */
+
+/* Clase para el cuerpo cuando se muestra la página de login */
+.auth-page {
+  background-color: #f9f9f9;
+}
+
+/* ========================================
+   INICIO: SECCIÓN DE LOGIN - VISIBILIDAD GARANTIZADA
+   ======================================== */
+.login-section {
+  width: 100%;
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 var(--spacing-md);
+  animation: fadeIn 0.8s ease-out;
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  visibility: visible !important;
+  opacity: 1 !important;
+  min-height: 70vh; /* Aumentado para mejor centrado vertical */
+}
+
+/* ========================================
+   INICIO: SELECTOR DE TIPO DE USUARIO
+   ======================================== */
+.role-selector {
+  margin-bottom: var(--spacing-xl);
+  background-color: #f8f9fa;
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.role-selector:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-md);
+}
+
+.role-tabs {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.role-tab {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-lg);
+  border: 2px solid transparent;
+  border-radius: var(--radius-md);
+  background-color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: var(--color-gray);
+  font-weight: 500;
+  outline: none;
+}
+
+.role-tab:hover {
+  background-color: #f0f4ff;
+  color: var(--color-secondary);
+  border-color: var(--color-accent);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.2);
+}
+
+.role-tab.active {
+  background-color: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+  box-shadow: 0 4px 12px rgba(14, 26, 79, 0.3);
+}
+
+.role-tab .tab-icon {
+  font-size: 1.2rem;
+  transition: transform 0.3s ease;
+}
+
+.role-tab:hover .tab-icon {
+  transform: scale(1.2);
+}
+
+/* Añadimos descripción del rol */
+.role-description {
+  text-align: center;
+  color: var(--color-gray);
+  font-size: var(--text-sm);
+  padding-top: var(--spacing-sm);
+  transition: all 0.3s ease;
+}
+
+.role-selector:hover .role-description {
+  color: var(--color-secondary);
+}
+
+/* ========================================
+   INICIO: FORMULARIO DE LOGIN - VISIBILIDAD FORZADA
+   ======================================== */
+.auth-card {
+  background-color: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: var(--spacing-xl);
+  transition: box-shadow 0.3s ease, opacity 0.3s ease;
+  width: 100%;
+  max-width: 500px;
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: relative;
+  z-index: 10; /* Asegura que esté por encima de otros elementos */
+  margin: 0 auto; /* Centrado horizontal */
+}
+
+.auth-container {
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: 70vh;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.card-effect {
+  position: relative;
+  z-index: 1;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s ease;
+  margin: auto; /* Centrado */
+}
+
+.card-effect:hover {
+  border-color: var(--color-accent);
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.15);
+}
+
+.card-effect::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.5s ease;
+  z-index: 2;
+}
+
+.card-effect:hover::before {
+  transform: scaleX(1);
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: var(--spacing-xl);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-logo {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  margin-bottom: var(--spacing-md);
+  border: 3px solid var(--auth-accent-color);
+  object-fit: cover;
+  transition: transform 0.3s ease, border-color 0.3s ease;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.auth-card:hover .auth-logo {
+  transform: scale(1.1) rotate(5deg);
+  border-color: var(--color-accent);
+  box-shadow: 0 0 15px rgba(102, 126, 234, 0.3);
+}
+
+/* Añadimos un contenedor específico para el logo para mejores efectos */
+.logo-container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-bottom: var(--spacing-md);
+  position: relative;
+}
+
+.logo-container::after {
+  content: '';
+  position: absolute;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%);
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.auth-card:hover .logo-container::after {
+  opacity: 1;
+}
+
+.section-title {
+  color: var(--color-primary);
+  font-size: var(--text-xl);
+  margin-bottom: var(--spacing-sm);
+  position: relative;
+  display: inline-block;
+  margin-top: var(--spacing-sm); /* Espacio adicional después del logo */
+}
+
+.section-subtitle {
+  color: var(--color-gray);
+  margin-bottom: var(--spacing-md);
+  text-align: center;
+  max-width: 80%; /* Limita el ancho para mejor legibilidad */
+}
+
+.section-title::after {
+  content: '';
+  position: absolute;
+  width: 50%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+  bottom: -10px;
+  left: 25%;
+  border-radius: 2px;
+  transition: width 0.3s ease, left 0.3s ease;
+}
+
+.auth-card:hover .section-title::after {
+  width: 70%;
+  left: 15%;
+}
+
+.form-group {
+  flex: 1;
+  margin-bottom: var(--spacing-md);
+  width: 100%; /* Asegura que los grupos de formulario ocupen todo el ancho */
+}
+
+label {
+  display: block;
+  margin-bottom: var(--spacing-sm);
+  color: var(--color-dark);
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.form-group:hover label {
+  color: var(--color-secondary);
+}
+
+.required {
+  color: #e53e3e;
+  margin-left: 2px;
+}
+
+.input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: 15px;
+  color: var(--color-gray);
+  transition: all 0.3s ease;
+  z-index: 1;
+}
+
+.input-container:hover .input-icon {
+  color: var(--color-accent);
+}
+
+input[type="email"],
+input[type="password"],
+input[type="text"] {
+  width: 100%;
+  padding: var(--spacing-md) var(--spacing-md) var(--spacing-md) 45px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--text-md);
+  transition: all 0.3s ease;
+  background-color: white;
+  position: relative;
+  z-index: 0;
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+}
+
+.input-focus-effect {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+  transition: width 0.3s ease;
+}
+
+.input-container:hover .input-focus-effect {
+  width: 100%;
+}
+
+/* Mejoramos los estilos del formulario y garantizamos visibilidad */
+.auth-form {
+  display: flex !important;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  opacity: 1 !important;
+  visibility: visible !important;
+  min-height: 300px; /* Altura mínima para evitar colapso */
+  position: relative;
+  z-index: 5;
+  width: 100%; /* Asegura que el formulario ocupe todo el ancho disponible */
+  align-items: center; /* Centra los elementos del formulario */
+}
+
+/* Añadimos un mensaje de resultado para feedback */
+.result-message {
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  text-align: center;
+  font-weight: 500;
+  display: none;
+}
+
+.result-message.success {
+  background-color: rgba(72, 187, 120, 0.1);
+  color: #2f855a;
+  border: 1px solid rgba(72, 187, 120, 0.3);
+  display: block;
+}
+
+.result-message.error {
+  background-color: rgba(245, 101, 101, 0.1);
+  color: #c53030;
+  border: 1px solid rgba(245, 101, 101, 0.3);
+  display: block;
+}
+
+/* ========================================
+   INICIO: BOTÓN DE ENVÍO
+   ======================================== */
+.login-submit-btn {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(45deg, var(--color-primary), var(--color-secondary));
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  transition: all 0.3s ease;
+  width: 100%;
+  max-width: 300px; /* Limita el ancho del botón para mejor estética */
+  margin: 0 auto; /* Centrado horizontal */
+}
+
+.login-submit-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 7px 14px rgba(50, 50, 93, 0.2);
+}
+
+.login-submit-btn:active {
+  transform: translateY(-1px);
+}
+
+.form-actions {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: var(--spacing-md);
+}
+
+.btn-icon {
+  font-size: 1.2rem;
+  transition: transform 0.3s ease;
+}
+
+.btn-text {
+  position: relative;
+  z-index: 1;
+}
+
+.btn-shine {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: rotate(45deg);
+  transition: all 0.5s ease;
+  opacity: 0;
+}
+
+.login-submit-btn:hover .btn-shine {
+  animation: shine 1.5s infinite;
+  opacity: 1;
+}
+
+@keyframes shine {
+  0% {
+    left: -100%;
+    opacity: 0;
+  }
+  20% {
+    left: 100%;
+    opacity: 0.6;
+  }
+  100% {
+    left: 100%;
+    opacity: 0;
+  }
+}
+
+/* ========================================
+   INICIO: ENLACES DE AUTENTICACIÓN
+   ======================================== */
+.auth-links {
+  margin-top: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.auth-link {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.auth-link:hover {
+  color: var(--color-accent);
+  transform: translateX(3px);
+}
+
+.auth-link i {
+  transition: transform 0.3s ease;
+}
+
+.auth-link:hover i {
+  transform: scale(1.2);
+}
+
+/* ========================================
+   INICIO: MENSAJES DE ERROR
+   ======================================== */
+.error-message {
+  font-size: var(--text-sm);
+  color: #e53e3e;
+  margin-top: 0.3rem;
+  height: 20px;
+  transition: all 0.3s ease;
+}
+
+/* ========================================
+   INICIO: PROTECCIÓN CONTRA OCULTAMIENTO
+   ======================================== */
+/* Prevenir ocultamiento por manipulación de DOM */
+.site-content,
+.login-section,
+.auth-container,
+.auth-card,
+.auth-form {
+  display: flex !important;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Manejo del estado de carga inicial */
+.auth-container[style*="display: none"],
+.auth-container[style*="visibility: hidden"],
+.auth-container[style*="opacity: 0"],
+.auth-card[style*="display: none"],
+.auth-card[style*="visibility: hidden"],
+.auth-card[style*="opacity: 0"] {
+  display: flex !important;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Transiciones más suaves para evitar parpadeos */
+.login-section {
+  transition: opacity 0.5s ease-in !important;
+}
+
+/* Estilos para cuando JS intenta ocultar elementos */
+[id="login"][hidden],
+[id="loginForm"][hidden],
+.auth-container[hidden],
+.auth-card[hidden] {
+  display: flex !important;
+}
+
+/* ========================================
+   INICIO: ESTILOS RESPONSIVE
+   ======================================== */
+@media (max-width: 768px) {
+  .auth-card {
+    padding: var(--spacing-lg) var(--spacing-md);
+  }
+  
+  .role-tabs {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .admin-code-group {
+    margin-bottom: var(--spacing-lg) !important;
+  }
+  
+  .admin-code-info {
+    font-size: var(--text-xs);
+    padding: var(--spacing-xs);
+  }
+}
+
+@media (max-width: 480px) {
+  .auth-card {
+    padding: var(--spacing-md);
+  }
+  
+  .section-title {
+    font-size: var(--text-lg);
+  }
+  
+  .login-submit-btn {
+    width: 100%;
+  }
+}
+
+/* ========================================
+   INICIO: ANIMACIONES OPTIMIZADAS
+   ======================================== */
+
+/* Animación de entrada garantizada */
+@keyframes fadeIn {
+  0% {
+    opacity: 0.8;
+    transform: translateY(-10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Animación para sacudida de error */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+.shake-animation {
+  animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+/* Animaciones para detección de problemas de visibilidad */
+@keyframes flash {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Clase para aplicar cuando se detecte que el elemento está oculto */
+.flash-visibility {
+  animation: flash 0.5s ease infinite;
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* ========================================
+   INICIO: CORRECCIONES DE BUGS
+   ======================================== */
+
+/* Corrige problema de transiciones que podrían dejar elementos ocultos */
+.auth-card,
+.auth-container,
+.login-section {
+  transition-property: transform, box-shadow !important;
+  transition-property: opacity !important;
+  transition-duration: 0.3s !important;
+}
+
+/* Desactivar animaciones potencialmente problemáticas en carga inicial */
+html.js-loading .auth-card {
+  opacity: 1 !important;
+  transition: none !important;
+  transform: none !important;
+}
+
+/* Garantizar que elementos importantes no desaparezcan */
+body:not(.loaded) .site-content,
+body:not(.loaded) .auth-container,
+body:not(.loaded) .auth-card {
+  opacity: 1 !important;
+  display: flex !important;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ========================================
+   INICIO: CAMPO DE CÓDIGO DE ADMINISTRADOR
+   ======================================== */
+.admin-code-group {
+  transition: all 0.4s ease;
+  transform: translateY(-10px);
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  margin-bottom: 0 !important;
+}
+
+.admin-code-group.show {
+  opacity: 1;
+  transform: translateY(0);
+  max-height: 200px;
+  margin-bottom: var(--spacing-md) !important;
+}
+
+.admin-code-info {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin-top: var(--spacing-sm);
+  padding: var(--spacing-sm);
+  background-color: #e8f4f8;
+  border-left: 4px solid var(--color-accent);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  color: var(--color-secondary);
+}
+
+.admin-code-info i {
+  color: var(--color-accent);
+  font-size: 1rem;
+}
+
+/* Animación especial para mostrar el campo de código */
+@keyframes slideDown {
+  from {
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    max-height: 200px;
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    max-height: 200px;
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+.admin-code-group.show {
+  animation: slideDown 0.4s ease forwards;
+}
+
+.admin-code-group.hide {
+  animation: slideUp 0.4s ease forwards;
+}
+
+/* Estilos específicos para el input del código de administrador */
+#adminCode {
+  border: 2px solid var(--color-border);
+  font-family: 'Courier New', monospace;
+  letter-spacing: 1px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+#adminCode:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+#adminCode::placeholder {
+  text-transform: none;
+  letter-spacing: normal;
+  font-family: inherit;
+}
+
+/* Estilos adicionales para el error del código de administrador */
+.error-input#adminCode {
+  border-color: #e53e3e !important;
+  box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.2) !important;
+}
+
+/* Indicador visual de que es un campo especial */
+#adminCode:valid {
+  border-color: #48bb78;
+  box-shadow: 0 0 0 3px rgba(72, 187, 120, 0.2);
+}
+
+/* Mejorar la responsividad para el formulario con código de admin */
+@media (max-width: 768px) {
+  .admin-code-group {
+    margin-bottom: var(--spacing-lg) !important;
+  }
+  
+  .admin-code-info {
+    font-size: var(--text-xs);
+    padding: var(--spacing-xs);
+  }
+}
