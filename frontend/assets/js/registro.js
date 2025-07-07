@@ -18,7 +18,8 @@ class RegistroManager {
         
         this.init();
     } catch (error) {
-        ErrorHandler.handleError(error, 'RegistroManager Constructor');
+        console.error('Error en RegistroManager Constructor:', error);
+        this.showMessage('Error al inicializar el formulario. Recargue la página.', 'error');
     }
   }
 
@@ -81,97 +82,13 @@ class RegistroManager {
     });
   }
 
-  handleRoleChange(selectedTab) {
-    try {
-      // Remover clase active de todos los tabs
-      this.roleTabs.forEach(tab => tab.classList.remove('active'));
-      
-      // Agregar clase active al tab seleccionado
-      selectedTab.classList.add('active');
-      
-      // Obtener el tipo de usuario
-      const role = selectedTab.dataset.role;
-      this.tipoUsuarioInput.value = role;
-      
-      // Mostrar/ocultar campos de administrador
-      if (role === 'administrador') {
-        this.adminFields.style.display = 'block';
-        
-        // Hacer el código de admin requerido
-        const codigoAdmin = document.getElementById('codigoAdmin');
-        if (codigoAdmin) {
-          codigoAdmin.required = true;
-        }
-        
-        // También hacer requerido el departamento
-        const departamento = document.getElementById('departamento');
-        if (departamento) {
-          departamento.required = true;
-        }
-      } else {
-        this.adminFields.style.display = 'none';
-        
-        // Quitar requerimiento de los campos de admin
-        const codigoAdmin = document.getElementById('codigoAdmin');
-        if (codigoAdmin) {
-          codigoAdmin.required = false;
-          codigoAdmin.value = '';
-        }
-        
-        const departamento = document.getElementById('departamento');
-        if (departamento) {
-          departamento.required = false;
-          departamento.value = '';
-        }
-      }
-    } catch (error) {
-      console.error('Error al cambiar el tipo de usuario:', error);
-    }
-  }
-
   setupFormValidation() {
-    // Validación en tiempo real
+    // Validación en submit
     const inputs = this.form.querySelectorAll('input, select');
     
     inputs.forEach(input => {
       input.addEventListener('blur', () => this.validateField(input));
-      input.addEventListener('input', () => {
-        this.clearFieldError(input);
-        
-        // Validación cruzada para contraseñas
-        if (input.name === 'password') {
-          const confirmPasswordField = document.getElementById('confirmPassword');
-          if (confirmPasswordField && confirmPasswordField.value) {
-            this.validateField(confirmPasswordField);
-          }
-        }
-        
-        // Validación en tiempo real para código de administrador
-        if (input.name === 'codigoAdmin') {
-          this.validateAdminCode(input.value);
-        }
-      });
     });
-    
-    // Evento especial para mostrar/ocultar requisitos del código
-    const codigoAdmin = document.getElementById('codigoAdmin');
-    if (codigoAdmin) {
-      codigoAdmin.addEventListener('focus', () => {
-        const requirementsList = codigoAdmin.parentElement.nextElementSibling;
-        if (requirementsList && requirementsList.classList.contains('password-requirements')) {
-          requirementsList.style.display = 'block';
-        }
-      });
-      
-      codigoAdmin.addEventListener('blur', () => {
-        const requirementsList = codigoAdmin.parentElement.nextElementSibling;
-        if (requirementsList && requirementsList.classList.contains('password-requirements')) {
-          setTimeout(() => {
-            requirementsList.style.display = 'none';
-          }, 300);
-        }
-      });
-    }
   }
 
   validateField(field) {
@@ -229,9 +146,9 @@ class RegistroManager {
         if (field.required && !value) {
           isValid = false;
           errorMessage = 'La contraseña es requerida';
-        } else if (value && value.length < 6) {
+        } else if (value && value.length < 8) {
           isValid = false;
-          errorMessage = 'La contraseña debe tener al menos 6 caracteres';
+          errorMessage = 'La contraseña debe tener al menos 8 caracteres';
         }
         break;
 
@@ -275,13 +192,6 @@ class RegistroManager {
       // Crear mensaje de error
       const errorDiv = document.createElement('div');
       errorDiv.className = field.type === 'password' ? 'field-error password-error' : 'field-error';
-      errorDiv.style.cssText = `
-        color: #ef4444;
-        font-size: 0.85rem;
-        margin-top: 5px;
-        font-weight: 500;
-        animation: fadeInUp 0.3s ease;
-      `;
       errorDiv.textContent = errorMessage;
       field.parentNode.appendChild(errorDiv);
 
@@ -343,25 +253,20 @@ class RegistroManager {
         return;
       }
 
-      // Simular tiempo de procesamiento
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      // Guardar en localStorage (simulando base de datos)
+      // Guardar en localStorage
       this.saveUserData(formData);
 
-      // Mostrar mensaje de éxito con información sobre redirección
+      // Mostrar mensaje de éxito
       this.showMessage(
-        `¡Registro exitoso! Bienvenido/a ${formData.nombreCompleto}. Su registro como ${formData.tipoUsuario} ha sido completado. Será redirigido/a a la página principal en unos segundos...`,
+        `¡Registro exitoso! Bienvenido/a ${formData.nombreCompleto}. Su registro como ${formData.tipoUsuario} ha sido completado.`,
         'success'
       );
 
       // Actualizar lista de usuarios
       this.updateUsersList();
-
-      // Mostrar panel de usuarios si hay usuarios registrados
       this.showUsersPanel();
       
-      // Redireccionar a la página principal después de 3 segundos
+      // Redireccionar después de mostrar mensaje
       setTimeout(() => {
         window.location.href = '../../proyectopages/index.html';
       }, 3000);
@@ -395,7 +300,7 @@ class RegistroManager {
     
     // Agregar timestamp
     data.fechaRegistro = new Date().toISOString();
-    data.id = this.generateUserId();
+    data.id = Date.now().toString();
     
     return data;
   }
@@ -445,7 +350,7 @@ class RegistroManager {
   }
 
   saveUserData(userData) {
-    // Crear objeto con los datos básicos del usuario
+    // Crear objeto con los datos del usuario
     const userToSave = {
       id: userData.id,
       nombreCompleto: userData.nombreCompleto,
@@ -466,46 +371,15 @@ class RegistroManager {
       userToSave.codigoAdmin = userData.codigoAdmin;
     }
 
-    // Guardar la contraseña de forma segura (en una aplicación real se usaría hash)
-    // Aquí simulamos una versión simplificada de seguridad
-    userToSave.password = this.securePassword(userData.password);
+    // Guardar la contraseña (en producción usar hash seguro)
+    userToSave.password = btoa(userData.password);
 
     // Obtener usuarios existentes y agregar el nuevo
     const existingUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
     existingUsers.push(userToSave);
     localStorage.setItem('registeredUsers', JSON.stringify(existingUsers));
-    
-    // Log para desarrollo
-    console.log('Usuario registrado:', userToSave);
-    
-    // Almacenar los datos del último usuario registrado para redirección
-    localStorage.setItem('lastRegisteredUser', JSON.stringify({
-      numeroDocumento: userToSave.numeroDocumento,
-      tipoUsuario: userToSave.tipoUsuario
-    }));
-    
-    // Agregar un pequeño retardo antes de redirigir al usuario
-    setTimeout(() => {
-      this.redirectToUserDashboard(userToSave.tipoUsuario);
-    }, 2000);
   }
   
-  securePassword(password) {
-    // En una aplicación real, aquí implementaríamos un hash seguro
-    // Para esta demo, usamos un método simple (NO usar en producción real)
-    // Por ejemplo, podrías usar bcrypt en un entorno Node.js real
-    return btoa(password + "_salted"); // Codificación básica + salt
-  }
-  
-  redirectToUserDashboard(tipoUsuario) {
-    // Redirigir al usuario según su rol
-    if (tipoUsuario === 'administrador') {
-      window.location.href = 'dashboard-admin.html';
-    } else {
-      window.location.href = 'dashboard-empleado.html';
-    }
-  }
-
   showMessage(message, type) {
     this.mensajeContainer.textContent = message;
     this.mensajeContainer.className = `registro-mensaje ${type}`;
@@ -651,108 +525,7 @@ class RegistroManager {
   }
 }
 
-// Error Handler para el registro
-class ErrorHandler {
-    static handleError(error, context = '') {
-        console.error(`Error en ${context}:`, error);
-        
-        // Mostrar mensaje de error al usuario
-        const message = document.getElementById('registroMensaje');
-        if (message) {
-            message.textContent = `Ha ocurrido un error. Por favor, inténtelo de nuevo.`;
-            message.className = 'registro-mensaje error';
-            message.style.display = 'block';
-            
-            // Auto-ocultar después de 5 segundos
-            setTimeout(() => {
-                message.style.display = 'none';
-            }, 5000);
-        }
-    }
-}
-
-// ===========================
-// ENHANCED REGISTRATION FORM ANIMATIONS
-// ===========================
-
-// Enhanced Animation System for Registration
-class RegistrationAnimations {
-  constructor() {
-    this.init();
-  }
-
-  init() {
-    this.setupPageTransitions();
-    // this.setupFormAnimations(); // Desactivado para evitar animaciones de zoom
-    this.setupProgressIndicator();
-  }
-
-  setupPageTransitions() {
-    // Add smooth page entry animation
-    const registroSection = document.querySelector('.registro-section');
-    if (registroSection) {
-      registroSection.classList.add('scroll-reveal');
-      
-      // Trigger animation after page load
-      setTimeout(() => {
-        registroSection.classList.add('revealed');
-      }, 500);
-    }
-  }
-
-  setupProgressIndicator() {
-    // Visual progress indicator for form completion
-    const form = document.getElementById('registroForm');
-    if (!form) return;
-
-    // Create progress bar
-    const progressBar = document.createElement('div');
-    progressBar.className = 'form-progress';
-    progressBar.innerHTML = `
-      <div class="progress-bar">
-        <div class="progress-fill"></div>
-      </div>
-      <div class="progress-text">Completando registro...</div>
-    `;
-    
-    const formHeader = document.querySelector('.registro-header');
-    if (formHeader) {
-      formHeader.appendChild(progressBar);
-    }
-
-    // Track form completion
-    const inputs = form.querySelectorAll('input[required], select[required]');
-    const progressFill = progressBar.querySelector('.progress-fill');
-    const progressText = progressBar.querySelector('.progress-text');
-
-    const updateProgress = () => {
-      const filledInputs = Array.from(inputs).filter(input => {
-        return input.value.trim() !== '';
-      });
-      
-      const progress = (filledInputs.length / inputs.length) * 100;
-      progressFill.style.width = progress + '%';
-      
-      if (progress === 100) {
-        progressText.textContent = '¡Formulario completo!';
-        progressBar.classList.add('complete');
-      } else {
-        progressText.textContent = `Progreso: ${Math.round(progress)}%`;
-        progressBar.classList.remove('complete');
-      }
-    };
-
-    inputs.forEach(input => {
-      input.addEventListener('input', updateProgress);
-    });
-
-    // Initial progress check
-    updateProgress();
-  }
-}
-
 // Inicializar el formulario de registro cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', () => {
   new RegistroManager();
-  new RegistrationAnimations();
 });

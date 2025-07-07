@@ -48,38 +48,8 @@ body[class*="auth"],
   position: relative;
 }
 
-.auth-page .site-header {
-  background: var(--color-primary) !important;
-  background-color: var(--color-primary) !important;
-  position: relative;
-  top: 0;
-  z-index: 100;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  flex-shrink: 0;
-  color: white !important;
-}
-
-/* Asegurar que los elementos del header mantengan el color correcto */
-.auth-page .site-header,
-.auth-page .site-header * {
-  background-color: var(--color-primary) !important;
-}
-
-/* Excepciones para elementos específicos del header */
-.auth-page .site-header .header-title,
-.auth-page .site-header .main-nav {
-  background-color: rgba(0, 0, 0, 0.2) !important;
-}
-
-/* Forzar especificidad para header en páginas de autenticación */
-body.auth-page .site-header,
-body.auth-page .site-header * {
-  background-color: inherit !important;
-}
-
-body.auth-page .site-header .main-nav {
-  background-color: rgba(0, 0, 0, 0.2) !important;
-}
+/* ELIMINAR TODOS LOS ESTILOS CONFLICTIVOS DEL HEADER */
+/* El header usará los estilos originales de styles.css */
 
 /* Layout optimizado para páginas de autenticación */
 body.auth-page {

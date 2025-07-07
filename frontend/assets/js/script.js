@@ -2,22 +2,95 @@
  * IN OUT MANAGER - Script Principal Optimizado
  * 
  * Funcionalidades principales del sitio web con arquitectura modular
- * y reutilización del módulo utils.js
+ * y profesional para la gestión de componentes del frontend
  * 
  * @author IN OUT MANAGER Team
- * @version 2.0.0
+ * @version 3.0.0
  */
 
 (function() {
     'use strict';
 
-    // Verificar que las utilidades estén disponibles
-    if (!window.IOManager?.utils) {
-        console.error('❌ IOManager utils no está disponible. Asegúrese de cargar utils.js primero.');
-        return;
-    }
+    // Configuración global del sistema
+    const CONFIG = {
+        animation: {
+            duration: 300,
+            easing: 'ease-in-out'
+        },
+        carousel: {
+            autoplayDelay: 5000,
+            animationDuration: 500
+        },
+        scroll: {
+            offset: 70,
+            behavior: 'smooth'
+        }
+    };
 
-    const { DOM, UI, error } = IOManager.utils;
+    // Utilidades DOM simplificadas
+    const DOM = {
+        select: (selector, context = document) => {
+            try {
+                return context.querySelector(selector);
+            } catch (error) {
+                console.warn(`⚠️ Selector inválido: ${selector}`);
+                return null;
+            }
+        },
+
+        selectAll: (selector, context = document) => {
+            try {
+                return Array.from(context.querySelectorAll(selector));
+            } catch (error) {
+                console.warn(`⚠️ Selector inválido: ${selector}`);
+                return [];
+            }
+        },
+
+        addEvent: (element, event, handler, options = {}) => {
+            if (!element || typeof handler !== 'function') return false;
+            try {
+                element.addEventListener(event, handler, options);
+                return true;
+            } catch (error) {
+                console.warn(`⚠️ Error agregando evento ${event}:`, error);
+                return false;
+            }
+        },
+
+        addClass: (element, ...classes) => {
+            if (!element || !classes.length) return false;
+            try {
+                element.classList.add(...classes);
+                return true;
+            } catch (error) {
+                return false;
+            }
+        },
+
+        removeClass: (element, ...classes) => {
+            if (!element || !classes.length) return false;
+            try {
+                element.classList.remove(...classes);
+                return true;
+            } catch (error) {
+                return false;
+            }
+        }
+    };
+
+    // Utilidades UI simplificadas
+    const UI = {
+        scrollTo: (element, offset = CONFIG.scroll.offset) => {
+            if (!element) return false;
+            const targetPosition = element.offsetTop - offset;
+            window.scrollTo({
+                top: targetPosition,
+                behavior: CONFIG.scroll.behavior
+            });
+            return true;
+        }
+    };
 
     /**
      * Clase principal para manejar el sitio
@@ -35,12 +108,11 @@
             if (this.isInitialized) return;
 
             try {
-                // Inicializar componentes en orden de prioridad
                 await this.initializeComponents();
                 this.isInitialized = true;
                 console.log('✅ SiteManager inicializado correctamente');
             } catch (err) {
-                error.handle(err, 'SiteManager.init', true);
+                console.error('❌ Error inicializando SiteManager:', err);
             }
         }
 
@@ -53,7 +125,6 @@
                 { name: 'carousel', init: () => this.initCarousel() },
                 { name: 'animations', init: () => this.initAnimations() },
                 { name: 'forms', init: () => this.initFormValidation() },
-                { name: 'auth', init: () => this.initAuthButtons() },
                 { name: 'mobile', init: () => this.initMobileMenu() },
                 { name: 'contact', init: () => this.initContactEffects() }
             ];
@@ -64,7 +135,7 @@
                     this.components.set(component.name, true);
                     console.log(`✅ ${component.name} inicializado`);
                 } catch (err) {
-                    error.handle(err, `Componente ${component.name}`, false);
+                    console.warn(`⚠️ Error en componente ${component.name}:`, err);
                 }
             }
         }
@@ -171,14 +242,6 @@
         }
 
         /**
-         * Inicializa los botones de autenticación
-         */
-        initAuthButtons() {
-            const authManager = new AuthManager();
-            authManager.init();
-        }
-
-        /**
          * Inicializa el menú móvil
          */
         initMobileMenu() {
@@ -209,7 +272,7 @@
             this.currentSlide = 0;
             this.isAnimating = false;
             this.autoplayInterval = null;
-            this.autoplayDelay = 5000;
+            this.autoplayDelay = CONFIG.carousel.autoplayDelay;
         }
 
         init() {
@@ -322,7 +385,7 @@
             
             setTimeout(() => {
                 this.isAnimating = false;
-            }, 500);
+            }, CONFIG.carousel.animationDuration);
         }
 
         nextSlide() {
@@ -624,7 +687,7 @@
             submitBtn.classList.add('loading');
             submitBtn.disabled = true;
 
-            // Simular envío
+            // Simular envío del formulario
             setTimeout(() => {
                 formStatus.textContent = '¡Gracias! Tu mensaje ha sido enviado correctamente.';
                 formStatus.className = 'form-status success';
@@ -647,7 +710,7 @@
                 setTimeout(() => {
                     formStatus.classList.remove('success');
                 }, 5000);
-            }, 1500);
+            }, 1000);
         }
 
         initPasswordToggle() {
@@ -662,28 +725,6 @@
                     }
                 });
             });
-        }
-    }
-
-    /**
-     * Gestor de autenticación
-     */
-    class AuthManager {
-        init() {
-            const registerBtn = DOM.select('#registerBtn');
-            const loginBtn = DOM.select('#loginBtn');
-
-            if (registerBtn) {
-                DOM.addEvent(registerBtn, 'click', () => {
-                    console.log('Navegando a la página de registro...');
-                });
-            }
-
-            if (loginBtn) {
-                DOM.addEvent(loginBtn, 'click', () => {
-                    console.log('Navegando a la página de inicio de sesión...');
-                });
-            }
         }
     }
 
@@ -806,9 +847,5 @@
         const siteManager = new SiteManager();
         siteManager.init();
     }
-
-    // Exponer al namespace global para debugging
-    window.IOManager = window.IOManager || {};
-    window.IOManager.SiteManager = SiteManager;
 
 })();

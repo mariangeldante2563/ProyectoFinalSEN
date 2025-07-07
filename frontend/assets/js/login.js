@@ -12,7 +12,6 @@
     const CONFIG = {
         minPasswordLength: 8,
         redirectDelay: 1000,
-        errorDisplayTime: 3000,
         loadingText: 'Cargando...',
         successMessage: 'Inicio de sesión exitoso',
         errorMessage: 'Error al iniciar sesión'
@@ -32,11 +31,9 @@
                 this.cacheElements();
                 this.bindEvents();
                 this.initializeUI();
-                this.ensureVisibility();
                 console.log('🔒 Login module initialized successfully');
             } catch (error) {
                 console.error('❌ Error initializing login module:', error);
-                this.showFallbackForm();
             }
         }
 
@@ -52,7 +49,6 @@
                 resultMessage: '#loginResult',
                 adminCodeGroup: '#adminCodeGroup',
                 adminCode: '#adminCode',
-                authCard: '.auth-card',
                 roleDescription: '#roleDescription'
             };
 
@@ -106,28 +102,6 @@
             if (defaultTab) {
                 this.handleRoleChange(defaultTab);
             }
-
-            // Add entrance animation
-            if (this.elements.authCard) {
-                this.elements.authCard.classList.add('fade-in');
-            }
-        }
-
-        // Ensure form visibility
-        ensureVisibility() {
-            const criticalElements = [
-                '.auth-container', '.auth-card', '.auth-form', 
-                '.login-section', '.form-group'
-            ];
-
-            criticalElements.forEach(selector => {
-                const element = document.querySelector(selector);
-                if (element) {
-                    element.style.opacity = '1';
-                    element.style.visibility = 'visible';
-                    element.style.display = element.style.display || 'block';
-                }
-            });
         }
 
         // Handle role change
@@ -202,14 +176,8 @@
                 // Get form data
                 const formData = this.getFormData();
 
-                // Simulate API call (replace with actual API call)
-                await this.authenticateUser(formData);
-
-                // Success
-                this.showSuccessMessage(CONFIG.successMessage);
-                setTimeout(() => {
-                    this.redirectToDashboard();
-                }, CONFIG.redirectDelay);
+                // Process authentication
+                this.processLogin(formData);
 
             } catch (error) {
                 this.showErrorMessage(CONFIG.errorMessage);
@@ -217,6 +185,17 @@
             } finally {
                 this.setLoadingState(false);
             }
+        }
+
+        // Process login
+        processLogin(formData) {
+            // Success message
+            this.showSuccessMessage(CONFIG.successMessage);
+            
+            // Redirect after delay
+            setTimeout(() => {
+                this.redirectToDashboard();
+            }, CONFIG.redirectDelay);
         }
 
         // Get form data
@@ -232,19 +211,6 @@
             }
 
             return data;
-        }
-
-        // Authenticate user (simulate API call)
-        async authenticateUser(formData) {
-            // Simulate API delay
-            await new Promise(resolve => setTimeout(resolve, 1000));
-
-            // Simulate authentication logic
-            if (formData.email === 'admin@example.com' && formData.password === '12345678') {
-                return { success: true, user: formData };
-            }
-
-            throw new Error('Invalid credentials');
         }
 
         // Validate entire form
@@ -333,11 +299,6 @@
             element.parentElement.appendChild(errorDiv);
             element.classList.add('error');
             element.setAttribute('aria-invalid', 'true');
-
-            // Remove error after specified time
-            setTimeout(() => {
-                this.clearFieldError(element);
-            }, CONFIG.errorDisplayTime);
         }
 
         // Clear field error
@@ -393,7 +354,7 @@
             setTimeout(() => {
                 this.elements.resultMessage.textContent = '';
                 this.elements.resultMessage.className = 'result-message';
-            }, CONFIG.errorDisplayTime);
+            }, 3000);
         }
 
         // Redirect to dashboard
@@ -406,18 +367,6 @@
             const url = dashboardUrls[this.selectedRole] || dashboardUrls.empleado;
             window.location.href = url;
         }
-
-        // Show fallback form if initialization fails
-        showFallbackForm() {
-            console.warn('⚠️ Showing fallback form');
-            // Basic fallback functionality
-            const form = document.getElementById('loginForm');
-            if (form) {
-                form.style.display = 'block';
-                form.style.opacity = '1';
-                form.style.visibility = 'visible';
-            }
-        }
     }
 
     // Initialize module
@@ -429,8 +378,5 @@
     } else {
         loginModule.init();
     }
-
-    // Expose module for debugging
-    window.LoginModule = loginModule;
 
 })();

@@ -43,26 +43,6 @@ class RecoveryManager {
         this.handlePasswordForm();
       });
     }
-
-    // Validación en tiempo real
-    this.setupValidation();
-  }
-
-  setupValidation() {
-    const numeroDocumento = document.getElementById('numeroDocumento');
-    const correoElectronico = document.getElementById('correoElectronico');
-    
-    if (numeroDocumento) {
-      numeroDocumento.addEventListener('input', () => {
-        this.validateField('numeroDocumento');
-      });
-    }
-
-    if (correoElectronico) {
-      correoElectronico.addEventListener('input', () => {
-        this.validateField('correoElectronico');
-      });
-    }
   }
 
   validateField(fieldId) {
@@ -111,7 +91,7 @@ class RecoveryManager {
     }
   }
 
-  async handleIdentityForm() {
+  handleIdentityForm() {
     const numeroDocumento = document.getElementById('numeroDocumento').value.trim();
     const correoElectronico = document.getElementById('correoElectronico').value.trim();
 
@@ -125,30 +105,18 @@ class RecoveryManager {
 
     this.showMessage('identityResult', 'Verificando información...', 'info');
 
-    // Simular verificación
-    await this.delay(1000);
-
-    // Buscar usuario (simulado)
-    const user = this.findUser(numeroDocumento, correoElectronico);
-    
-    if (!user) {
-      this.showMessage('identityResult', 'Usuario no encontrado con esos datos.', 'error');
-      return;
-    }
-
-    this.userData = user;
+    // Simular verificación exitosa
+    this.userData = { numeroDocumento, correoElectronico };
     this.verificationCode = this.generateCode();
     
     this.showMessage('identityResult', `Código enviado a ${this.maskEmail(correoElectronico)}`, 'success');
-    
-    console.log('🔐 Código generado:', this.verificationCode);
     
     setTimeout(() => {
       this.showStep(2);
     }, 1500);
   }
 
-  async handleVerificationForm() {
+  handleVerificationForm() {
     const codigo = document.getElementById('codigoVerificacion').value.trim().toUpperCase();
     
     if (!codigo) {
@@ -162,8 +130,6 @@ class RecoveryManager {
     }
 
     this.showMessage('verificationResult', 'Verificando código...', 'info');
-    
-    await this.delay(800);
 
     if (codigo !== this.verificationCode) {
       this.showMessage('verificationResult', 'Código incorrecto', 'error');
@@ -177,7 +143,7 @@ class RecoveryManager {
     }, 1000);
   }
 
-  async handlePasswordForm() {
+  handlePasswordForm() {
     const nuevaPassword = document.getElementById('nuevaPassword').value;
     const confirmPassword = document.getElementById('confirmPassword').value;
 
@@ -186,8 +152,8 @@ class RecoveryManager {
       return;
     }
 
-    if (nuevaPassword.length < 6) {
-      this.showMessage('passwordResult', 'La contraseña debe tener al menos 6 caracteres', 'error');
+    if (nuevaPassword.length < 8) {
+      this.showMessage('passwordResult', 'La contraseña debe tener al menos 8 caracteres', 'error');
       return;
     }
 
@@ -195,10 +161,6 @@ class RecoveryManager {
       this.showMessage('passwordResult', 'Las contraseñas no coinciden', 'error');
       return;
     }
-
-    this.showMessage('passwordResult', 'Estableciendo nueva contraseña...', 'info');
-    
-    await this.delay(1000);
 
     this.showMessage('passwordResult', '¡Contraseña establecida correctamente!', 'success');
     
@@ -264,19 +226,6 @@ class RecoveryManager {
     });
   }
 
-  findUser(documento, email) {
-    // Datos de prueba
-    const users = [
-      { documento: '12345678', email: 'usuario1@ejemplo.com', nombre: 'Usuario Prueba 1' },
-      { documento: '87654321', email: 'usuario2@ejemplo.com', nombre: 'Usuario Prueba 2' },
-      { documento: '11223344', email: 'admin@inoutmanager.com', nombre: 'Administrador' }
-    ];
-    
-    return users.find(user => 
-      user.documento === documento && user.email.toLowerCase() === email.toLowerCase()
-    );
-  }
-
   generateCode() {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let code = '';
@@ -291,43 +240,14 @@ class RecoveryManager {
     const maskedUsername = username.charAt(0) + '***' + username.slice(-1);
     return maskedUsername + '@' + domain;
   }
-
-  delay(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
 }
 
 // Inicializar cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', function() {
   try {
-    window.recoveryManager = new RecoveryManager();
+    const recoveryManager = new RecoveryManager();
     console.log('✅ Sistema de recuperación inicializado');
   } catch (error) {
     console.error('❌ Error al inicializar:', error);
   }
 });
-
-// Funciones globales para testing
-window.fillTestData = function() {
-  const numeroDocumento = document.getElementById('numeroDocumento');
-  const correoElectronico = document.getElementById('correoElectronico');
-  
-  if (numeroDocumento) numeroDocumento.value = '12345678';
-  if (correoElectronico) correoElectronico.value = 'usuario1@ejemplo.com';
-  
-  console.log('📝 Datos de prueba llenados');
-};
-
-window.goToStep = function(step) {
-  if (window.recoveryManager) {
-    window.recoveryManager.showStep(step);
-    console.log(`🔄 Navegando al paso ${step}`);
-  }
-};
-
-window.showCode = function() {
-  if (window.recoveryManager && window.recoveryManager.verificationCode) {
-    console.log('🔐 Código actual:', window.recoveryManager.verificationCode);
-    alert('Código: ' + window.recoveryManager.verificationCode);
-  }
-};
