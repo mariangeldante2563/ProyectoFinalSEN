@@ -1,390 +1,333 @@
 // ===========================
-// FUNCIONALIDAD DE RECUPERACIÓN DE CONTRASEÑA
+// RECUPERACIÓN DE CONTRASEÑA OPTIMIZADA
 // ===========================
 
-class PasswordRecoveryManager {
+class RecoveryManager {
   constructor() {
-    try {
-      // Referencias a elementos del DOM - Formularios
-      this.solicitudForm = document.getElementById('solicitudForm');
-      this.verificacionForm = document.getElementById('verificacionForm');
-      this.nuevaPasswordForm = document.getElementById('nuevaPasswordForm');
-      
-      // Referencias a elementos del DOM - Pasos
-      this.step1 = document.getElementById('step1');
-      this.step2 = document.getElementById('step2');
-      this.step3 = document.getElementById('step3');
-      
-      // Referencias a elementos del DOM - Campos
-      this.numeroDocumento = document.getElementById('numeroDocumento');
-      this.correoElectronico = document.getElementById('correoElectronico');
-      this.codigoVerificacion = document.getElementById('codigoVerificacion');
-      this.nuevaPassword = document.getElementById('nuevaPassword');
-      this.confirmPassword = document.getElementById('confirmPassword');
-      
-      // Referencias a elementos del DOM - Botones
-      this.reenviarCodigoBtn = document.getElementById('reenviarCodigoBtn');
-      
-      // Referencias a elementos del DOM - Mensajes
-      this.mensajeContainer = document.getElementById('recuperacionMensaje');
-      
-      // Variables de estado
-      this.currentStep = 1;
-      this.verificationCode = '';
-      this.userData = null;
-      
-      this.init();
-    } catch (error) {
-      console.error('Error al inicializar el recuperador de contraseña:', error);
-    }
+    this.currentStep = 1;
+    this.verificationCode = '';
+    this.userData = null;
+    this.init();
   }
-  
+
   init() {
-    // Inicializar eventos de formularios
-    this.setupFormEvents();
-    
-    // Mostrar el primer paso
-    this.showCurrentStep();
+    console.log('🚀 Inicializando sistema de recuperación...');
+    this.setupEventListeners();
+    this.showStep(1);
   }
-  
-  setupFormEvents() {
-    // Eventos para el formulario de solicitud
-    if (this.solicitudForm) {
-      this.solicitudForm.addEventListener('submit', (e) => {
+
+  setupEventListeners() {
+    // Formulario de identidad
+    const identityForm = document.getElementById('identityForm');
+    if (identityForm) {
+      identityForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        this.handleSolicitudSubmit();
+        this.handleIdentityForm();
       });
     }
-    
-    // Eventos para el formulario de verificación
-    if (this.verificacionForm) {
-      this.verificacionForm.addEventListener('submit', (e) => {
+
+    // Formulario de verificación
+    const verificationForm = document.getElementById('verificationForm');
+    if (verificationForm) {
+      verificationForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        this.handleVerificacionSubmit();
+        this.handleVerificationForm();
       });
     }
-    
-    // Eventos para el formulario de nueva contraseña
-    if (this.nuevaPasswordForm) {
-      this.nuevaPasswordForm.addEventListener('submit', (e) => {
+
+    // Formulario de nueva contraseña
+    const passwordForm = document.getElementById('newPasswordForm');
+    if (passwordForm) {
+      passwordForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        this.handleNuevaPasswordSubmit();
+        this.handlePasswordForm();
       });
     }
+
+    // Validación en tiempo real
+    this.setupValidation();
+  }
+
+  setupValidation() {
+    const numeroDocumento = document.getElementById('numeroDocumento');
+    const correoElectronico = document.getElementById('correoElectronico');
     
-    // Evento para reenviar código
-    if (this.reenviarCodigoBtn) {
-      this.reenviarCodigoBtn.addEventListener('click', () => {
-        this.generateAndSendCode();
+    if (numeroDocumento) {
+      numeroDocumento.addEventListener('input', () => {
+        this.validateField('numeroDocumento');
+      });
+    }
+
+    if (correoElectronico) {
+      correoElectronico.addEventListener('input', () => {
+        this.validateField('correoElectronico');
       });
     }
   }
-  
-  showCurrentStep() {
-    // Ocultar todos los formularios
-    this.solicitudForm.style.display = 'none';
-    this.verificacionForm.style.display = 'none';
-    this.nuevaPasswordForm.style.display = 'none';
-    
-    // Actualizar clases de los pasos
-    this.step1.classList.remove('active', 'completed');
-    this.step2.classList.remove('active', 'completed');
-    this.step3.classList.remove('active', 'completed');
-    
-    // Mostrar el formulario actual y actualizar los pasos
-    switch (this.currentStep) {
-      case 1:
-        this.solicitudForm.style.display = 'block';
-        this.step1.classList.add('active');
+
+  validateField(fieldId) {
+    const field = document.getElementById(fieldId);
+    if (!field) return false;
+
+    const value = field.value.trim();
+    let isValid = true;
+    let message = '';
+
+    switch (fieldId) {
+      case 'numeroDocumento':
+        if (!value) {
+          isValid = false;
+          message = 'El número de documento es requerido';
+        } else if (!/^[0-9]{6,12}$/.test(value)) {
+          isValid = false;
+          message = 'Debe tener entre 6 y 12 dígitos';
+        }
         break;
-      case 2:
-        this.verificacionForm.style.display = 'block';
-        this.step1.classList.add('completed');
-        this.step2.classList.add('active');
+      
+      case 'correoElectronico':
+        if (!value) {
+          isValid = false;
+          message = 'El correo electrónico es requerido';
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+          isValid = false;
+          message = 'Ingrese un correo válido';
+        }
         break;
-      case 3:
-        this.nuevaPasswordForm.style.display = 'block';
-        this.step1.classList.add('completed');
-        this.step2.classList.add('completed');
-        this.step3.classList.add('active');
-        break;
     }
+
+    this.showFieldError(fieldId + 'Error', message, !isValid);
+    return isValid;
   }
-  
-  async handleSolicitudSubmit() {
-    try {
-      // Validar el formulario
-      if (!this.validateSolicitudForm()) {
-        return;
+
+  showFieldError(errorId, message, show) {
+    const errorElement = document.getElementById(errorId);
+    if (errorElement) {
+      if (show) {
+        errorElement.textContent = message;
+        errorElement.classList.add('show');
+      } else {
+        errorElement.classList.remove('show');
       }
-      
-      // Mostrar mensaje de procesamiento
-      this.showMessage('Verificando información...', 'warning');
-      
-      // Obtener datos del formulario
-      const numeroDocumento = this.numeroDocumento.value.trim();
-      const correoElectronico = this.correoElectronico.value.trim();
-      
-      // Verificar si existe el usuario
-      const userData = this.findUserByDocumentoAndEmail(numeroDocumento, correoElectronico);
-      
-      if (!userData) {
-        this.showMessage('No se encontró ningún usuario con los datos proporcionados.', 'error');
-        return;
-      }
-      
-      // Guardar datos del usuario para uso posterior
-      this.userData = userData;
-      
-      // Generar y enviar código de verificación
-      await this.generateAndSendCode();
-      
-      // Avanzar al siguiente paso
-      this.currentStep = 2;
-      this.showCurrentStep();
-      
-    } catch (error) {
-      console.error('Error al procesar la solicitud:', error);
-      this.showMessage('Error al procesar la solicitud. Intente nuevamente.', 'error');
     }
   }
-  
-  async generateAndSendCode() {
-    try {
-      // Mostrar mensaje de procesamiento
-      this.showMessage('Enviando código de verificación...', 'warning');
-      
-      // Generar código aleatorio (6 caracteres alfanuméricos)
-      this.verificationCode = this.generateRandomCode(6);
-      
-      // Simular envío de código (en una aplicación real, aquí se enviaría por email)
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Mostrar mensaje de éxito
-      this.showMessage(`Se ha enviado un código de verificación a ${this.maskEmail(this.userData.correoElectronico)}`, 'success');
-      
-      // En una aplicación de demostración, mostrar el código en la consola
-      console.info('Código de verificación generado:', this.verificationCode);
-      
-    } catch (error) {
-      console.error('Error al generar y enviar código:', error);
-      this.showMessage('Error al enviar el código. Intente nuevamente.', 'error');
+
+  async handleIdentityForm() {
+    const numeroDocumento = document.getElementById('numeroDocumento').value.trim();
+    const correoElectronico = document.getElementById('correoElectronico').value.trim();
+
+    // Validar campos
+    const isDocumentoValid = this.validateField('numeroDocumento');
+    const isCorreoValid = this.validateField('correoElectronico');
+
+    if (!isDocumentoValid || !isCorreoValid) {
+      return;
     }
+
+    this.showMessage('identityResult', 'Verificando información...', 'info');
+
+    // Simular verificación
+    await this.delay(1000);
+
+    // Buscar usuario (simulado)
+    const user = this.findUser(numeroDocumento, correoElectronico);
+    
+    if (!user) {
+      this.showMessage('identityResult', 'Usuario no encontrado con esos datos.', 'error');
+      return;
+    }
+
+    this.userData = user;
+    this.verificationCode = this.generateCode();
+    
+    this.showMessage('identityResult', `Código enviado a ${this.maskEmail(correoElectronico)}`, 'success');
+    
+    console.log('🔐 Código generado:', this.verificationCode);
+    
+    setTimeout(() => {
+      this.showStep(2);
+    }, 1500);
   }
-  
-  async handleVerificacionSubmit() {
-    try {
-      // Validar código de verificación
-      const inputCode = this.codigoVerificacion.value.trim();
-      
-      if (!inputCode) {
-        this.showMessage('Debe ingresar el código de verificación.', 'error');
-        return;
-      }
-      
-      // Verificar si el código coincide
-      if (inputCode !== this.verificationCode) {
-        this.showMessage('El código de verificación es incorrecto. Intente nuevamente.', 'error');
-        return;
-      }
-      
-      // Mostrar mensaje de éxito
-      this.showMessage('Código verificado correctamente.', 'success');
-      
-      // Avanzar al siguiente paso
-      this.currentStep = 3;
-      this.showCurrentStep();
-      
-    } catch (error) {
-      console.error('Error al verificar el código:', error);
-      this.showMessage('Error al verificar el código. Intente nuevamente.', 'error');
+
+  async handleVerificationForm() {
+    const codigo = document.getElementById('codigoVerificacion').value.trim().toUpperCase();
+    
+    if (!codigo) {
+      this.showMessage('verificationResult', 'Ingrese el código de verificación', 'error');
+      return;
     }
+
+    if (codigo.length !== 6) {
+      this.showMessage('verificationResult', 'El código debe tener 6 caracteres', 'error');
+      return;
+    }
+
+    this.showMessage('verificationResult', 'Verificando código...', 'info');
+    
+    await this.delay(800);
+
+    if (codigo !== this.verificationCode) {
+      this.showMessage('verificationResult', 'Código incorrecto', 'error');
+      return;
+    }
+
+    this.showMessage('verificationResult', 'Código verificado correctamente', 'success');
+    
+    setTimeout(() => {
+      this.showStep(3);
+    }, 1000);
   }
-  
-  async handleNuevaPasswordSubmit() {
-    try {
-      // Validar el formulario de nueva contraseña
-      if (!this.validatePasswordForm()) {
-        return;
-      }
-      
-      // Mostrar mensaje de procesamiento
-      this.showMessage('Actualizando contraseña...', 'warning');
-      
-      // Obtener la nueva contraseña
-      const nuevaPassword = this.nuevaPassword.value.trim();
-      
-      // Actualizar la contraseña del usuario en localStorage
-      this.updateUserPassword(nuevaPassword);
-      
-      // Simular tiempo de procesamiento
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Mostrar mensaje de éxito
-      this.showMessage('¡Contraseña actualizada correctamente! Será redirigido al login en unos segundos...', 'success');
-      
-      // Redirigir al login después de 3 segundos
-      setTimeout(() => {
-        window.location.href = 'login.html';
-      }, 3000);
-      
-    } catch (error) {
-      console.error('Error al actualizar la contraseña:', error);
-      this.showMessage('Error al actualizar la contraseña. Intente nuevamente.', 'error');
+
+  async handlePasswordForm() {
+    const nuevaPassword = document.getElementById('nuevaPassword').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+
+    if (!nuevaPassword || !confirmPassword) {
+      this.showMessage('passwordResult', 'Complete todos los campos', 'error');
+      return;
     }
-  }
-  
-  validateSolicitudForm() {
-    const numeroDocumento = this.numeroDocumento.value.trim();
-    const correoElectronico = this.correoElectronico.value.trim();
-    
-    if (!numeroDocumento) {
-      this.showMessage('Debe ingresar el número de documento.', 'error');
-      return false;
-    }
-    
-    if (!/^[0-9]{6,12}$/.test(numeroDocumento)) {
-      this.showMessage('El número de documento debe contener entre 6 y 12 dígitos.', 'error');
-      return false;
-    }
-    
-    if (!correoElectronico) {
-      this.showMessage('Debe ingresar el correo electrónico.', 'error');
-      return false;
-    }
-    
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correoElectronico)) {
-      this.showMessage('Debe ingresar un correo electrónico válido.', 'error');
-      return false;
-    }
-    
-    return true;
-  }
-  
-  validatePasswordForm() {
-    const nuevaPassword = this.nuevaPassword.value.trim();
-    const confirmPassword = this.confirmPassword.value.trim();
-    
-    if (!nuevaPassword) {
-      this.showMessage('Debe ingresar la nueva contraseña.', 'error');
-      return false;
-    }
-    
+
     if (nuevaPassword.length < 6) {
-      this.showMessage('La contraseña debe tener al menos 6 caracteres.', 'error');
-      return false;
+      this.showMessage('passwordResult', 'La contraseña debe tener al menos 6 caracteres', 'error');
+      return;
     }
-    
-    if (!confirmPassword) {
-      this.showMessage('Debe confirmar la nueva contraseña.', 'error');
-      return false;
-    }
-    
+
     if (nuevaPassword !== confirmPassword) {
-      this.showMessage('Las contraseñas no coinciden.', 'error');
-      return false;
+      this.showMessage('passwordResult', 'Las contraseñas no coinciden', 'error');
+      return;
     }
+
+    this.showMessage('passwordResult', 'Estableciendo nueva contraseña...', 'info');
     
-    return true;
+    await this.delay(1000);
+
+    this.showMessage('passwordResult', '¡Contraseña establecida correctamente!', 'success');
+    
+    setTimeout(() => {
+      window.location.href = 'login.html';
+    }, 2000);
   }
-  
-  findUserByDocumentoAndEmail(documento, email) {
-    try {
-      // Obtener usuarios registrados del localStorage
-      const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
-      
-      // Buscar usuario que coincida con documento y correo
-      return users.find(user => 
-        user.numeroDocumento === documento && 
-        user.correoElectronico.toLowerCase() === email.toLowerCase()
-      );
-    } catch (error) {
-      console.error('Error al buscar usuario:', error);
-      return null;
-    }
-  }
-  
-  updateUserPassword(newPassword) {
-    try {
-      if (!this.userData) {
-        throw new Error('No hay datos de usuario para actualizar');
+
+  showStep(step) {
+    this.currentStep = step;
+    
+    // Ocultar todos los formularios
+    const forms = ['identityForm', 'verificationForm', 'newPasswordForm'];
+    forms.forEach(formId => {
+      const form = document.getElementById(formId);
+      if (form) {
+        form.style.display = 'none';
+        form.classList.remove('active');
       }
-      
-      // Obtener usuarios registrados
-      const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
-      
-      // Encontrar el índice del usuario a actualizar
-      const userIndex = users.findIndex(user => user.id === this.userData.id);
-      
-      if (userIndex === -1) {
-        throw new Error('Usuario no encontrado');
+    });
+
+    // Actualizar indicadores de pasos
+    for (let i = 1; i <= 3; i++) {
+      const stepElement = document.getElementById(`step${i}`);
+      if (stepElement) {
+        stepElement.classList.remove('active', 'completed');
+        if (i < step) {
+          stepElement.classList.add('completed');
+        } else if (i === step) {
+          stepElement.classList.add('active');
+        }
       }
-      
-      // Actualizar contraseña (usando el mismo método de encriptación que en registro)
-      users[userIndex].password = this.securePassword(newPassword);
-      
-      // Guardar usuarios actualizados en localStorage
-      localStorage.setItem('registeredUsers', JSON.stringify(users));
-      
-    } catch (error) {
-      console.error('Error al actualizar contraseña:', error);
-      throw error;
+    }
+
+    // Mostrar formulario actual
+    const formIds = ['', 'identityForm', 'verificationForm', 'newPasswordForm'];
+    const currentForm = document.getElementById(formIds[step]);
+    if (currentForm) {
+      currentForm.style.display = 'block';
+      currentForm.classList.add('active');
+    }
+
+    // Limpiar mensajes anteriores
+    this.clearMessages();
+  }
+
+  showMessage(containerId, message, type) {
+    const container = document.getElementById(containerId);
+    if (container) {
+      container.textContent = message;
+      container.className = `result-message ${type}`;
+      container.style.display = 'block';
     }
   }
-  
-  securePassword(password) {
-    // En una aplicación real, usaríamos una función hash segura
-    // Para esta demo, usamos el mismo método que en registro.js
-    return btoa(password + "_salted");
+
+  clearMessages() {
+    const messageIds = ['identityResult', 'verificationResult', 'passwordResult'];
+    messageIds.forEach(id => {
+      const element = document.getElementById(id);
+      if (element) {
+        element.style.display = 'none';
+      }
+    });
   }
-  
-  generateRandomCode(length) {
-    const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let result = '';
-    for (let i = 0; i < length; i++) {
-      const randomIndex = Math.floor(Math.random() * charset.length);
-      result += charset.charAt(randomIndex);
+
+  findUser(documento, email) {
+    // Datos de prueba
+    const users = [
+      { documento: '12345678', email: 'usuario1@ejemplo.com', nombre: 'Usuario Prueba 1' },
+      { documento: '87654321', email: 'usuario2@ejemplo.com', nombre: 'Usuario Prueba 2' },
+      { documento: '11223344', email: 'admin@inoutmanager.com', nombre: 'Administrador' }
+    ];
+    
+    return users.find(user => 
+      user.documento === documento && user.email.toLowerCase() === email.toLowerCase()
+    );
+  }
+
+  generateCode() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let code = '';
+    for (let i = 0; i < 6; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
     }
-    return result;
+    return code;
   }
-  
+
   maskEmail(email) {
-    if (!email) return '';
-    
-    const parts = email.split('@');
-    if (parts.length !== 2) return email;
-    
-    const name = parts[0];
-    const domain = parts[1];
-    
-    // Mostrar solo los primeros 2 y últimos 2 caracteres del nombre de usuario
-    const maskedName = name.length <= 4 
-      ? name.charAt(0) + '*'.repeat(name.length - 1)
-      : name.substring(0, 2) + '*'.repeat(name.length - 4) + name.substring(name.length - 2);
-    
-    return `${maskedName}@${domain}`;
+    const [username, domain] = email.split('@');
+    const maskedUsername = username.charAt(0) + '***' + username.slice(-1);
+    return maskedUsername + '@' + domain;
   }
-  
-  showMessage(message, type) {
-    if (!this.mensajeContainer) return;
-    
-    this.mensajeContainer.textContent = message;
-    this.mensajeContainer.className = `registro-mensaje ${type}`;
-    this.mensajeContainer.style.display = 'block';
-    
-    // Desplazarse al mensaje
-    this.mensajeContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    
-    // Auto-ocultar mensajes de éxito después de 5 segundos
-    if (type === 'success') {
-      setTimeout(() => {
-        this.mensajeContainer.style.display = 'none';
-      }, 5000);
-    }
+
+  delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 }
 
-// Inicializar el gestor de recuperación de contraseña cuando el DOM esté listo
-document.addEventListener('DOMContentLoaded', () => {
-  new PasswordRecoveryManager();
+// Inicializar cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', function() {
+  try {
+    window.recoveryManager = new RecoveryManager();
+    console.log('✅ Sistema de recuperación inicializado');
+  } catch (error) {
+    console.error('❌ Error al inicializar:', error);
+  }
 });
+
+// Funciones globales para testing
+window.fillTestData = function() {
+  const numeroDocumento = document.getElementById('numeroDocumento');
+  const correoElectronico = document.getElementById('correoElectronico');
+  
+  if (numeroDocumento) numeroDocumento.value = '12345678';
+  if (correoElectronico) correoElectronico.value = 'usuario1@ejemplo.com';
+  
+  console.log('📝 Datos de prueba llenados');
+};
+
+window.goToStep = function(step) {
+  if (window.recoveryManager) {
+    window.recoveryManager.showStep(step);
+    console.log(`🔄 Navegando al paso ${step}`);
+  }
+};
+
+window.showCode = function() {
+  if (window.recoveryManager && window.recoveryManager.verificationCode) {
+    console.log('🔐 Código actual:', window.recoveryManager.verificationCode);
+    alert('Código: ' + window.recoveryManager.verificationCode);
+  }
+};

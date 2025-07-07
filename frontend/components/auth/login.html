@@ -12,69 +12,17 @@
   
   <!-- Precargar recursos críticos -->
   <link rel="preload" href="../../assets/img/icon.jpg" as="image">
-  <link rel="preload" href="../../assets/css/styles.css?v=20250703001" as="style">
-  <link rel="preload" href="../../assets/js/login.js" as="script">
+  <link rel="preload" href="../../assets/css/styles.css?v=20250702003" as="style">
+  <link rel="preload" href="../../assets/js/script.js" as="script">
   
-  <!-- Estilos principales -->
-  <link rel="stylesheet" href="../../assets/css/styles.css?v=20250703001">
-  <link rel="stylesheet" href="../../assets/css/footer-styles.css?v=20250703001">
-  <link rel="stylesheet" href="../../assets/css/auth.css?v=20250703001">
-  <link rel="stylesheet" href="../../assets/css/login-styles.css?v=20250703001">
-  <link rel="stylesheet" href="../../assets/css/login-animations.css?v=20250703001">
+  <link rel="stylesheet" href="../../assets/css/styles.css?v=20250702003">
+  <link rel="stylesheet" href="../../assets/css/footer-styles.css?v=20250702004">
+  <link rel="stylesheet" href="../../assets/css/auth.css?v=20250706024">
   <link rel="icon" type="image/jpeg" href="../../assets/img/icon.jpg">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-  
-  <!-- Script para mejorar la carga y visibilidad inicial -->
-  <script>
-    // Script inline de máxima prioridad para prevenir parpadeos
-    (function() {
-      console.log('🚀 Inicializador temprano - formulario de login');
-      
-      // Marcar el documento como en carga
-      document.documentElement.classList.add('js-loading');
-      
-      // Función para asegurar visibilidad de elementos críticos
-      function ensureFormVisibility() {
-        const criticalElements = [
-          '.site-content',
-          '.login-section',
-          '.auth-container',
-          '.auth-card',
-          '#loginForm',
-          '.auth-header',
-          '.logo-container'
-        ];
-        
-        criticalElements.forEach(selector => {
-          const element = document.querySelector(selector);
-          if (element) {
-            element.style.display = 'flex';
-            element.style.flexDirection = 'column';
-            element.style.justifyContent = 'center';
-            element.style.alignItems = 'center';
-            element.style.visibility = 'visible';
-            element.style.opacity = '1';
-          }
-        });
-      }
-      
-      // Aplicar inmediatamente y en eventos clave
-      ensureFormVisibility();
-      
-      // Eliminar la marca cuando la página esté completamente cargada
-      window.addEventListener('load', function() {
-        document.documentElement.classList.remove('js-loading');
-        document.body.classList.add('loaded');
-        ensureFormVisibility();
-      });
-      
-      // Aplicar también en DOMContentLoaded
-      document.addEventListener('DOMContentLoaded', ensureFormVisibility);
-    })();
-  </script>
-  
-  <!-- Script principal del login (único y optimizado) -->
+  <script src="../../assets/js/script.js" defer></script>
   <script src="../../assets/js/login.js" defer></script>
+
 </head>
 <!-- ======================================== -->
 <!-- FIN: ENCABEZADO DEL DOCUMENTO HTML       -->
@@ -120,7 +68,7 @@
   <!-- ======================================== -->
   <!-- INICIO: CONTENIDO PRINCIPAL             -->
   <!-- ======================================== -->
-  <main class="site-content">
+  <main class="site-content auth-content">
     <!-- ======================================== -->
     <!-- INICIO: SECCIÓN DE LOGIN                -->
     <!-- ======================================== -->
@@ -235,30 +183,30 @@
   <!-- ======================================== -->
 
   <!-- ======================================== -->
-  <!-- INICIO: FOOTER SIMPLE DE REDES SOCIALES  -->
+  <!-- INICIO: FOOTER                            -->
   <!-- ======================================== -->
-    <footer class="site-footer">
-      <div class="social-footer-container">
-        <div class="social-media-footer">
-          <a href="#" class="social-icon-footer" aria-label="Facebook">
-            <img src="../../assets/img/facebook.jpg" alt="Facebook" class="social-img">
-          </a>
-          <a href="#" class="social-icon-footer" aria-label="Instagram">
-            <img src="../../assets/img/instagram.jpg" alt="Instagram" class="social-img">
-          </a>
-          <a href="#" class="social-icon-footer" aria-label="TikTok">
-            <img src="../../assets/img/tiktok.jpg" alt="TikTok" class="social-img">
-          </a>
-          <a href="mailto:info@inoutmanager.com" class="social-icon-footer" aria-label="Correo">
-            <i class="fas fa-envelope email-icon"></i>
-          </a>
-        </div>
-        <p class="copyright-text">© 2025 IN OUT MANAGER</p>
+  <footer class="site-footer">
+    <div class="social-footer-container">
+      <div class="social-media-footer">
+        <a href="#" class="social-icon-footer" aria-label="Facebook">
+          <img src="../../assets/img/facebook.jpg" alt="Facebook" class="social-img">
+        </a>
+        <a href="#" class="social-icon-footer" aria-label="Instagram">
+          <img src="../../assets/img/instagram.jpg" alt="Instagram" class="social-img">
+        </a>
+        <a href="#" class="social-icon-footer" aria-label="TikTok">
+          <img src="../../assets/img/tiktok.jpg" alt="TikTok" class="social-img">
+        </a>
+        <a href="mailto:info@inoutmanager.com" class="social-icon-footer" aria-label="Correo">
+          <i class="fas fa-envelope email-icon"></i>
+        </a>
       </div>
-    </footer>
-    <!-- ======================================== -->
-    <!-- FIN: FOOTER SIMPLE DE REDES SOCIALES     -->
-    <!-- ======================================== -->
+      <p class="copyright-text">© 2025 IN OUT MANAGER</p>
+    </div>
+  </footer>
+  <!-- ======================================== -->
+  <!-- FIN: FOOTER                              -->
+  <!-- ======================================== -->
 </body>
 
 </html>

@@ -35,3 +35,103 @@ yarn-error.log*
 # Archivos específicos del proyecto que no queremos rastrear
 frontend/dashboard-empleado.js
 frontend/styles.css
+
+# ==========================================
+# ARCHIVOS CSS DUPLICADOS - NO RASTREAR
+# ==========================================
+# Archivos CSS que fueron consolidados en auth.css
+frontend/assets/css/auth-override.css
+frontend/assets/css/auth-recovery.css
+frontend/assets/css/login-animations.css
+frontend/assets/css/login-styles.css
+frontend/assets/css/recovery-styles.css
+frontend/assets/css/registro-styles.css
+frontend/assets/css/reset-critico.css
+
+# Archivos de documentación innecesarios en CSS
+frontend/assets/css/*.md
+frontend/assets/css/AUTH_CSS_OPTIMIZATION_SUMMARY.md
+frontend/assets/css/FONDO_AZUL_SOLUCION_DEFINITIVA.md
+frontend/assets/css/LOGIN_POSITIONING_FIX.md
+frontend/assets/css/REGISTRO_BACKGROUND_FIX.md
+
+# ==========================================
+# ARCHIVOS DE PRUEBA - NO RASTREAR
+# ==========================================
+# Archivos HTML de prueba
+frontend/components/auth/test-*.html
+frontend/test-*.html
+**/test-*.html
+
+# ==========================================
+# ARCHIVOS TEMPORALES DE VS CODE
+# ==========================================
+# Configuración de VS Code local
+.vscode/settings.json
+.vscode/launch.json
+.vscode/tasks.json
+
+# Archivos temporales del editor
+*.tmp
+*.temp
+*~$*
+
+# Archivos de respaldo automático
+*.backup
+*.orig
+*.rej
+
+# ==========================================
+# ARCHIVOS DE DESARROLLO Y DEBUGGING
+# ==========================================
+# Archivos de log de desarrollo
+debug.log
+error.log
+*.debug
+
+# Archivos de caché de Node.js
+.npm/
+.node_repl_history
+
+# Archivos de caché de Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Archivos de Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Archivos de entorno virtual
+backend/env/
+backend/venv/
+backend/.env
+backend/.venv
+
+# ==========================================
+# ARCHIVOS ESPECÍFICOS DEL PROYECTO
+# ==========================================
+# Documentación de desarrollo temporal
+TEMP_*.md
+DEV_*.md
+DEBUG_*.md

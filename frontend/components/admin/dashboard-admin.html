@@ -7,28 +7,49 @@
   <title>Dashboard de Administrador - IN OUT MANAGER</title>
   <meta name="description" content="Panel de administración para el sistema IN OUT MANAGER">
   <meta name="keywords" content="dashboard, administrador, IN OUT MANAGER">
-  <link rel="stylesheet" href="../../assets/css/styles.css">
+  <!-- Precargar recursos críticos -->
+  <link rel="preload" href="../../assets/img/icon.jpg" as="image">
+  <link rel="preload" href="../../assets/css/styles.css?v=20250702003" as="style">
+  <link rel="preload" href="../../assets/js/script.js" as="script">
+  
+  <link rel="stylesheet" href="../../assets/css/styles.css?v=20250702003">
+  <link rel="stylesheet" href="../../assets/css/footer-styles.css?v=20250702004">
   <link rel="icon" type="image/jpeg" href="../../assets/img/icon.jpg">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <script src="../../assets/js/script.js" defer></script>
   <script src="../../assets/js/dashboard-admin.js" defer></script>
 </head>
 
 <body>
-  <!------------------------------AQUÍ ESTA EL HEADER----------------------------------->
+  <!-- ======================================== -->
+  <!-- INICIO: HEADER Y NAVEGACIÓN PRINCIPAL    -->
+  <!-- ======================================== -->
   <header class="site-header">
     <div class="header-title">
-      <h4>IN OUT MANAGER</h4>
+      <h1>IN OUT MANAGER</h1>
+      <button id="mobileMenuToggle" class="mobile-menu-toggle" aria-label="Abrir menú">
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+      </button>
     </div>
     <nav class="main-nav" aria-label="Navegación principal">
-      <ul>
+      <ul id="mainNavList" class="nav-menu-list">
         <li class="nav-logo">
-          <img src="img/icon.jpg" alt="Logo IN OUT MANAGER" class="icon" loading="lazy">
+          <img src="../../assets/img/icon.jpg" alt="Logo de IN OUT MANAGER" class="icon" loading="eager">
         </li>
-        <li><a href="index.html" class="nav-btn">Inicio</a></li>
-        <li><button id="logoutBtn" class="nav-btn">Cerrar Sesión</button></li>
-        <li class="nav-spacer"></li>
+        <li class="nav-items-container">
+          <ul class="nav-items-group">
+            <li class="nav-item"><a href="../../proyectopages/index.html" class="nav-btn btn-animated">Inicio</a></li>
+            <li class="nav-item"><button id="logoutBtn" class="nav-btn btn-animated">Cerrar Sesión</button></li>
+          </ul>
+        </li>
       </ul>
     </nav>
   </header>
+  <!-- ======================================== -->
+  <!-- FIN: HEADER Y NAVEGACIÓN PRINCIPAL       -->
+  <!-- ======================================== -->
 
   <!-----------------------AQUÍ VA EL CONTENIDO PRINCIPAL --------------------->
   <main>
@@ -110,29 +131,31 @@
     </section>
   </main>
 
-  <!---------------------------FOOTER --------------------->
+  <!-- ======================================== -->
+  <!-- INICIO: FOOTER SIMPLE DE REDES SOCIALES  -->
+  <!-- ======================================== -->
   <footer class="site-footer">
-    <div class="footer-content">
-      <div class="footer-social">
-        <a href="#" aria-label="Facebook">
-          <img src="img/facebook.jpg" alt="Facebook" loading="lazy">
+    <div class="social-footer-container">
+      <div class="social-media-footer">
+        <a href="#" class="social-icon-footer" aria-label="Facebook">
+          <img src="../../assets/img/facebook.jpg" alt="Facebook" class="social-img">
         </a>
-        <a href="#" aria-label="WhatsApp">
-          <img src="img/whatsapp.jpg" alt="WhatsApp" loading="lazy">
+        <a href="#" class="social-icon-footer" aria-label="Instagram">
+          <img src="../../assets/img/instagram.jpg" alt="Instagram" class="social-img">
         </a>
-        <a href="#" aria-label="Instagram">
-          <img src="img/instagram.jpg" alt="Instagram" loading="lazy">
+        <a href="#" class="social-icon-footer" aria-label="TikTok">
+          <img src="../../assets/img/tiktok.jpg" alt="TikTok" class="social-img">
         </a>
-        <a href="#" aria-label="TikTok">
-          <img src="img/tiktok.jpg" alt="TikTok" loading="lazy">
+        <a href="mailto:info@inoutmanager.com" class="social-icon-footer" aria-label="Correo">
+          <i class="fas fa-envelope email-icon"></i>
         </a>
       </div>
-      <div class="footer-copy">
-        <small>&copy; 2025 IN OUT MANAGER. Todos los derechos reservados.</small>
-      </div>
+      <p class="copyright-text">© 2025 IN OUT MANAGER</p>
     </div>
   </footer>
+  <!-- ======================================== -->
+  <!-- FIN: FOOTER SIMPLE DE REDES SOCIALES     -->
+  <!-- ======================================== -->
 
 </body>
-
 </html>
