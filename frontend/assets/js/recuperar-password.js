@@ -1,6 +1,4 @@
-// ===========================
-// RECUPERACIÓN DE CONTRASEÑA OPTIMIZADA
-// ===========================
+//RECUPERACIÓN DE CONTRASEÑA OJO // 
 
 class RecoveryManager {
   constructor() {
@@ -11,7 +9,6 @@ class RecoveryManager {
   }
 
   init() {
-    console.log('🚀 Inicializando sistema de recuperación...');
     this.setupEventListeners();
     this.showStep(1);
   }
@@ -244,10 +241,5 @@ class RecoveryManager {
 
 // Inicializar cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', function() {
-  try {
-    const recoveryManager = new RecoveryManager();
-    console.log('✅ Sistema de recuperación inicializado');
-  } catch (error) {
-    console.error('❌ Error al inicializar:', error);
-  }
+  const recoveryManager = new RecoveryManager();
 });

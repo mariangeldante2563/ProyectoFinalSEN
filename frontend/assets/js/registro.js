@@ -1,6 +1,6 @@
-// ===========================
+// -----------------------------------------
 // FUNCIONALIDAD DEL FORMULARIO DE REGISTRO
-// ===========================
+// -----------------------------------------
 
 class RegistroManager {
   constructor() {
@@ -18,7 +18,6 @@ class RegistroManager {
         
         this.init();
     } catch (error) {
-        console.error('Error en RegistroManager Constructor:', error);
         this.showMessage('Error al inicializar el formulario. Recargue la página.', 'error');
     }
   }
@@ -33,7 +32,7 @@ class RegistroManager {
       this.setupUsersPanel();
       this.loadExistingUsers();
     } catch (error) {
-      console.error('Error inicializando el formulario de registro:', error);
+      // Error manejado silenciosamente
     }
   }
 
@@ -272,7 +271,6 @@ class RegistroManager {
       }, 3000);
 
     } catch (error) {
-      console.error('Error en el envío del formulario:', error);
       this.showMessage('Error inesperado. Por favor, intente nuevamente.', 'error');
     }
   }

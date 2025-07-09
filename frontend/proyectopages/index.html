@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
-<!-- ======================================== -->
+
 <!-- INICIO: ENCABEZADO DEL DOCUMENTO HTML    -->
-<!-- ======================================== -->
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,24 +11,23 @@
   <meta name="keywords" content="software, tecnología, integración, consultoría, desarrollo, sistemas, web, UI/UX, modernización, portfolio, tecnologías">
   
   <!-- Precargar recursos críticos -->
-  <link rel="preload" href="../assets/img/icon.jpg" as="image">
-  <link rel="preload" href="../assets/css/styles.css?v=20250702003" as="style">
-  <link rel="preload" href="../assets/js/script.js" as="script">
+  <link rel="preload" href="/assets/img/icon.jpg" as="image">
+  <link rel="preload" href="/assets/css/styles.css" as="style">
+  <link rel="preload" href="/assets/js/script.js" as="script">
   
-  <link rel="stylesheet" href="../assets/css/styles.css?v=20250702003">
-  <link rel="stylesheet" href="../assets/css/footer-styles.css?v=20250702004">
-  <link rel="icon" type="image/jpeg" href="../assets/img/icon.jpg">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-  <script src="../assets/js/script.js" defer></script>
+  <link rel="stylesheet" href="/assets/css/styles.css">
+  <link rel="stylesheet" href="/assets/css/footer-styles.css">
+  <link rel="icon" type="image/jpeg" href="/assets/img/icon.jpg">
+  <!-- OJO SUPER IMPORTAMTE ================== temporalmente para que funcione con Vite -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="/assets/js/script.js" defer></script>
 </head>
-<!-- ======================================== -->
-<!-- FIN: ENCABEZADO DEL DOCUMENTO HTML       -->
-<!-- ======================================== -->
 
+<!-- FIN: ENCABEZADO DEL DOCUMENTO HTML       -->
 <body>
-  <!-- ======================================== -->
+
   <!-- INICIO: HEADER Y NAVEGACIÓN PRINCIPAL    -->
-  <!-- ======================================== -->
+ 
   <header class="site-header">
     <div class="header-title">
       <h1>IN OUT MANAGER</h1>
@@ -41,7 +40,7 @@
     <nav class="main-nav" aria-label="Navegación principal">
       <ul id="mainNavList" class="nav-menu-list">
         <li class="nav-logo">
-          <img src="../assets/img/icon.jpg" alt="Logo de IN OUT MANAGER" class="icon" loading="eager">
+          <img src="/assets/img/icon.jpg" alt="Logo de IN OUT MANAGER" class="icon" loading="eager">
         </li>
         <li class="nav-items-container">
           <ul class="nav-items-group">
@@ -52,76 +51,72 @@
           </ul>
         </li>
         <li class="auth-buttons-container">
-          <a href="../components/auth/registro.html" class="nav-btn auth-btn register-btn btn-animated" id="registerBtn">Registrarse</a>
-          <a href="../components/auth/login.html" class="nav-btn auth-btn login-btn btn-animated" id="loginBtn">Ingresar</a>
+          <a href="/components/auth/registro.html" class="nav-btn auth-btn register-btn btn-animated">Registrarse</a>
+          <a href="/components/auth/login.html" class="nav-btn auth-btn login-btn btn-animated">Ingresar</a>
         </li>
       </ul>
     </nav>
   </header>
-  <!-- ======================================== -->
-  <!-- FIN: HEADER Y NAVEGACIÓN PRINCIPAL       -->
-  <!-- ======================================== -->
 
-  <!-- ======================================== -->
-  <!-- INICIO: CONTENIDO PRINCIPAL             -->
-  <!-- ======================================== -->
+  <!-- FIN: HEADER Y NAVEGACIÓN PRINCIPAL-->
+ 
+  <!-- INICIO: CONTENIDO PRINCIPA-->
+ 
   <main class="site-content">
-    <!-- ======================================== -->
-    <!-- INICIO: SECCIÓN DE CARRUSEL             -->
-    <!-- ======================================== -->
+   
+    <!-- INICIO: SECCIÓN DE CARRUSEL-->
+  
     <section id="carrusel" class="carousel-section animate-entry">
       <h2>Servicios Destacados</h2>
       <div class="carousel-wrapper">
-        <div id="carouselTrack" class="carousel-track">
+        <div class="carousel-track">
           <div class="carousel-slide">
             <picture>
-              <img src="../assets/img/software.jpg" alt="Desarrollo de Software" loading="lazy" width="800" height="450">
+              <img src="/assets/img/software.jpg" alt="Desarrollo de Software" loading="lazy" width="800" height="450">
             </picture>
             <p>Desarrollo de Software a medida para optimizar tus procesos.</p>
           </div>
           <div class="carousel-slide">
             <picture>
-              <img src="../assets/img/api.jpg" alt="Integración de Sistemas y APIs" loading="lazy" width="800" height="450">
+              <img src="/assets/img/api.jpg" alt="Integración de Sistemas y APIs" loading="lazy" width="800" height="450">
             </picture>
             <p>Integración de Sistemas y APIs para una mayor eficiencia empresarial.</p>
           </div>
           <div class="carousel-slide">
             <picture>
-              <img src="../assets/img/consultoria.jpg" alt="Consultoría Tecnológica" loading="lazy" width="800" height="450">
+              <img src="/assets/img/consultoria.jpg" alt="Consultoría Tecnológica" loading="lazy" width="800" height="450">
             </picture>
             <p>Consultoría especializada para adoptar las mejores tecnologías.</p>
           </div>
           <div class="carousel-slide">
             <picture>
-              <img src="../assets/img/web.jpg" alt="Desarrollo Web" loading="lazy" width="800" height="450">
+              <img src="/assets/img/web.jpg" alt="Desarrollo Web" loading="lazy" width="800" height="450">
             </picture>
             <p>Desarrollo de sitios web modernos con las últimas tecnologías.</p>
           </div>
           <div class="carousel-slide">
             <picture>
-              <img src="../assets/img/uiux.jpg" alt="Diseño UI/UX" loading="lazy" width="800" height="450">
+              <img src="/assets/img/uiux.jpg" alt="Diseño UI/UX" loading="lazy" width="800" height="450">
             </picture>
             <p>Diseño de interfaces de usuario intuitivas y experiencias atractivas.</p>
           </div>
         </div>
-        <button id="prevBtn" class="carousel-control prev" aria-label="Anterior">&#10094;</button>
-        <button id="nextBtn" class="carousel-control next" aria-label="Siguiente">&#10095;</button>
-        <div id="carouselIndicators" class="carousel-indicators"></div>
+        <button class="carousel-prev" aria-label="Anterior">&#10094;</button>
+        <button class="carousel-next" aria-label="Siguiente">&#10095;</button>
+        <div class="carousel-indicators"></div>
       </div>
     </section>
-    <!-- ======================================== -->
-    <!-- FIN: SECCIÓN DE CARRUSEL                -->
-    <!-- ======================================== -->
-
-    <!-- ======================================== -->
-    <!-- INICIO: SECCIÓN DE TECNOLOGÍAS          -->
-    <!-- ======================================== -->
+   
+    <!-- FIN: SECCIÓN DE CARRUSE-->
+    
+    <!-- INICIO: SECCIÓN DE TECNOLOGÍAS-->
+    
     <section id="tecnologias" class="technologies-section animate-entry">
       <h2>Tecnologías</h2>
       <div class="technology-list">
         <article class="technology-item container-animated">
           <picture>
-            <img src="../assets/img/software.jpg" alt="Imagen representativa del desarrollo de software" loading="lazy" width="400" height="300">
+            <img src="/assets/img/software.jpg" alt="Imagen representativa del desarrollo de software" loading="lazy" width="400" height="300">
           </picture>
           <h3>Desarrollo de Software</h3>
           <p>Creación de aplicaciones a medida para optimizar procesos y aumentar la productividad de tu empresa.</p>
@@ -133,7 +128,7 @@
         </article>
         <article class="technology-item container-animated">
           <picture>
-            <img src="../assets/img/api.jpg" alt="Imagen representativa de la integración de sistemas" loading="lazy" width="400" height="300">
+            <img src="/assets/img/api.jpg" alt="Imagen representativa de la integración de sistemas" loading="lazy" width="400" height="300">
           </picture>
           <h3>Integración de Sistemas</h3>
           <p>Conexión de diferentes plataformas para un flujo de trabajo eficiente y sin interrupciones.</p>
@@ -145,7 +140,7 @@
         </article>
         <article class="technology-item container-animated">
           <picture>
-            <img src="../assets/img/consultoria.jpg" alt="Imagen representativa de la consultoría tecnológica" loading="lazy" width="400" height="300">
+            <img src="/assets/img/consultoria.jpg" alt="Imagen representativa de la consultoría tecnológica" loading="lazy" width="400" height="300">
           </picture>
           <h3>Consultoría Tecnológica</h3>
           <p>Asesoramiento experto en la adopción y uso de nuevas tecnologías para impulsar tu negocio.</p>
@@ -157,18 +152,16 @@
         </article>
       </div>
     </section>
-    <!-- ======================================== -->
-    <!-- FIN: SECCIÓN DE TECNOLOGÍAS             -->
-    <!-- ======================================== -->
-
-    <!-- ======================================== -->
+ 
+    <!-- FIN: SECCIÓN DE TECNOLOGÍAS -->
+    
     <!-- INICIO: SECCIÓN SOBRE NOSOTROS          -->
-    <!-- ======================================== -->
+   
     <section id="nosotros" class="about-section animate-entry">
       <h2>Sobre Nosotros</h2>
       <div class="about-container">
         <picture>
-          <img src="../assets/img/nosotros.jpg" alt="Equipo de IN OUT MANAGER trabajando en soluciones tecnológicas" loading="lazy" width="800" height="450">
+          <img src="/assets/img/nosotros.jpg" alt="Equipo de IN OUT MANAGER trabajando en soluciones tecnológicas" loading="lazy" width="800" height="450">
         </picture>
         <div class="about-overlay">
           <h3>Equipo de Innovación</h3>
@@ -177,18 +170,16 @@
       </div>
       <p>En IN OUT MANAGER, somos un equipo apasionado por la tecnología y la innovación. Nuestro objetivo es ayudar a las empresas a mejorar su productividad y eficiencia a través de soluciones tecnológicas personalizadas. Con años de experiencia en el sector, nos hemos convertido en un socio de confianza para nuestros clientes, ofreciendo soluciones que realmente marcan la diferencia.</p>
     </section>
-    <!-- ======================================== -->
-    <!-- FIN: SECCIÓN SOBRE NOSOTROS             -->
-    <!-- ======================================== -->
-
-    <!-- ======================================== -->
-    <!-- INICIO: SECCIÓN DE PORTFOLIO            -->
-    <!-- ======================================== -->
+   
+    <!-- FIN: SECCIÓN SOBRE NOSOTROS -->
+    
+    <!-- INICIO: SECCIÓN DE PORTFOLIO -->
+   
     <section id="portfolio" class="portfolio-section animate-entry">
       <h2>Portfolio</h2>
       <div class="portfolio-gallery">
         <div class="portfolio-item">
-          <img src="../assets/img/uiux.jpg" alt="Diseño de interfaces UI/UX" loading="lazy">
+          <img src="/assets/img/uiux.jpg" alt="Diseño de interfaces UI/UX" loading="lazy">
           <div class="portfolio-category">UI/UX</div>
           <div class="portfolio-overlay">
             <h3>Diseño de Interfaces</h3>
@@ -196,7 +187,7 @@
           </div>
         </div>
         <div class="portfolio-item">
-          <img src="../assets/img/web.jpg" alt="Desarrollo de sitios web modernos" loading="lazy">
+          <img src="/assets/img/web.jpg" alt="Desarrollo de sitios web modernos" loading="lazy">
           <div class="portfolio-category">Web</div>
           <div class="portfolio-overlay">
             <h3>Desarrollo Web</h3>
@@ -204,7 +195,7 @@
           </div>
         </div>
         <div class="portfolio-item">
-          <img src="../assets/img/tecnologias.jpg" alt="Uso de tecnologías avanzadas" loading="lazy">
+          <img src="/assets/img/tecnologias.jpg" alt="Uso de tecnologías avanzadas" loading="lazy">
           <div class="portfolio-category">Tecnología</div>
           <div class="portfolio-overlay">
             <h3>Soluciones Avanzadas</h3>
@@ -213,13 +204,11 @@
         </div>
       </div>
     </section>
-    <!-- ======================================== -->
-    <!-- FIN: SECCIÓN DE PORTFOLIO               -->
-    <!-- ======================================== -->
+ 
+    <!-- FIN: SECCIÓN DE PORTFOLIO-->
 
-    <!-- ======================================== -->
     <!-- INICIO: SECCIÓN DE CONTACTO             -->
-    <!-- ======================================== -->
+ 
     <section id="contacto" class="contact-section animate-entry">
       <h2>Contacto</h2>
       <div class="contact-card-container">
@@ -250,43 +239,24 @@
               <div class="form-status" aria-live="assertive"></div>
             </form>
           </div>
-          <div class="contact-card-back">
-            <div class="contact-info">
-              <div class="contact-info-header">
-                <i class="fas fa-info-circle"></i>
-                <h3>Información de Contacto</h3>
-              </div>
-              <ul class="contact-details">
-                <li><i class="fas fa-map-marker-alt"></i> Av. Principal 123, Ciudad</li>
-                <li><i class="fas fa-phone"></i> +57 123 456 7890</li>
-                <li><i class="fas fa-envelope"></i> info@inoutmanager.com</li>
-                <li><i class="fas fa-clock"></i> Lun - Vie: 8:00 - 18:00</li>
-              </ul>
-              <div class="contact-social">
-                <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
-                <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </section>
   </main>
-  <!-- ======================================== -->
+ 
   <!-- INICIO: FOOTER SIMPLE DE REDES SOCIALES  -->
-  <!-- ======================================== -->
+  
   <footer class="site-footer">
     <div class="social-footer-container">
       <div class="social-media-footer">
         <a href="#" class="social-icon-footer" aria-label="Facebook">
-          <img src="../assets/img/facebook.jpg" alt="Facebook" class="social-img">
+          <img src="/assets/img/facebook.jpg" alt="Facebook" class="social-img">
         </a>
         <a href="#" class="social-icon-footer" aria-label="Instagram">
-          <img src="../assets/img/instagram.jpg" alt="Instagram" class="social-img">
+          <img src="/assets/img/instagram.jpg" alt="Instagram" class="social-img">
         </a>
         <a href="#" class="social-icon-footer" aria-label="TikTok">
-          <img src="../assets/img/tiktok.jpg" alt="TikTok" class="social-img">
+          <img src="/assets/img/tiktok.jpg" alt="TikTok" class="social-img">
         </a>
         <a href="mailto:info@inoutmanager.com" class="social-icon-footer" aria-label="Correo">
           <i class="fas fa-envelope email-icon"></i>
@@ -295,8 +265,7 @@
       <p class="copyright-text">© 2025 IN OUT MANAGER</p>
     </div>
   </footer>
-  <!-- ======================================== -->
-  <!-- FIN: FOOTER SIMPLE DE REDES SOCIALES     -->
-  <!-- ======================================== -->
+  
+  <!-- FIN: FOOTER SIMPLE DE REDES SOCIALES-->
 </body>
 </html>

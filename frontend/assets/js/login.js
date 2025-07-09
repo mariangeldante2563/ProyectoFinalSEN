@@ -1,14 +1,12 @@
 /**
- * IN OUT MANAGER - Login Module
- * Unified and optimized login functionality
+ * IN OUT MANAGER - LOGIN ESTE ES EL PROYECTO ESTRELLA*
  * @version 2.0.0
- * @copyright 2025 IN OUT MANAGER
+ * @copyright 
  */
 
 (function() {
     'use strict';
 
-    // Configuration
     const CONFIG = {
         minPasswordLength: 8,
         redirectDelay: 1000,
@@ -16,8 +14,6 @@
         successMessage: 'Inicio de sesión exitoso',
         errorMessage: 'Error al iniciar sesión'
     };
-
-    // Main Login Module
     class LoginModule {
         constructor() {
             this.elements = {};
@@ -25,7 +21,6 @@
             this.isLoading = false;
         }
 
-        // Initialize the module
         init() {
             try {
                 this.cacheElements();
@@ -37,7 +32,6 @@
             }
         }
 
-        // Cache DOM elements
         cacheElements() {
             const selectors = {
                 form: '#loginForm',
@@ -59,22 +53,22 @@
                 this.elements[key] = element;
             });
 
-            // Validate critical elements
+            
             if (!this.elements.form || !this.elements.email || !this.elements.password) {
                 throw new Error('Critical form elements not found');
             }
         }
 
-        // Bind event listeners
+       
         bindEvents() {
-            // Password visibility toggle
+            
             if (this.elements.showPassword) {
                 this.elements.showPassword.addEventListener('change', (e) => {
                     this.togglePasswordVisibility(e.target.checked);
                 });
             }
 
-            // Role selection
+          
             if (this.elements.roleTabs) {
                 this.elements.roleTabs.forEach(tab => {
                     tab.addEventListener('click', () => this.handleRoleChange(tab));
@@ -87,28 +81,28 @@
                 });
             }
 
-            // Form submission
+           
             this.elements.form.addEventListener('submit', (e) => this.handleSubmit(e));
 
-            // Input validation on blur
+           
             this.elements.email.addEventListener('blur', () => this.validateField(this.elements.email, 'email'));
             this.elements.password.addEventListener('blur', () => this.validateField(this.elements.password, 'password'));
         }
 
-        // Initialize UI state
+        
         initializeUI() {
-            // Set initial role
+            
             const defaultTab = document.querySelector(`[data-role="${this.selectedRole}"]`);
             if (defaultTab) {
                 this.handleRoleChange(defaultTab);
             }
         }
 
-        // Handle role change
+      
         handleRoleChange(tab) {
             if (!tab) return;
 
-            // Update tabs
+         
             this.elements.roleTabs.forEach(t => {
                 t.classList.remove('active');
                 t.setAttribute('aria-selected', 'false');
@@ -119,17 +113,14 @@
             tab.setAttribute('aria-selected', 'true');
             tab.setAttribute('tabindex', '0');
 
-            // Update selected role
             this.selectedRole = tab.dataset.role;
 
-            // Update role description
             this.updateRoleDescription(this.selectedRole);
 
-            // Show/hide admin code field
             this.toggleAdminCodeField(this.selectedRole === 'administrador');
         }
 
-        // Update role description
+        
         updateRoleDescription(role) {
             if (!this.elements.roleDescription) return;
 
@@ -141,7 +132,7 @@
             this.elements.roleDescription.textContent = descriptions[role] || descriptions.empleado;
         }
 
-        // Toggle admin code field visibility
+      
         toggleAdminCodeField(show) {
             if (!this.elements.adminCodeGroup) return;
 
@@ -155,28 +146,23 @@
             }
         }
 
-        // Toggle password visibility
         togglePasswordVisibility(show) {
             this.elements.password.type = show ? 'text' : 'password';
         }
 
-        // Handle form submission
         async handleSubmit(e) {
             e.preventDefault();
 
             if (this.isLoading) return;
 
             try {
-                // Validate form
+              
                 if (!this.validateForm()) return;
 
-                // Show loading state
                 this.setLoadingState(true);
 
-                // Get form data
                 const formData = this.getFormData();
 
-                // Process authentication
                 this.processLogin(formData);
 
             } catch (error) {
@@ -187,18 +173,13 @@
             }
         }
 
-        // Process login
         processLogin(formData) {
-            // Success message
             this.showSuccessMessage(CONFIG.successMessage);
-            
-            // Redirect after delay
             setTimeout(() => {
                 this.redirectToDashboard();
             }, CONFIG.redirectDelay);
         }
 
-        // Get form data
         getFormData() {
             const data = {
                 email: this.elements.email.value.trim(),
@@ -213,21 +194,17 @@
             return data;
         }
 
-        // Validate entire form
         validateForm() {
             let isValid = true;
 
-            // Validate email
             if (!this.validateField(this.elements.email, 'email')) {
                 isValid = false;
             }
 
-            // Validate password
             if (!this.validateField(this.elements.password, 'password')) {
                 isValid = false;
             }
 
-            // Validate admin code if required
             if (this.selectedRole === 'administrador' && this.elements.adminCode) {
                 if (!this.validateField(this.elements.adminCode, 'adminCode')) {
                     isValid = false;
@@ -237,7 +214,7 @@
             return isValid;
         }
 
-        // Validate individual field
+    
         validateField(element, type) {
             if (!element) return false;
 
@@ -287,7 +264,6 @@
             return isValid;
         }
 
-        // Show field error
         showFieldError(element, message) {
             this.clearFieldError(element);
 
@@ -301,7 +277,6 @@
             element.setAttribute('aria-invalid', 'true');
         }
 
-        // Clear field error
         clearFieldError(element) {
             const errorDiv = element.parentElement.querySelector('.error-message');
             if (errorDiv) {
@@ -311,7 +286,6 @@
             element.setAttribute('aria-invalid', 'false');
         }
 
-        // Set loading state
         setLoadingState(isLoading) {
             this.isLoading = isLoading;
             
@@ -332,17 +306,14 @@
             }
         }
 
-        // Show success message
         showSuccessMessage(message) {
             this.showMessage(message, 'success');
         }
 
-        // Show error message
         showErrorMessage(message) {
             this.showMessage(message, 'error');
         }
 
-        // Show message
         showMessage(message, type) {
             if (!this.elements.resultMessage) return;
 
@@ -350,14 +321,12 @@
             this.elements.resultMessage.textContent = message;
             this.elements.resultMessage.setAttribute('role', 'alert');
 
-            // Clear message after some time
             setTimeout(() => {
                 this.elements.resultMessage.textContent = '';
                 this.elements.resultMessage.className = 'result-message';
             }, 3000);
         }
 
-        // Redirect to dashboard
         redirectToDashboard() {
             const dashboardUrls = {
                 empleado: '../empleado/dashboard-empleado.html',
@@ -369,10 +338,8 @@
         }
     }
 
-    // Initialize module
     const loginModule = new LoginModule();
 
-    // Initialize when DOM is ready
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => loginModule.init());
     } else {

@@ -1,8 +1,6 @@
-/* ========================================
-   INICIO: VARIABLES CSS GLOBALES
-   ======================================== */
+/* INICIO VARIABLES CSS */
 :root {
-  /* Colores principales */
+  /* los Colores principales */
   --color-primary: #0e1a4f;
   --color-secondary: #3a5199;
   --color-accent: #667eea;
@@ -11,11 +9,11 @@
   --color-gray: #777;
   --color-border: #ddd;
   
-  /* Fuentes */
+  /* las Fuentes */
   --font-primary: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   --font-secondary: Arial, sans-serif;
   
-  /* Tamaños de texto */
+  /* los Tamaños de texto */
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
   --text-md: 1rem;
@@ -23,21 +21,21 @@
   --text-xl: 1.5rem;
   --text-2xl: 2rem;
   
-  /* Espaciado */
+  /* los Espaciado */
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
   --spacing-md: 1rem;
   --spacing-lg: 1.5rem;
   --spacing-xl: 2rem;
   
-  /* Efectos */
+  /* los Efectos */
   --transition-fast: 0.3s ease;
   --transition-normal: 0.5s ease;
   --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
   --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.1);
   
-  /* Bordes */
+  /* los Bordes */
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 12px;
@@ -47,13 +45,9 @@
   --header-height: 120px;
   --footer-height: 120px;
 }
-/* ========================================
-   FIN: VARIABLES CSS GLOBALES
-   ======================================== */
+/* AQUI TERMINA LAS VARIABLES */
 
-/* ========================================
-   INICIO: RESET Y ESTILOS BASE
-   ======================================== */
+/* INICIO DEL RESET Y ESTILOS BASE */
 * {
   margin: 0;
   padding: 0;
@@ -81,13 +75,9 @@ body {
   align-items: center;
   justify-content: flex-start;
 }
-/* ========================================
-   FIN: RESET Y ESTILOS BASE
-   ======================================== */
+/* FIN DEL RESET Y ESTILOS BASE */
 
-/* ========================================
-   INICIO: ANIMACIONES Y TRANSICIONES
-   ======================================== */
+/* INICIO DE LAS ANIMACIONES Y TRANSICIONES*/
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -121,63 +111,14 @@ body {
   }
 }
 
-@keyframes floatAnimation {
-  0% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-  100% {
-    transform: translateY(0);
-  }
-}
 
-@keyframes pulseAnimation {
-  0% {
-    transform: scale(1);
-    box-shadow: var(--shadow-md);
-  }
-  50% {
-    transform: scale(1.02);
-    box-shadow: var(--shadow-lg);
-  }
-  100% {
-    transform: scale(1);
-    box-shadow: var(--shadow-md);
-  }
-}
-
-@keyframes gradientAnimation {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-@keyframes borderGlow {
-  0% {
-    box-shadow: 0 0 5px var(--color-accent);
-  }
-  50% {
-    box-shadow: 0 0 15px var(--color-accent), 0 0 30px var(--color-secondary);
-  }
-  100% {
-    box-shadow: 0 0 5px var(--color-accent);
-  }
-}
 
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
 
-/* Clases de utilidad para animaciones */
+/* aqui van las Clases de utilidad para animaciones */
 .fade-in {
   animation: fadeIn var(--transition-normal) forwards;
 }
@@ -190,77 +131,13 @@ body {
   animation: scaleUp var(--transition-normal) forwards;
 }
 
-/* Clases para entrar en el viewport */
-.scroll-reveal {
-  opacity: 0;
-  transition: opacity var(--transition-normal),
-              transform var(--transition-normal);
-}
 
-.scroll-reveal.revealed {
-  opacity: 1;
-  transform: translateY(0);
-}
-/* ========================================
-   FIN: ANIMACIONES Y TRANSICIONES
-   ======================================== */
+/* FIN DE LAS ANIMACIONES Y TRANSICIONES */
 
-/* ========================================
-   INICIO: COMPONENTES DE CARGA
-   ======================================== */
-.loading-screen {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-secondary) 100%);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-  opacity: 1;
-  transition: opacity var(--transition-normal);
-}
 
-.loading-screen.fade-out {
-  opacity: 0;
-  pointer-events: none;
-}
 
-.loader {
-  width: 60px;
-  height: 60px;
-  border: 4px solid rgba(255, 255, 255, 0.3);
-  border-top: 4px solid #ffffff;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
+/*INICIO DEL LAYOUT PRINCIPAL*/
 
-.loading-text {
-  color: white;
-  font-size: var(--text-lg);
-  font-weight: 600;
-  margin-top: var(--spacing-md);
-  letter-spacing: 1px;
-}
-/* ========================================
-   FIN: COMPONENTES DE CARGA
-   ======================================== */
-
-/* ========================================
-   INICIO: LAYOUT PRINCIPAL
-   ======================================== */
-.page-content {
-  opacity: 0;
-  transform: translateY(20px);
-  transition: all var(--transition-normal);
-}
-
-.page-content.loaded {
-  opacity: 1;
-  transform: translateY(0);
-}
 
 .site-content {
   width: 100%;
@@ -268,13 +145,9 @@ body {
   padding: var(--spacing-md);
   margin: 0 auto;
 }
-/* ========================================
-   FIN: LAYOUT PRINCIPAL
-   ======================================== */
+/* FIN: LAYOUT PRINCIPAL */
 
-/* ========================================
-   INICIO: HEADER Y NAVEGACIÓN
-   ======================================== */
+/* QUI VOY .... INICIO HEADER Y NAVEGACIÓN */
 .site-header {
   background-color: var(--color-primary);
   color: white;
@@ -307,10 +180,10 @@ body {
   padding: var(--spacing-sm) 0;
 }
 
-/* Estilos actualizados para la distribución mejorada */
+/* Aplicación de los estilos actualizados para la distribución mejorada */
 .nav-menu-list {
   display: flex;
-  justify-content: flex-start; /* Cambiado a flex-start para permitir más control sobre el posicionamiento */
+  justify-content: flex-start; 
   align-items: center;
   width: 100%;
   padding: 0;
@@ -342,9 +215,8 @@ body {
   flex: 1;
   display: flex;
   justify-content: flex-start;
-  padding-left: 3.5rem; /* Aumentado el padding para mayor separación desde el logo */
+  padding-left: 3.5rem; 
 }
-
 .nav-items-group {
   display: flex;
   list-style: none;
@@ -353,7 +225,7 @@ body {
 }
 
 .nav-item {
-  margin: 0 2.5rem; /* Separación significativamente aumentada entre elementos de navegación */
+  margin: 0 2.5rem; 
 }
 
 .nav-btn {
@@ -366,26 +238,28 @@ body {
   display: inline-block;
 }
 
+/* Estilos para los botones de autenticación */
+
 .auth-buttons-container {
   display: flex;
-  gap: 2.5rem; /* Aumentado el espaciado entre los botones para igualarlo al del menú de navegación */
-  margin-right: 2rem; /* Reducido para moverlos más a la derecha */
-  margin-left: 1rem; /* Ajustado para mantener la separación con el menú */
-  position: relative; /* Para asegurar el posicionamiento */
-  right: 0; /* Eliminado el desplazamiento hacia la izquierda */
-  transform: none; /* Eliminado el desplazamiento adicional */
+  gap: 2.5rem; 
+  margin-right: 2rem; 
+  margin-left: 1rem; 
+  position: relative; 
+  right: 0; 
+  transform: none;
 }
 
-/* Restablecer para pantallas pequeñas */
+
 @media (max-width: 991.98px) {
   .auth-buttons-container {
-    transform: none; /* Sin desplazamiento adicional */
+    transform: none; 
   }
 }
 
 @media (max-width: 767.98px) {
   .auth-buttons-container {
-    transform: none; /* Sin desplazamiento en móviles */
+    transform: none; 
   }
 }
 
@@ -414,7 +288,7 @@ body {
   background-color: var(--color-secondary);
 }
 
-/* Media queries para dispositivos móviles */
+/* Media queries para dispositivos móviles, super importante */
 @media (max-width: 767.98px) {
   .nav-menu-list {
     flex-direction: column;
@@ -442,15 +316,15 @@ body {
   .nav-item {
     width: 100%;
     text-align: center;
-    margin: 0.75rem 0; /* Aumentado el espaciado vertical en móvil */
+    margin: 0.75rem 0; 
   }
   
   .auth-buttons-container {
     width: 100%;
     justify-content: center;
-    margin: 1.5rem 0 0.75rem; /* Aumentado el espaciado vertical */
-    gap: 1.75rem; /* Aumentado el espaciado entre botones en móvil */
-    right: 0; /* Resetear el desplazamiento para móviles */
+    margin: 1.5rem 0 0.75rem; 
+    gap: 1.75rem; 
+    right: 0; 
     position: static; /* Volver a posicionamiento normal en móviles */
   }
   
@@ -463,18 +337,18 @@ body {
 /* Para pantallas medianas */
 @media (min-width: 768px) and (max-width: 991.98px) {
   .nav-items-container {
-    padding-left: 2rem; /* Aumentado pero manteniendo proporcionalidad */
+    padding-left: 2rem; 
   }
   
   .nav-item {
-    margin: 0 1.5rem; /* Aumentado pero adaptado al tamaño de pantalla */
+    margin: 0 1.5rem; 
   }
   
   .auth-buttons-container {
-    margin-right: 2rem; /* Ajustado para consistencia con el diseño principal */
+    margin-right: 2rem; 
     margin-left: 1rem;
-    gap: 2rem; /* Aumentado para mantener proporcionalidad con el resto del menú */
-    right: 0; /* Eliminado el desplazamiento */
+    gap: 2rem; 
+    right: 0; 
   }
 }
 
@@ -512,13 +386,9 @@ body {
     opacity: 0;
   }
 }
-/* ========================================
-   FIN: HEADER Y NAVEGACIÓN
-   ======================================== */
+/* QUI TERMINA EL HEADER  */
 
-/* ========================================
-   INICIO: CARRUSEL
-   ======================================== */
+/* INICIO CARRUSEL */
 .carousel-section {
   text-align: center;
   margin: var(--spacing-xl) 0;
@@ -592,12 +462,12 @@ body {
   background: linear-gradient(to top, rgba(14, 26, 79, 0.9), transparent);
   color: white;
   margin: 0;
-  padding: var(--spacing-xl) var(--spacing-md) var(--spacing-lg); /* Aumentado el padding inferior */
+  padding: var(--spacing-xl) var(--spacing-md) var(--spacing-lg); 
   font-size: var(--text-lg);
   text-align: center;
   transform: translateY(0);
-  transition: transform var(--transition-normal), background var(--transition-normal);
-  z-index: 10; /* Asegurar que esté por debajo de los indicadores */
+  transition: transform var(--transition-normal), background-color var(--transition-normal);
+  z-index: 10; 
 }
 
 .carousel-slide:hover p {
@@ -605,7 +475,8 @@ body {
   transform: translateY(-5px);
 }
 
-.carousel-control {
+.carousel-prev,
+.carousel-next {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
@@ -625,31 +496,32 @@ body {
   justify-content: center;
 }
 
-.carousel-control:hover {
+.carousel-prev:hover,
+.carousel-next:hover {
   background-color: var(--color-accent);
   transform: translateY(-50%) scale(1.1);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
-.carousel-control.prev {
+.carousel-prev {
   left: 15px;
 }
 
-.carousel-control.next {
+.carousel-next {
   right: 15px;
 }
 
 /* Indicadores de posición del carrusel */
 .carousel-indicators {
   position: absolute;
-  bottom: 60px; /* Aumentado para separar del texto */
+  bottom: 60px; 
   left: 0;
   right: 0;
   display: flex;
   justify-content: center;
-  gap: 12px; /* Aumentado el espacio entre indicadores */
-  z-index: 20; /* Mayor que el texto para asegurar que esté por encima */
-  background-color: rgba(0, 0, 0, 0.3); /* Fondo semitransparente para mejorar visibilidad */
+  gap: 12px; 
+  z-index: 20; 
+  background-color: rgba(0, 0, 0, 0.3); 
   padding: 8px 15px;
   border-radius: 20px;
   width: fit-content;
@@ -657,13 +529,13 @@ body {
 }
 
 .carousel-indicator {
-  width: 14px; /* Ligeramente más grande */
+  width: 14px; 
   height: 14px;
   border-radius: 50%;
   background-color: rgba(255, 255, 255, 0.6);
   cursor: pointer;
   transition: all var(--transition-fast);
-  box-shadow: 0 0 3px rgba(0, 0, 0, 0.3); /* Sombra sutil para destacar */
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.3); 
 }
 
 .carousel-indicator.active {
@@ -674,13 +546,9 @@ body {
 .carousel-indicator:hover {
   background-color: rgba(255, 255, 255, 0.9);
 }
-/* ========================================
-   FIN: CARRUSEL
-   ======================================== */
+/* QUI TERMINA POR FIN EL CARRUSEL*/
 
-/* ========================================
-   INICIO: SECCIONES DE CONTENIDO
-   ======================================== */
+/*INICIO: SECCIONES DE CONTENIDO */
 section {
   margin: var(--spacing-xl) 0;
   padding: var(--spacing-lg);
@@ -715,7 +583,7 @@ section h2::after {
   background-color: var(--color-accent);
 }
 
-/* Tecnologías */
+/* seccion de tecnologías */
 .technologies-section {
   background-color: rgba(58, 81, 153, 0.03);
   padding: var(--spacing-xl) var(--spacing-lg);
@@ -1182,7 +1050,7 @@ section h2::after {
   border: 1px solid #F44336;
 }
 
-/* Spinner de carga para envío de formulario */
+/* Spinner de carga para envío de formulario, realizar prueba para saber si funciona */
 .submit-btn.loading {
   position: relative;
   color: transparent;
@@ -1219,14 +1087,10 @@ section h2::after {
   transform: translateY(-2px);
 }
 
-/* ========================================
-   FIN: SECCIONES DE CONTENIDO
-   ======================================== */
+/* FIN DE LAS  SECCIONES DE CONTENIDO */
 
-/* ========================================
-   INICIO: MEDIA QUERIES
-   ======================================== */
-/* Media query para pantallas extra pequeñas */
+/* INICIO MEDIA QUERIES*/
+
 @media (max-width: 480px) {
   /* Ajustes adicionales para pantallas muy pequeñas */
   .header-title h1 {
@@ -1253,7 +1117,6 @@ section h2::after {
     width: 100%;
   }
   
-  /* Estilos de social-media movidos a footer-styles.css */
   
   /* Ajustes para asegurar que no haya desbordamiento horizontal */
   .carousel-slide img,
@@ -1264,13 +1127,9 @@ section h2::after {
     height: auto;
   }
 }
-/* ========================================
-   FIN: MEDIA QUERIES
-   ======================================== */
+/* FIN ZONA DEMEDIA QUERIES */
 
-/* ========================================
-   INICIO: ESTILOS MENÚ MÓVIL
-   ======================================== */
+/*INICIO: ESTILOS MENÚ MÓVIL*/
 .mobile-menu-toggle {
   display: none;
   background: none;
@@ -1332,14 +1191,10 @@ section h2::after {
     align-items: center;
   }
 }
-/* ========================================
-   FIN: ESTILOS MENÚ MÓVIL
-   ======================================== */
+/* FIN ESTILOS MENÚ MÓVIL*/
 
-/* ========================================
-   INICIO: ANIMACIONES Y EFECTOS MEJORADOS
-   ======================================== */
-/* Soporte para prefers-reduced-motion */
+/* INICIO DE LAS ANIMACIONES Y EFECTOS MEJORADOS */
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
@@ -1374,7 +1229,7 @@ section h2::after {
   100% { transform: scale(1); }
 }
 
-/* Clase para animación de entrada para secciones */
+
 .animate-entry {
   opacity: 0;
   animation: slideUpFadeIn 0.5s ease forwards;
@@ -1410,25 +1265,20 @@ section h2::after {
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
-/* ========================================
-   FIN: ANIMACIONES Y EFECTOS MEJORADOS
-   ======================================== */
+/*FIN: ANIMACIONES Y EFECTOS MEJORADOS*/
 
-/* ========================================
-   INICIO: RESPONSIVE MEJORADO
-   ======================================== */
-/* Dispositivos muy pequeños (móviles pequeños, menos de 576px) */
+/* INICIO RESPONSIVE  */
+
 @media (max-width: 575.98px) {
   :root {
-    /* Ajustar tamaños de texto para dispositivos pequeños */
+  
     --text-xs: 0.7rem;
     --text-sm: 0.8rem;
     --text-md: 0.9rem;
     --text-lg: 1.1rem;
     --text-xl: 1.3rem;
     --text-2xl: 1.7rem;
-    
-    /* Reducir espaciado en móviles */
+    --text-3xl: 2.1rem;
     --spacing-lg: 1.2rem;
     --spacing-xl: 1.5rem;
   }
@@ -1515,10 +1365,10 @@ section h2::after {
   }
 }
 
-/* Dispositivos pequeños (móviles en landscape, tablets pequeñas, 576px - 767px) */
+
 @media (min-width: 576px) and (max-width: 767.98px) {
   :root {
-    /* Ajustar tamaños de texto */
+
     --text-2xl: 1.8rem;
   }
   
@@ -1555,13 +1405,11 @@ section h2::after {
     gap: var(--spacing-md);
   }
 }
-/* ========================================
-   FIN: RESPONSIVE MEJORADO
-   ======================================== */
+/* FIN DE RESPONSIVE */
 
 /* Ajuste del espaciado entre elementos del menú de navegación */
 .main-nav ul {
-  gap: var(--spacing-lg); /* Aumentado desde var(--spacing-md) para mayor separación */
+  gap: var(--spacing-lg); /
 }
 
 /* Espaciado específico para ítems de navegación */
@@ -1604,21 +1452,21 @@ section h2::after {
 /* Reforzar los estilos específicos para la navegación */
 #mainNavList {
   display: flex;
-  justify-content: flex-start; /* Cambiado para mejor distribución */
+  justify-content: flex-start; 
   align-items: center;
   width: 100%;
 }
 
 #mainNavList .nav-logo {
-  margin-right: 0; /* Ajustado para la nueva distribución */
+  margin-right: 0; 
   padding-left: 1.5rem;
 }
 
 #mainNavList .auth-buttons-container {
-  margin-left: 0; /* Quitando el auto margin para permitir el posicionamiento manual */
-  margin-right: 2rem; /* Ajustado para mantener consistencia */
+  margin-left: 0; 
+  margin-right: 2rem; 
   display: flex;
-  gap: 2.5rem; /* Igualado al espaciado entre botones del menú de navegación */
+  gap: 2.5rem; 
 }
 
 #mainNavList .nav-item {
@@ -1722,9 +1570,7 @@ section h2::after {
   transform: scale(1.05);
 }
 
-/* ========================================
-   INICIO: SECCIÓN DE CONTACTO MEJORADA
-   ======================================== */
+/* INICIO: SECCIÓN DE CONTACTO MEJORAD*/
 .contact-section {
   padding: var(--spacing-xl) 0;
   text-align: center;
@@ -1756,54 +1602,31 @@ section h2::after {
 .contact-card-container {
   max-width: 800px;
   margin: 0 auto;
-  perspective: 1000px;
 }
 
-/* Tarjeta de contacto con efecto 3D */
+/* Tarjeta de contacto */
 .contact-card {
   position: relative;
   width: 100%;
   height: 560px;
-  transition: transform 0.5s ease, box-shadow 0.5s ease;
-  transform-style: preserve-3d;
+  transition: box-shadow 0.5s ease;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
 }
 
-/* Efecto de hover para la tarjeta de contacto */
-.contact-card:hover {
-  transform: rotateY(180deg);
-  box-shadow: 0 20px 40px rgba(14, 26, 79, 0.2);
-}
 
-/* Caras de la tarjeta (frontal y trasera) */
-.contact-card-front,
-.contact-card-back {
+
+/* Caras de la tarjeta (frontal solamente) */
+.contact-card-front {
   position: absolute;
   width: 100%;
   height: 100%;
-  backface-visibility: hidden;
   border-radius: var(--radius-lg);
   overflow: hidden;
   padding: var(--spacing-lg);
-}
-
-/* Cara frontal (formulario) */
-.contact-card-front {
   background: linear-gradient(135deg, #f5f7fa, #e6e9f0);
   display: flex;
   flex-direction: column;
-}
-
-/* Cara trasera (información de contacto) */
-.contact-card-back {
-  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
-  color: white;
-  transform: rotateY(180deg);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
 }
 
 /* Encabezado del formulario */
@@ -1920,81 +1743,10 @@ section h2::after {
   box-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
 }
 
-/* Información de contacto (cara trasera) */
-.contact-info {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-}
+/*FIN DE LA SECCIÓN DE CONTACTO */
 
-.contact-info-header {
-  margin-bottom: var(--spacing-xl);
-}
-
-.contact-info-header i {
-  font-size: 3rem;
-  margin-bottom: var(--spacing-sm);
-  color: rgba(255, 255, 255, 0.9);
-}
-
-.contact-info-header h3 {
-  font-size: var(--text-xl);
-  margin-bottom: var(--spacing-sm);
-  color: white;
-}
-
-.contact-details {
-  list-style: none;
-  padding: 0;
-  margin-bottom: var(--spacing-xl);
-  width: 100%;
-  max-width: 400px;
-}
-
-.contact-details li {
-  margin-bottom: var(--spacing-md);
-  padding-bottom: var(--spacing-sm);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.contact-details li i {
-  margin-right: var(--spacing-sm);
-  font-size: var(--text-md);
-  width: 25px;
-  height: 25px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(255, 255, 255, 0.1);
-  border-radius: 50%;
-  padding: var(--spacing-md);
-}
-
-/* ========================================
-   FIN: SECCIÓN DE CONTACTO MEJORADA
-   ======================================== */
-
-/* ==========================================
-   Las reglas del footer se han movido al archivo
-   footer-styles.css para una mejor organización
-   ========================================== */
-
-/* Estilos específicos para páginas de autenticación */
-.auth-content {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
-  min-height: calc(100vh - var(--header-height) - var(--footer-height));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--spacing-xl) var(--spacing-md);
-}
+/* OJO, Las reglas del footer se han movido al archivo
+   footer-styles.css para una mejor organización */
 
 .auth-section {
   width: 100%;
@@ -2009,16 +1761,3 @@ section h2::after {
   padding: var(--spacing-xl);
 }
 
-/* Ajustes para el header en páginas de autenticación */
-body.auth-page .site-header {
-  background: var(--color-primary) !important;
-  position: relative;
-  width: 100%;
-  z-index: 1000;
-}
-
-/* Ajustes para el footer en páginas de autenticación */
-body.auth-page .site-footer {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%) !important;
-  color: white !important;
-}

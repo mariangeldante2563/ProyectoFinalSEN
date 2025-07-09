@@ -1,6 +1,4 @@
-// ===========================
-// FUNCIONALIDAD DEL DASHBOARD DE ADMINISTRADOR
-// ===========================
+// FUNCIONALIDAD DEL DASHBOARD DE ADMINISTRADOR // 
 
 class AdminDashboard {
   constructor() {
@@ -20,7 +18,6 @@ class AdminDashboard {
     this.newEmployeeBtn = document.getElementById('newEmployeeBtn');
     this.reportsBtn = document.getElementById('reportsBtn');
     this.settingsBtn = document.getElementById('settingsBtn');
-    this.logoutBtn = document.getElementById('logoutBtn');
     
     this.init();
   }
@@ -137,11 +134,6 @@ class AdminDashboard {
     // Botón de configuración
     if (this.settingsBtn) {
       this.settingsBtn.addEventListener('click', () => alert('Funcionalidad de configuración en desarrollo'));
-    }
-    
-    // Botón de logout
-    if (this.logoutBtn) {
-      this.logoutBtn.addEventListener('click', () => this.logout());
     }
   }
   

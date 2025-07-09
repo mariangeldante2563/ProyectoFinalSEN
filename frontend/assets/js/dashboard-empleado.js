@@ -1,6 +1,6 @@
-// ===========================
+
 // FUNCIONALIDAD DEL DASHBOARD DE EMPLEADO
-// ===========================
+
 
 class EmployeeDashboard {
   constructor() {

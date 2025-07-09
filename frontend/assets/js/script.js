@@ -1,8 +1,7 @@
 /**
- * IN OUT MANAGER - Script Principal Optimizado
- * 
- * Funcionalidades principales del sitio web con arquitectura modular
- * y profesional para la gestión de componentes del frontend
+ * IN OUT MANAGER - Script Principal 
+ * Funcionalidades principales del sitio web 
+ * componentes del frontend
  * 
  * @author IN OUT MANAGER Team
  * @version 3.0.0
@@ -13,10 +12,6 @@
 
     // Configuración global del sistema
     const CONFIG = {
-        animation: {
-            duration: 300,
-            easing: 'ease-in-out'
-        },
         carousel: {
             autoplayDelay: 5000,
             animationDuration: 500
@@ -149,9 +144,6 @@
             navLinks.forEach(link => {
                 DOM.addEvent(link, 'click', this.handleNavigationClick.bind(this));
             });
-
-            // Inicializar dropdown si existe
-            this.initDropdown();
         }
 
         /**
@@ -174,44 +166,6 @@
             if (targetElement) {
                 UI.scrollTo(targetElement, 70);
             }
-        }
-
-        /**
-         * Inicializa dropdown del menú
-         */
-        initDropdown() {
-            const dropdown = DOM.select('.dropdown');
-            const toggle = DOM.select('.dropdown-toggle');
-            
-            if (!dropdown || !toggle) return;
-
-            DOM.addEvent(toggle, 'click', (e) => {
-                e.preventDefault();
-                this.toggleDropdown(dropdown, toggle);
-            });
-
-            DOM.addEvent(document, 'click', (e) => {
-                if (!dropdown.contains(e.target)) {
-                    this.closeDropdown(dropdown, toggle);
-                }
-            });
-        }
-
-        /**
-         * Toggle dropdown
-         */
-        toggleDropdown(dropdown, toggle) {
-            const isOpen = dropdown.classList.contains('open');
-            DOM[isOpen ? 'removeClass' : 'addClass'](dropdown, 'open');
-            toggle.setAttribute('aria-expanded', (!isOpen).toString());
-        }
-
-        /**
-         * Cierra dropdown
-         */
-        closeDropdown(dropdown, toggle) {
-            DOM.removeClass(dropdown, 'open');
-            toggle.setAttribute('aria-expanded', 'false');
         }
 
         /**
@@ -439,9 +393,8 @@
         }
     }
 
-    /**
-     * Gestor de animaciones
-     */
+    // Gestor de animaciones
+     
     class AnimationManager {
         constructor() {
             this.observer = null;
@@ -464,7 +417,7 @@
         }
 
         disableAnimations() {
-            const elements = DOM.selectAll('.animate-entry, .fade-in, .slide-in, .scale-up, .technology-item, .portfolio-item');
+            const elements = DOM.selectAll('.animate-entry, .technology-item, .portfolio-item');
             elements.forEach(el => {
                 el.style.opacity = '1';
                 el.style.animation = 'none';
@@ -538,7 +491,7 @@
                 item.style.transform = 'translateY(40px)';
                 item.style.transition = 'opacity 0.7s ease-out, transform 0.7s ease-out';
 
-                // Efecto hover 3D
+                // OJO Efecto hover 3D
                 DOM.addEvent(item, 'mousemove', (e) => {
                     const { left, top, width, height } = item.getBoundingClientRect();
                     const x = (e.clientX - left) / width - 0.5;
@@ -563,12 +516,9 @@
         }
     }
 
-    /**
-     * Gestor de formularios
-     */
+    // Gestor de formularios
     class FormManager {
         constructor() {
-            this.validators = new Map();
         }
 
         init() {
@@ -728,9 +678,7 @@
         }
     }
 
-    /**
-     * Gestor de menú móvil
-     */
+    // Gestor de menú móvil
     class MobileMenuManager {
         init() {
             const toggle = DOM.select('#mobileMenuToggle');
@@ -777,7 +725,6 @@
             if (!contactCard || !contactForm) return;
 
             this.setupCardEffects(contactCard);
-            this.setupFormEffects(contactCard, contactForm);
         }
 
         setupCardEffects(card) {
@@ -795,45 +742,12 @@
                 const rotateY = maxRotation * (x - centerX) / centerX;
                 const rotateX = maxRotation * (centerY - y) / centerY;
                 
-                if (!card.classList.contains('flipped')) {
-                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-                }
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
             });
 
             DOM.addEvent(card, 'mouseleave', () => {
-                if (!card.classList.contains('flipped')) {
-                    card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0)';
-                }
+                card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0)';
             });
-        }
-
-        setupFormEffects(card, form) {
-            DOM.addEvent(form, 'click', (e) => {
-                e.stopPropagation();
-            });
-
-            DOM.addEvent(form, 'submit', () => {
-                card.classList.add('success-submit');
-                
-                setTimeout(() => {
-                    card.classList.remove('success-submit');
-                }, 2000);
-            });
-
-            // Animación de entrada
-            const contactSection = DOM.select('.contact-section');
-            if (contactSection) {
-                const observer = new IntersectionObserver((entries) => {
-                    entries.forEach(entry => {
-                        if (entry.isIntersecting) {
-                            card.classList.add('animate-card');
-                            observer.unobserve(entry.target);
-                        }
-                    });
-                }, { threshold: 0.2 });
-
-                observer.observe(contactSection);
-            }
         }
     }
 
