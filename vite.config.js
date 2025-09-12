@@ -3,18 +3,18 @@ import { resolve } from 'path'
 
 export default defineConfig({
   // Configuración para tu proyecto HTML/CSS/JS
-  root: 'frontend', // Usar frontend como raíz
+  root: 'frontend', 
   
   // Configuración del servidor de desarrollo
   server: {
     port: 3000,
-    open: '/proyectopages/index.html', // Abrir directamente tu página principal
-    host: true  // Permite acceso desde la red local
+    open: '/proyectopages/index.html',
+    host: true  
   },
   
-  // Configuración de build para producción
+  
   build: {
-    outDir: '../dist', // Carpeta de salida en la raíz del proyecto
+    outDir: '../dist', 
     emptyOutDir: true,
     rollupOptions: {
       input: {
@@ -28,10 +28,10 @@ export default defineConfig({
     }
   },
   
-  // Configuración de assets
+ 
   assetsInclude: ['**/*.jpg', '**/*.jpeg', '**/*.png', '**/*.webp', '**/*.gif'],
   
-  // Alias para rutas más fáciles
+  
   resolve: {
     alias: {
       '@': resolve(__dirname, 'frontend'),

@@ -288,6 +288,17 @@ body {
   background-color: var(--color-secondary);
 }
 
+.logout-btn {
+  background-color: #e53e3e;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.logout-btn:hover {
+  background-color: #c53030;
+}
+
 /* Media queries para dispositivos móviles, super importante */
 @media (max-width: 767.98px) {
   .nav-menu-list {
@@ -1259,6 +1270,20 @@ section h2::after {
   box-shadow: var(--shadow-md);
 }
 
+/* Clase para anular todas las animaciones */
+.no-animation,
+.no-animation *,
+.no-animation *::before,
+.no-animation *::after,
+.no-animation:hover,
+.no-animation *:hover,
+.no-animation *:hover::before,
+.no-animation *:hover::after {
+  transition: none !important;
+  transform: none !important;
+  animation: none !important;
+}
+
 /* Animación para los elementos del formulario */
 .form-group input:focus, 
 .form-group textarea:focus {
@@ -1575,7 +1600,27 @@ section h2::after {
   padding: var(--spacing-xl) 0;
   text-align: center;
   position: relative;
-  overflow: hidden;
+  opacity: 1;
+  transform: none !important;
+  animation: none !important;
+  transition: none !important;
+}
+
+/* Anular todos los efectos de hover y animaciones para la sección de contacto */
+.contact-section *,
+.contact-section *::before,
+.contact-section *::after {
+  transform: none !important;
+  animation: none !important;
+  transition: none !important;
+}
+
+.contact-section *:hover,
+.contact-section *:hover::before,
+.contact-section *:hover::after {
+  transform: none !important;
+  animation: none !important;
+  transition: none !important;
 }
 
 .contact-section h2 {
@@ -1602,14 +1647,15 @@ section h2::after {
 .contact-card-container {
   max-width: 800px;
   margin: 0 auto;
+  padding: 0 20px;
 }
 
 /* Tarjeta de contacto */
 .contact-card {
-  position: relative;
+  position: static;
   width: 100%;
-  height: 560px;
-  transition: box-shadow 0.5s ease;
+  height: auto;
+  min-height: 600px;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
 }
@@ -1618,13 +1664,12 @@ section h2::after {
 
 /* Caras de la tarjeta (frontal solamente) */
 .contact-card-front {
-  position: absolute;
+  position: static;
   width: 100%;
   height: 100%;
   border-radius: var(--radius-lg);
-  overflow: hidden;
   padding: var(--spacing-lg);
-  background: linear-gradient(135deg, #f5f7fa, #e6e9f0);
+  background: #f5f7fa;
   display: flex;
   flex-direction: column;
 }
@@ -1704,43 +1749,31 @@ section h2::after {
 /* Botón de envío */
 .contact-form .submit-btn {
   margin-top: var(--spacing-md);
-  padding: var(--spacing-md) var(--spacing-lg);
+  padding: 15px 30px;
   border: none;
   border-radius: var(--radius-md);
-  background: linear-gradient(135deg, var(--color-secondary), var(--color-accent));
+  background-color: var(--color-secondary);
   color: white;
   font-weight: 600;
+  font-size: 16px;
   cursor: pointer;
-  transition: all var(--transition-fast);
   box-shadow: 0 4px 6px rgba(102, 126, 234, 0.2);
-  position: relative;
-  overflow: hidden;
-}
-
-.contact-form .submit-btn::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
+  position: static;
   width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, var(--color-accent), var(--color-secondary));
-  opacity: 0;
-  transition: opacity var(--transition-fast);
+  max-width: 250px;
+  margin: 20px auto 30px auto;
+  display: block;
+  transition: none !important;
+  transform: none !important;
+  animation: none !important;
 }
 
 .contact-form .submit-btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 12px rgba(102, 126, 234, 0.3);
-}
-
-.contact-form .submit-btn:hover::before {
-  opacity: 1;
+  background-color: var(--color-accent);
 }
 
 .contact-form .submit-btn:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
+  background-color: var(--color-primary);
 }
 
 /*FIN DE LA SECCIÓN DE CONTACTO */

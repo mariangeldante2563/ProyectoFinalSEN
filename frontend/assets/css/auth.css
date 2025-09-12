@@ -214,8 +214,20 @@
 }
 
 .validation-message.error,
-.error-message {
+.error-message,
+.field-error {
   color: var(--auth-error-color);
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+  display: block;
+}
+
+.field-error-highlight,
+input.field-error-highlight,
+select.field-error-highlight {
+  border: 1px solid var(--auth-error-color) !important;
+  background-color: rgba(239, 68, 68, 0.05);
+  box-shadow: 0 0 0 1px var(--auth-error-color);
 }
 
 .validation-message.success {
@@ -239,11 +251,24 @@
   opacity: 1;
 }
 
-.result-message.error {
+.result-message.error,
+.registro-mensaje.error {
   background-color: #fef2f2;
   color: #dc2626;
   border: 1px solid #fecaca;
   opacity: 1;
+  padding: 10px;
+  border-radius: 4px;
+  margin-top: 15px;
+  text-align: center;
+}
+
+.registro-mensaje {
+  margin: 15px 0;
+  padding: 10px;
+  border-radius: 4px;
+  font-weight: 500;
+  text-align: center;
 }
 
 /* ESTADOS DE CARGA OJO */

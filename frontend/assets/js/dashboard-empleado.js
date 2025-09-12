@@ -46,7 +46,7 @@ class EmployeeDashboard {
   checkUserSession() {
     try {
       // Obtener datos de sesión
-      const sessionData = JSON.parse(localStorage.getItem('currentUser'));
+      const sessionData = JSON.parse(localStorage.getItem('currentSession'));
       
       // Verificar si existe sesión
       if (!sessionData) {
@@ -248,7 +248,7 @@ class EmployeeDashboard {
     // Confirmar cierre de sesión
     if (confirm('¿Está seguro que desea cerrar sesión?')) {
       // Limpiar datos de sesión
-      localStorage.removeItem('currentUser');
+      localStorage.removeItem('currentSession');
       
       // Detener el reloj
       if (this.clockTimer) {
@@ -256,13 +256,13 @@ class EmployeeDashboard {
       }
       
       // Redirigir a la página de login
-      window.location.href = 'login.html';
+      window.location.href = '../../components/auth/login.html';
     }
   }
   
   redirectToLogin(message) {
     alert(message || 'Debe iniciar sesión para acceder a esta página');
-    window.location.href = 'login.html';
+    window.location.href = '../../components/auth/login.html';
   }
 }
 

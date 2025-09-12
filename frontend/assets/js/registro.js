@@ -145,9 +145,9 @@ class RegistroManager {
         if (field.required && !value) {
           isValid = false;
           errorMessage = 'La contraseña es requerida';
-        } else if (value && value.length < 8) {
+        } else if (value && value.length < 6) {
           isValid = false;
-          errorMessage = 'La contraseña debe tener al menos 8 caracteres';
+          errorMessage = 'La contraseña debe tener al menos 6 caracteres';
         }
         break;
 
@@ -185,15 +185,25 @@ class RegistroManager {
     }
 
     // Remover clases de validación anteriores
-    field.classList.remove('password-mismatch', 'password-match');
+    field.classList.remove('password-mismatch', 'password-match', 'field-error-highlight');
 
     if (!isValid && errorMessage) {
       // Crear mensaje de error
       const errorDiv = document.createElement('div');
       errorDiv.className = field.type === 'password' ? 'field-error password-error' : 'field-error';
       errorDiv.textContent = errorMessage;
-      field.parentNode.appendChild(errorDiv);
+      
+      // Insertar después del campo o su contenedor
+      const inputContainer = field.closest('.input-container');
+      if (inputContainer) {
+        inputContainer.appendChild(errorDiv);
+      } else {
+        field.parentNode.appendChild(errorDiv);
+      }
 
+      // Resaltar el campo con error
+      field.classList.add('field-error-highlight');
+      
       // Agregar clase de error visual para campos de contraseña
       if (field.type === 'password') {
         field.classList.add('password-mismatch');
@@ -223,11 +233,14 @@ class RegistroManager {
 
   async handleFormSubmission() {
     try {
+      // Limpiar mensajes de error previos
+      this.mensajeContainer.style.display = 'none';
+      
       // Validar todos los campos
       const isFormValid = this.validateForm();
       
       if (!isFormValid) {
-        this.showMessage('Por favor, corrija los errores en el formulario.', 'error');
+        // El mensaje de error específico se maneja en validateForm
         return;
       }
 
@@ -278,12 +291,29 @@ class RegistroManager {
   validateForm() {
     const inputs = this.form.querySelectorAll('input, select');
     let isValid = true;
+    let errorFields = [];
 
     inputs.forEach(input => {
+      // Solo validar campos visibles y relevantes para el tipo de usuario actual
+      const isAdminField = input.closest('#adminFields') !== null;
+      const isUserAdmin = this.tipoUsuarioInput.value === 'administrador';
+      
+      // No validar campos de admin si el usuario no es admin
+      if (isAdminField && !isUserAdmin) {
+        return;
+      }
+      
       if (!this.validateField(input)) {
         isValid = false;
+        errorFields.push(input.labels ? input.labels[0].textContent.trim() : input.name);
       }
     });
+
+    // Si hay errores, mostrarlos específicamente
+    if (!isValid) {
+      const errorMessage = `Por favor corrija los siguientes campos: ${errorFields.join(', ')}`;
+      this.showMessage(errorMessage, 'error');
+    }
 
     return isValid;
   }

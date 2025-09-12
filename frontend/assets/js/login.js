@@ -174,10 +174,55 @@
         }
 
         processLogin(formData) {
+            // Obtener usuarios registrados del localStorage
+            const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+            
+            // Buscar el usuario por correo electrónico
+            const user = users.find(u => u.correoElectronico === formData.email);
+            
+            if (!user) {
+                this.showErrorMessage('Usuario no encontrado. Verifique sus credenciales.');
+                return;
+            }
+            
+            // Verificar tipo de usuario (rol)
+            if (user.tipoUsuario !== formData.role) {
+                this.showErrorMessage(`Credenciales incorrectas para ${formData.role}.`);
+                return;
+            }
+            
+            // Verificar contraseña (en este caso está codificada con btoa)
+            const decodedPassword = atob(user.password);
+            if (decodedPassword !== formData.password) {
+                this.showErrorMessage('Contraseña incorrecta.');
+                return;
+            }
+            
+            // Si es administrador, verificar código de administrador si es necesario
+            if (formData.role === 'administrador' && formData.adminCode) {
+                // Aquí podrías verificar el código de administrador si lo tienes guardado
+            }
+            
+            // Guardar información de sesión
+            this.saveSession(user);
+            
             this.showSuccessMessage(CONFIG.successMessage);
             setTimeout(() => {
                 this.redirectToDashboard();
             }, CONFIG.redirectDelay);
+        }
+        
+        saveSession(user) {
+            // Guardar información de la sesión actual
+            const sessionData = {
+                id: user.id,
+                nombreCompleto: user.nombreCompleto,
+                correoElectronico: user.correoElectronico,
+                tipoUsuario: user.tipoUsuario,
+                lastLogin: new Date().toISOString()
+            };
+            
+            localStorage.setItem('currentSession', JSON.stringify(sessionData));
         }
 
         getFormData() {

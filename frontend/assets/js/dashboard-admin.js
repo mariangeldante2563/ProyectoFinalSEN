@@ -18,6 +18,7 @@ class AdminDashboard {
     this.newEmployeeBtn = document.getElementById('newEmployeeBtn');
     this.reportsBtn = document.getElementById('reportsBtn');
     this.settingsBtn = document.getElementById('settingsBtn');
+    this.logoutBtn = document.getElementById('logoutBtn');
     
     this.init();
   }
@@ -42,7 +43,7 @@ class AdminDashboard {
   checkUserSession() {
     try {
       // Obtener datos de sesión
-      const sessionData = JSON.parse(localStorage.getItem('currentUser'));
+      const sessionData = JSON.parse(localStorage.getItem('currentSession'));
       
       // Verificar si existe sesión
       if (!sessionData) {
@@ -114,6 +115,11 @@ class AdminDashboard {
     // Filtro de fechas para registros
     if (this.dateFilter) {
       this.dateFilter.addEventListener('change', () => this.loadAttendanceRecords());
+    }
+    
+    // Botón de logout
+    if (this.logoutBtn) {
+      this.logoutBtn.addEventListener('click', () => this.logout());
     }
     
     // Botón de exportar
@@ -541,16 +547,16 @@ class AdminDashboard {
     // Confirmar cierre de sesión
     if (confirm('¿Está seguro que desea cerrar sesión?')) {
       // Limpiar datos de sesión
-      localStorage.removeItem('currentUser');
+      localStorage.removeItem('currentSession');
       
       // Redirigir a la página de login
-      window.location.href = 'login.html';
+      window.location.href = '../../components/auth/login.html';
     }
   }
   
   redirectToLogin(message) {
     alert(message || 'Debe iniciar sesión para acceder a esta página');
-    window.location.href = 'login.html';
+    window.location.href = '../../components/auth/login.html';
   }
 }
 

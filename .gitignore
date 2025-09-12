@@ -36,24 +36,18 @@ yarn-error.log*
 frontend/dashboard-empleado.js
 frontend/styles.css
 
-# ==========================================
-# ARCHIVOS CSS DUPLICADOS - NO RASTREAR
-# ==========================================
-# Archivos CSS que fueron consolidados en auth.css
-frontend/assets/css/auth-override.css
-frontend/assets/css/auth-recovery.css
-frontend/assets/css/login-animations.css
-frontend/assets/css/login-styles.css
-frontend/assets/css/recovery-styles.css
-frontend/assets/css/registro-styles.css
-frontend/assets/css/reset-critico.css
+# Eliminar estas líneas ya que no habrá backend:
+# Archivos de Django
+# *.log
+# local_settings.py
+# db.sqlite3
+# db.sqlite3-journal
 
-# Archivos de documentación innecesarios en CSS
-frontend/assets/css/*.md
-frontend/assets/css/AUTH_CSS_OPTIMIZATION_SUMMARY.md
-frontend/assets/css/FONDO_AZUL_SOLUCION_DEFINITIVA.md
-frontend/assets/css/LOGIN_POSITIONING_FIX.md
-frontend/assets/css/REGISTRO_BACKGROUND_FIX.md
+# Archivos de entorno virtual
+# backend/env/
+# backend/venv/
+# backend/.env
+# backend/.venv
 
 # ==========================================
 # ARCHIVOS DE PRUEBA - NO RASTREAR
