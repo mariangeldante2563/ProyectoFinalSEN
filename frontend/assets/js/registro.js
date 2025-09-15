@@ -178,6 +178,17 @@ class RegistroManager {
   }
 
   showFieldValidation(field, isValid, errorMessage) {
+    // Usar NotificationManager si está disponible
+    if (typeof NotificationManager !== 'undefined') {
+      if (!isValid && errorMessage) {
+        NotificationManager.showFieldError(field, errorMessage);
+      } else {
+        NotificationManager.clearFieldError(field);
+      }
+      return;
+    }
+    
+    // Fallback al método antiguo
     // Remover mensajes de error anteriores
     const existingError = field.parentNode.querySelector('.field-error');
     if (existingError) {
@@ -215,6 +226,13 @@ class RegistroManager {
   }
 
   clearFieldError(field) {
+    // Usar NotificationManager si está disponible
+    if (typeof NotificationManager !== 'undefined') {
+      NotificationManager.clearFieldError(field);
+      return;
+    }
+    
+    // Fallback al método antiguo
     const existingError = field.parentNode.querySelector('.field-error');
     if (existingError) {
       existingError.remove();
@@ -399,8 +417,14 @@ class RegistroManager {
       userToSave.codigoAdmin = userData.codigoAdmin;
     }
 
-    // Guardar la contraseña (en producción usar hash seguro)
-    userToSave.password = btoa(userData.password);
+    // Guardar la contraseña con hash seguro
+    if (typeof SecurityManager !== 'undefined') {
+      // Usar el nuevo método de hash
+      userToSave.password = SecurityManager.hashPassword(userData.password);
+    } else {
+      // Fallback al método antiguo
+      userToSave.password = btoa(userData.password);
+    }
 
     // Obtener usuarios existentes y agregar el nuevo
     const existingUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
@@ -409,6 +433,13 @@ class RegistroManager {
   }
   
   showMessage(message, type) {
+    // Usar NotificationManager si está disponible
+    if (typeof NotificationManager !== 'undefined') {
+      NotificationManager.showToast(message, type);
+      return;
+    }
+    
+    // Fallback al método antiguo
     this.mensajeContainer.textContent = message;
     this.mensajeContainer.className = `registro-mensaje ${type}`;
     this.mensajeContainer.style.display = 'block';

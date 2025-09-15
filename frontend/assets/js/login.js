@@ -163,7 +163,7 @@
 
                 const formData = this.getFormData();
 
-                this.processLogin(formData);
+                await this.processLogin(formData);
 
             } catch (error) {
                 this.showErrorMessage(CONFIG.errorMessage);
@@ -173,56 +173,92 @@
             }
         }
 
-        processLogin(formData) {
-            // Obtener usuarios registrados del localStorage
-            const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
-            
-            // Buscar el usuario por correo electrónico
-            const user = users.find(u => u.correoElectronico === formData.email);
-            
-            if (!user) {
-                this.showErrorMessage('Usuario no encontrado. Verifique sus credenciales.');
-                return;
+        async processLogin(formData) {
+            try {
+                console.log('🔄 Iniciando proceso de login:', formData);
+                
+                // Usar la instancia global del APIService
+                if (typeof window.apiService === 'undefined') {
+                    console.log('⚠️ APIService global no disponible, creando instancia...');
+                    // Fallback: crear instancia si no está disponible
+                    if (typeof EnhancedApiClient !== 'undefined') {
+                        window.apiService = new EnhancedApiClient();
+                    } else {
+                        throw new Error('API Service no disponible');
+                    }
+                }
+
+                const apiClient = window.apiService;
+                
+                // Realizar login en el backend
+                console.log('📡 Enviando credenciales al backend...');
+                const response = await apiClient.login({
+                    email: formData.email,
+                    password: formData.password
+                });
+
+                console.log('📦 Respuesta del backend:', response);
+
+                if (response.success && response.data) {
+                    const user = response.data.user;
+                    const token = response.data.token;
+
+                    console.log('✅ Login exitoso, usuario:', user);
+                    console.log('🔑 Token recibido:', token ? 'Sí' : 'No');
+
+                    // Verificar tipo de usuario (rol)
+                    console.log('🎭 Verificando rol: usuario =', user.tipoUsuario, 'seleccionado =', formData.role);
+                    if (user.tipoUsuario !== formData.role) {
+                        console.log('❌ Rol no coincide');
+                        this.showErrorMessage(`Credenciales incorrectas para ${formData.role}.`);
+                        return;
+                    }
+
+                    // Si es administrador, verificar código de administrador si es necesario
+                    if (formData.role === 'administrador' && formData.adminCode) {
+                        console.log('🔐 Verificando código de administrador...');
+                        // Aquí podrías verificar el código de administrador si lo tienes guardado
+                    }
+
+                    // Guardar token y información de sesión
+                    console.log('💾 Guardando sesión...');
+                    localStorage.setItem('authToken', token);
+                    this.saveSession(user);
+                    
+                    console.log('✅ Mostrando mensaje de éxito...');
+                    this.showSuccessMessage(CONFIG.successMessage);
+                    
+                    console.log('⏱️ Programando redirección en', CONFIG.redirectDelay, 'ms...');
+                    setTimeout(() => {
+                        console.log('🚀 Ejecutando redirección...');
+                        this.redirectToDashboard();
+                    }, CONFIG.redirectDelay);
+                } else {
+                    console.log('❌ Login fallido:', response);
+                    this.showErrorMessage(response.message || 'Error de autenticación');
+                }
+            } catch (error) {
+                console.error('💥 Error en login:', error);
+                this.showErrorMessage('Error al conectar con el servidor. Verifique su conexión.');
             }
-            
-            // Verificar tipo de usuario (rol)
-            if (user.tipoUsuario !== formData.role) {
-                this.showErrorMessage(`Credenciales incorrectas para ${formData.role}.`);
-                return;
-            }
-            
-            // Verificar contraseña (en este caso está codificada con btoa)
-            const decodedPassword = atob(user.password);
-            if (decodedPassword !== formData.password) {
-                this.showErrorMessage('Contraseña incorrecta.');
-                return;
-            }
-            
-            // Si es administrador, verificar código de administrador si es necesario
-            if (formData.role === 'administrador' && formData.adminCode) {
-                // Aquí podrías verificar el código de administrador si lo tienes guardado
-            }
-            
-            // Guardar información de sesión
-            this.saveSession(user);
-            
-            this.showSuccessMessage(CONFIG.successMessage);
-            setTimeout(() => {
-                this.redirectToDashboard();
-            }, CONFIG.redirectDelay);
         }
         
         saveSession(user) {
-            // Guardar información de la sesión actual
-            const sessionData = {
-                id: user.id,
-                nombreCompleto: user.nombreCompleto,
-                correoElectronico: user.correoElectronico,
-                tipoUsuario: user.tipoUsuario,
-                lastLogin: new Date().toISOString()
-            };
-            
-            localStorage.setItem('currentSession', JSON.stringify(sessionData));
+            // Usar SessionManager para guardar la sesión
+            if (typeof SessionManager !== 'undefined') {
+                SessionManager.createSession(user);
+            } else {
+                // Fallback si SessionManager no está disponible
+                const sessionData = {
+                    id: user.id,
+                    nombreCompleto: user.nombreCompleto,
+                    correoElectronico: user.correoElectronico,
+                    tipoUsuario: user.tipoUsuario,
+                    lastLogin: new Date().toISOString()
+                };
+                
+                localStorage.setItem('currentSession', JSON.stringify(sessionData));
+            }
         }
 
         getFormData() {
@@ -310,6 +346,13 @@
         }
 
         showFieldError(element, message) {
+            // Usar NotificationManager si está disponible
+            if (typeof NotificationManager !== 'undefined') {
+                NotificationManager.showFieldError(element, message);
+                return;
+            }
+            
+            // Fallback al método antiguo
             this.clearFieldError(element);
 
             const errorDiv = document.createElement('div');
@@ -323,6 +366,13 @@
         }
 
         clearFieldError(element) {
+            // Usar NotificationManager si está disponible
+            if (typeof NotificationManager !== 'undefined') {
+                NotificationManager.clearFieldError(element);
+                return;
+            }
+            
+            // Fallback al método antiguo
             const errorDiv = element.parentElement.querySelector('.error-message');
             if (errorDiv) {
                 errorDiv.remove();
@@ -338,12 +388,26 @@
 
             this.elements.submitButton.disabled = isLoading;
             
+            // Variable para almacenar el loader
+            if (!this._loader) this._loader = null;
+            
             if (isLoading) {
+                // Usar NotificationManager si está disponible
+                if (typeof NotificationManager !== 'undefined') {
+                    this._loader = NotificationManager.showLoader(CONFIG.loadingText);
+                }
+                
                 this.elements.submitButton.innerHTML = `
                     <span class="spinner"></span>
                     <span>${CONFIG.loadingText}</span>
                 `;
             } else {
+                // Ocultar loader si existe
+                if (this._loader && typeof this._loader.hide === 'function') {
+                    this._loader.hide();
+                    this._loader = null;
+                }
+                
                 this.elements.submitButton.innerHTML = `
                     <span class="btn-icon"><i class="fas fa-sign-in-alt"></i></span>
                     <span class="btn-text">Iniciar Sesión</span>
@@ -352,14 +416,35 @@
         }
 
         showSuccessMessage(message) {
+            // Usar NotificationManager si está disponible
+            if (typeof NotificationManager !== 'undefined') {
+                NotificationManager.showToast(message, 'success');
+                return;
+            }
+            
+            // Fallback al método antiguo
             this.showMessage(message, 'success');
         }
 
         showErrorMessage(message) {
+            // Usar NotificationManager si está disponible
+            if (typeof NotificationManager !== 'undefined') {
+                NotificationManager.showToast(message, 'error');
+                return;
+            }
+            
+            // Fallback al método antiguo
             this.showMessage(message, 'error');
         }
 
         showMessage(message, type) {
+            // Usar NotificationManager si está disponible
+            if (typeof NotificationManager !== 'undefined') {
+                NotificationManager.showToast(message, type);
+                return;
+            }
+            
+            // Fallback al método antiguo
             if (!this.elements.resultMessage) return;
 
             this.elements.resultMessage.className = `result-message ${type}`;
@@ -373,13 +458,20 @@
         }
 
         redirectToDashboard() {
-            const dashboardUrls = {
-                empleado: '../empleado/dashboard-empleado.html',
-                administrador: '../admin/dashboard-admin.html'
-            };
+            // Usar SessionManager si está disponible
+            if (typeof SessionManager !== 'undefined') {
+                SessionManager.redirectToDashboard(this.selectedRole);
+            } else {
+                // Fallback si SessionManager no está disponible
+                const dashboardUrls = {
+                    empleado: '../empleado/dashboard-empleado.html',
+                    administrador: '../admin/dashboard-admin.html'
+                };
 
-            const url = dashboardUrls[this.selectedRole] || dashboardUrls.empleado;
-            window.location.href = url;
+                const url = dashboardUrls[this.selectedRole] || dashboardUrls.empleado;
+                console.log('Redirigiendo a:', url);
+                window.location.href = url;
+            }
         }
     }
 

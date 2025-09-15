@@ -20,6 +20,11 @@
   <link rel="stylesheet" href="../../assets/css/auth.css?v=20250706024">
   <link rel="icon" type="image/jpeg" href="../../assets/img/icon.jpg">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <script src="../../assets/js/path-manager.js" defer></script>
+  <script src="../../assets/js/session-manager.js" defer></script>
+  <script src="../../assets/js/security-manager.js" defer></script>
+  <script src="../../assets/js/notification-manager.js" defer></script>
+  <script src="../../assets/js/api-service.js" defer></script>
   <script src="../../assets/js/script.js" defer></script>
   <script src="../../assets/js/login.js" defer></script>
 
@@ -100,7 +105,7 @@
               <div class="input-container">
                 <i class="fas fa-envelope input-icon"></i>
                 <input type="email" id="email" name="email" required 
-                      pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" 
+                      pattern="[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}$" 
                       aria-describedby="emailError"
                       placeholder="usuario@ejemplo.com">
                 <span class="input-focus-effect"></span>

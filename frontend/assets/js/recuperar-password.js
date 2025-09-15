@@ -40,6 +40,22 @@ class RecoveryManager {
         this.handlePasswordForm();
       });
     }
+    
+    // Botón para reenviar código
+    const resendCodeBtn = document.getElementById('resendCodeBtn');
+    if (resendCodeBtn) {
+      resendCodeBtn.addEventListener('click', () => {
+        this.resendVerificationCode();
+      });
+    }
+    
+    // Botón para volver atrás
+    const backToIdentityBtn = document.getElementById('backToIdentityBtn');
+    if (backToIdentityBtn) {
+      backToIdentityBtn.addEventListener('click', () => {
+        this.showStep(1);
+      });
+    }
   }
 
   validateField(fieldId) {
@@ -102,9 +118,26 @@ class RecoveryManager {
 
     this.showMessage('identityResult', 'Verificando información...', 'info');
 
-    // Simular verificación exitosa
+    // Verificar si el usuario existe en localStorage
+    const users = JSON.parse(localStorage.getItem('users') || '[]');
+    const user = users.find(u => u.numeroDocumento === numeroDocumento && u.correoElectronico === correoElectronico);
+    
+    if (!user) {
+      this.showMessage('identityResult', 'No se encontró ninguna cuenta con esos datos', 'error');
+      return;
+    }
+
+    // Generar y guardar el código de verificación
     this.userData = { numeroDocumento, correoElectronico };
     this.verificationCode = this.generateCode();
+    
+    // SIMULACIÓN: Mostrar código al usuario (solo para pruebas)
+    if (typeof NotificationManager !== 'undefined') {
+      NotificationManager.showToast(`CÓDIGO: ${this.verificationCode} (Simulación de envío)`, 'info', 10000);
+    } else {
+      console.log(`Código de verificación: ${this.verificationCode}`);
+      alert(`Para pruebas: Su código es ${this.verificationCode}`);
+    }
     
     this.showMessage('identityResult', `Código enviado a ${this.maskEmail(correoElectronico)}`, 'success');
     
@@ -128,12 +161,24 @@ class RecoveryManager {
 
     this.showMessage('verificationResult', 'Verificando código...', 'info');
 
-    if (codigo !== this.verificationCode) {
+    // Comparar el código ingresado con el código generado (sin distinguir mayúsculas y minúsculas)
+    if (codigo.toUpperCase() !== this.verificationCode.toUpperCase()) {
       this.showMessage('verificationResult', 'Código incorrecto', 'error');
+      
+      // Mostrar mensaje adicional con NotificationManager si está disponible
+      if (typeof NotificationManager !== 'undefined') {
+        NotificationManager.showToast('El código ingresado no coincide con el enviado', 'error');
+      }
+      
       return;
     }
 
     this.showMessage('verificationResult', 'Código verificado correctamente', 'success');
+    
+    // Mostrar mensaje con NotificationManager si está disponible
+    if (typeof NotificationManager !== 'undefined') {
+      NotificationManager.showToast('Código verificado correctamente', 'success');
+    }
     
     setTimeout(() => {
       this.showStep(3);
@@ -158,12 +203,44 @@ class RecoveryManager {
       this.showMessage('passwordResult', 'Las contraseñas no coinciden', 'error');
       return;
     }
-
-    this.showMessage('passwordResult', '¡Contraseña establecida correctamente!', 'success');
     
-    setTimeout(() => {
-      window.location.href = 'login.html';
-    }, 2000);
+    // Actualizar la contraseña en el localStorage
+    try {
+      // Obtener usuarios
+      const users = JSON.parse(localStorage.getItem('users') || '[]');
+      const userIndex = users.findIndex(u => 
+        u.numeroDocumento === this.userData.numeroDocumento && 
+        u.correoElectronico === this.userData.correoElectronico
+      );
+      
+      if (userIndex !== -1) {
+        // Encriptar la nueva contraseña si SecurityManager está disponible
+        if (typeof SecurityManager !== 'undefined') {
+          users[userIndex].password = SecurityManager.hashPassword(nuevaPassword);
+        } else {
+          users[userIndex].password = btoa(nuevaPassword); // Fallback a btoa (no seguro)
+        }
+        
+        // Guardar usuarios actualizados
+        localStorage.setItem('users', JSON.stringify(users));
+        
+        this.showMessage('passwordResult', '¡Contraseña actualizada correctamente!', 'success');
+        
+        // Mostrar mensaje con NotificationManager si está disponible
+        if (typeof NotificationManager !== 'undefined') {
+          NotificationManager.showToast('Contraseña actualizada exitosamente', 'success');
+        }
+        
+        setTimeout(() => {
+          window.location.href = 'login.html';
+        }, 2000);
+      } else {
+        this.showMessage('passwordResult', 'Error al actualizar contraseña: usuario no encontrado', 'error');
+      }
+    } catch (error) {
+      console.error('Error al actualizar contraseña:', error);
+      this.showMessage('passwordResult', 'Error al actualizar la contraseña', 'error');
+    }
   }
 
   showStep(step) {
@@ -236,6 +313,26 @@ class RecoveryManager {
     const [username, domain] = email.split('@');
     const maskedUsername = username.charAt(0) + '***' + username.slice(-1);
     return maskedUsername + '@' + domain;
+  }
+  
+  resendVerificationCode() {
+    if (!this.userData || !this.userData.correoElectronico) {
+      this.showMessage('verificationResult', 'Error al reenviar el código. Por favor, vuelva a la primera etapa.', 'error');
+      return;
+    }
+    
+    // Generar un nuevo código
+    this.verificationCode = this.generateCode();
+    
+    // SIMULACIÓN: Mostrar código al usuario (solo para pruebas)
+    if (typeof NotificationManager !== 'undefined') {
+      NotificationManager.showToast(`CÓDIGO NUEVO: ${this.verificationCode} (Simulación de reenvío)`, 'info', 10000);
+    } else {
+      console.log(`Nuevo código de verificación: ${this.verificationCode}`);
+      alert(`Para pruebas: Su nuevo código es ${this.verificationCode}`);
+    }
+    
+    this.showMessage('verificationResult', `Nuevo código enviado a ${this.maskEmail(this.userData.correoElectronico)}`, 'success');
   }
 }
 

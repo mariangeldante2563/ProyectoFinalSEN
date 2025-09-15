@@ -5,16 +5,19 @@
   "main": "frontend/proyectopages/index.html",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build", 
     "preview": "vite preview",
     "serve": "python -m http.server 8000",
     "install-deps": "npm install",
-    "start:backend": "cd backend && node server-concurrent.js",
+    "start:backend": "cd backend && node server-smart.js",
     "start:backend-legacy": "cd backend && node server.js",
     "start:frontend": "vite",
     "start:both": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
     "start:windows": "powershell -ExecutionPolicy Bypass -File start-both.ps1",
     "clean:ports": "powershell -Command \"Get-Process -Name 'node' -ErrorAction SilentlyContinue | Stop-Process -Force\""
+  },
+    "start:both": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
+    "start:windows": "powershell -ExecutionPolicy Bypass -File start-both.ps1"
   },
   "keywords": [
     "frontend",

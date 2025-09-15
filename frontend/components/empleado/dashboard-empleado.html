@@ -17,9 +17,19 @@
   
   <link rel="stylesheet" href="../../assets/css/styles.css?v=20250702003">
   <link rel="stylesheet" href="../../assets/css/footer-styles.css?v=20250702004">
+  <link rel="stylesheet" href="../../assets/css/dashboard.css?v=20250913001">
+  <link rel="stylesheet" href="../../assets/css/profile-photo.css?v=20250914001">
   <link rel="icon" type="image/jpeg" href="../../assets/img/icon.jpg">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+  <script src="../../assets/js/path-manager.js" defer></script>
+  <script src="../../assets/js/session-manager.js" defer></script>
+  <script src="../../assets/js/security-manager.js" defer></script>
+  <script src="../../assets/js/notification-manager.js" defer></script>
+  <script src="../../assets/js/api-service.js" defer></script>
   <script src="../../assets/js/script.js" defer></script>
+  <script src="../../assets/js/system-init.js" defer></script>
+  <script src="../../assets/js/base-dashboard.js" defer></script>
   <script src="../../assets/js/dashboard-empleado.js" defer></script>
 </head>
 <!-- ======================================== -->
@@ -72,51 +82,168 @@
         </div>
 
         <div class="dashboard-content">
-          <div class="dashboard-card">
+          <!-- Tarjeta de registro - ahora medio ancho -->
+          <div class="dashboard-card card-half-width">
             <div class="card-header">
-              <span class="card-icon">⏱️</span>
+              <span class="card-icon"><i class="fas fa-clock"></i></span>
               <h3>Registrar Entrada/Salida</h3>
             </div>
             <div class="card-body">
-              <p>Hora actual: <span id="currentTime">--:--:--</span></p>
-              <p>Fecha: <span id="currentDate">--/--/----</span></p>
+              <div class="time-display">
+                <p><i class="fas fa-clock"></i> Hora actual: <span id="currentTime">--:--:--</span></p>
+                <p><i class="fas fa-calendar-day"></i> Fecha: <span id="currentDate">--/--/----</span></p>
+              </div>
               <div class="action-buttons">
                 <button class="action-btn entry-btn" id="entryBtn">
-                  <span class="btn-icon">⬆️</span>
+                  <span class="btn-icon"><i class="fas fa-sign-in-alt"></i></span>
                   <span class="btn-text">Registrar Entrada</span>
                 </button>
                 <button class="action-btn exit-btn" id="exitBtn">
-                  <span class="btn-icon">⬇️</span>
+                  <span class="btn-icon"><i class="fas fa-sign-out-alt"></i></span>
                   <span class="btn-text">Registrar Salida</span>
                 </button>
               </div>
             </div>
           </div>
 
-          <div class="dashboard-card">
+          <!-- Tarjeta de perfil - ahora medio ancho -->
+          <div class="dashboard-card card-half-width">
             <div class="card-header">
-              <span class="card-icon">📊</span>
-              <h3>Mis Registros</h3>
+              <span class="card-icon"><i class="fas fa-user-circle"></i></span>
+              <h3>Mi Perfil</h3>
             </div>
             <div class="card-body">
-              <div id="employeeRecords" class="records-list">
-                <p>No hay registros disponibles.</p>
+              <div class="profile-avatar" id="profileAvatarContainer">
+                <img id="profileAvatar" src="../../assets/img/default-profile.png" alt="Foto de perfil" class="profile-image">
+                <div class="profile-avatar-overlay">
+                  <label for="photoInput" class="change-photo-btn">
+                    <i class="fas fa-camera"></i>
+                  </label>
+                  <input type="file" id="photoInput" accept="image/*" style="display:none">
+                </div>
+              </div>
+              <div class="profile-info">
+                <p><i class="fas fa-user"></i> <strong>Nombre:</strong> <span id="profileName">--</span></p>
+                <p><i class="fas fa-id-card"></i> <strong>Documento:</strong> <span id="profileDoc">--</span></p>
+                <p><i class="fas fa-briefcase"></i> <strong>Cargo:</strong> <span id="profilePosition">--</span></p>
+                <p><i class="fas fa-clock"></i> <strong>Horario:</strong> <span id="profileSchedule">--</span></p>
+                <p><i class="fas fa-envelope"></i> <strong>Correo:</strong> <span id="profileEmail">--</span></p>
+                <button id="uploadPhotoBtn" class="upload-photo-btn">Actualizar Foto</button>
               </div>
             </div>
           </div>
 
-          <div class="dashboard-card">
+          <!-- NUEVA SECCIÓN: Estadísticas del Dashboard -->
+          <div class="dashboard-card card-full-width">
             <div class="card-header">
-              <span class="card-icon">👤</span>
-              <h3>Mi Perfil</h3>
+              <span class="card-icon"><i class="fas fa-chart-line"></i></span>
+              <h3>Estadísticas de Trabajo</h3>
             </div>
             <div class="card-body">
-              <div class="profile-info">
-                <p><strong>Nombre:</strong> <span id="profileName">--</span></p>
-                <p><strong>Documento:</strong> <span id="profileDoc">--</span></p>
-                <p><strong>Cargo:</strong> <span id="profilePosition">--</span></p>
-                <p><strong>Horario:</strong> <span id="profileSchedule">--</span></p>
-                <p><strong>Correo:</strong> <span id="profileEmail">--</span></p>
+              <div class="stats-grid">
+                <div class="stat-card" data-stat="tiempo-hoy">
+                  <div class="stat-icon">
+                    <i class="fas fa-clock text-primary"></i>
+                  </div>
+                  <div class="stat-info">
+                    <h4>Tiempo Trabajado Hoy</h4>
+                    <div class="stat-value" id="tiempoTrabajadoHoy">00:00</div>
+                    <div class="stat-percentage text-success">0%</div>
+                  </div>
+                </div>
+
+                <div class="stat-card" data-stat="promedio-semanal">
+                  <div class="stat-icon">
+                    <i class="fas fa-calendar-week text-info"></i>
+                  </div>
+                  <div class="stat-info">
+                    <h4>Promedio Semanal</h4>
+                    <div class="stat-value" id="promedioSemanal">0.0h</div>
+                    <div class="stat-subtitle">horas por día</div>
+                  </div>
+                </div>
+
+                <div class="stat-card" data-stat="dias-mes">
+                  <div class="stat-icon">
+                    <i class="fas fa-calendar-alt text-warning"></i>
+                  </div>
+                  <div class="stat-info">
+                    <h4>Días Trabajados</h4>
+                    <div class="stat-value" id="diasTrabajadosMes">0</div>
+                    <div class="stat-subtitle">este mes</div>
+                  </div>
+                </div>
+
+                <div class="stat-card" data-stat="horas-extras">
+                  <div class="stat-icon">
+                    <i class="fas fa-plus-circle text-orange"></i>
+                  </div>
+                  <div class="stat-info">
+                    <h4>Horas Extras Hoy</h4>
+                    <div class="stat-value">00:00</div>
+                    <div class="stat-subtitle">tiempo adicional</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Indicador de sesión activa -->
+              <div class="session-status">
+                <div id="sesionActiva" class="status-container">
+                  <div class="status-idle">
+                    <i class="fas fa-pause-circle text-muted"></i>
+                    <span>Sin sesión activa</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- NUEVA SECCIÓN: Gráfica de Asistencia Semanal - ancho completo -->
+          <div class="dashboard-card card-full-width">
+            <div class="card-header">
+              <span class="card-icon"><i class="fas fa-chart-bar"></i></span>
+              <h3>Estadísticas de Asistencia</h3>
+            </div>
+            <div class="card-body">
+              <div class="chart-tabs">
+                <button class="chart-tab active" data-period="week" id="weeklyChartTab">Vista Semanal</button>
+                <button class="chart-tab" data-period="month" id="monthlyChartTab">Vista Mensual</button>
+              </div>
+              
+              <div class="chart-container" id="attendanceChart">
+                <!-- Aquí se renderizará la gráfica -->
+                <canvas id="attendanceChartCanvas"></canvas>
+              </div>
+              
+              <div class="chart-legend">
+                <div class="legend-item">
+                  <div class="legend-color" style="background-color: #28a745;"></div>
+                  <span class="legend-text">Entradas</span>
+                </div>
+                <div class="legend-item">
+                  <div class="legend-color" style="background-color: #dc3545;"></div>
+                  <span class="legend-text">Salidas</span>
+                </div>
+                <div class="legend-item">
+                  <div class="legend-color" style="background-color: #ffc107;"></div>
+                  <span class="legend-text">Tiempo Trabajado (horas)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tarjeta de registros - ahora ancho completo -->
+          <div class="dashboard-card card-full-width">
+            <div class="card-header">
+              <span class="card-icon"><i class="fas fa-history"></i></span>
+              <h3>Historial de Registros</h3>
+            </div>
+            <div class="card-body">
+              <div class="card-subtitle">
+                <i class="fas fa-list"></i> Registro detallado de asistencia
+              </div>
+              <div id="employeeRecords" class="records-list">
+                <p>No hay registros disponibles.</p>
               </div>
             </div>
           </div>

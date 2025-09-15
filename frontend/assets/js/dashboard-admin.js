@@ -1,8 +1,9 @@
 // FUNCIONALIDAD DEL DASHBOARD DE ADMINISTRADOR // 
 
-class AdminDashboard {
+class AdminDashboard extends BaseDashboard {
   constructor() {
-    this.currentUser = null;
+    // Llamar al constructor de la clase base
+    super('administrador');
     
     // Referencias a elementos del DOM
     this.adminName = document.getElementById('adminName');
@@ -18,15 +19,10 @@ class AdminDashboard {
     this.newEmployeeBtn = document.getElementById('newEmployeeBtn');
     this.reportsBtn = document.getElementById('reportsBtn');
     this.settingsBtn = document.getElementById('settingsBtn');
-    this.logoutBtn = document.getElementById('logoutBtn');
-    
-    this.init();
   }
   
-  init() {
-    // Verificar sesión de usuario
-    this.checkUserSession();
-    
+  // Método específico para inicializar el dashboard de administrador
+  initSpecific() {
     // Configurar eventos de botones
     this.setupEventListeners();
     
@@ -40,60 +36,12 @@ class AdminDashboard {
     this.loadDashboardStats();
   }
   
-  checkUserSession() {
-    try {
-      // Obtener datos de sesión
-      const sessionData = JSON.parse(localStorage.getItem('currentSession'));
-      
-      // Verificar si existe sesión
-      if (!sessionData) {
-        // Redirigir a la página de login
-        this.redirectToLogin('No hay sesión activa');
-        return;
-      }
-      
-      // Verificar si el usuario es administrador
-      if (sessionData.tipoUsuario !== 'administrador') {
-        this.redirectToLogin('Acceso no autorizado. Este dashboard es solo para administradores.');
-        return;
-      }
-      
-      // Guardar datos de sesión
-      this.currentUser = sessionData;
-      
-      // Cargar datos completos del usuario
-      this.loadUserData();
-      
-    } catch (error) {
-      console.error('Error al verificar sesión:', error);
-      this.redirectToLogin('Error de sesión');
-    }
-  }
+  // Los métodos checkUserSession() y loadUserData() ya están implementados en BaseDashboard
   
-  loadUserData() {
-    try {
-      // Obtener todos los usuarios registrados
-      const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
-      
-      // Buscar el usuario actual por ID
-      const userData = users.find(user => user.id === this.currentUser.id);
-      
-      if (!userData) {
-        console.error('Datos de usuario no encontrados');
-        return;
-      }
-      
-      // Actualizar los datos de sesión con los datos completos
-      this.currentUser = userData;
-      
-      // Actualizar la interfaz con los datos del usuario
-      this.updateUserInterface();
-      
-    } catch (error) {
-      console.error('Error al cargar datos de usuario:', error);
-    }
-  }
-  
+  /**
+   * Sobreescribimos el método de la clase base para personalizar
+   * la interfaz específica del dashboard de administrador
+   */
   updateUserInterface() {
     // Actualizar nombre del administrador
     if (this.adminName) {
@@ -134,12 +82,26 @@ class AdminDashboard {
     
     // Botón de informes
     if (this.reportsBtn) {
-      this.reportsBtn.addEventListener('click', () => alert('Funcionalidad de informes en desarrollo'));
+      this.reportsBtn.addEventListener('click', () => {
+        // Usar NotificationManager si está disponible
+        if (typeof NotificationManager !== 'undefined') {
+          NotificationManager.showToast('Funcionalidad de informes en desarrollo', 'info');
+        } else {
+          alert('Funcionalidad de informes en desarrollo');
+        }
+      });
     }
     
     // Botón de configuración
     if (this.settingsBtn) {
-      this.settingsBtn.addEventListener('click', () => alert('Funcionalidad de configuración en desarrollo'));
+      this.settingsBtn.addEventListener('click', () => {
+        // Usar NotificationManager si está disponible
+        if (typeof NotificationManager !== 'undefined') {
+          NotificationManager.showToast('Funcionalidad de configuración en desarrollo', 'info');
+        } else {
+          alert('Funcionalidad de configuración en desarrollo');
+        }
+      });
     }
   }
   
@@ -206,7 +168,12 @@ class AdminDashboard {
     editButtons.forEach(button => {
       button.addEventListener('click', () => {
         const employeeId = button.getAttribute('data-id');
-        alert(`Funcionalidad de edición en desarrollo para empleado ID: ${employeeId}`);
+        // Usar NotificationManager si está disponible
+        if (typeof NotificationManager !== 'undefined') {
+          NotificationManager.showToast(`Funcionalidad de edición en desarrollo para empleado ID: ${employeeId}`, 'info');
+        } else {
+          alert(`Funcionalidad de edición en desarrollo para empleado ID: ${employeeId}`);
+        }
       });
     });
   }
@@ -220,7 +187,12 @@ class AdminDashboard {
       const employee = users.find(user => user.id === employeeId);
       
       if (!employee) {
-        alert('Empleado no encontrado');
+        // Usar NotificationManager si está disponible
+        if (typeof NotificationManager !== 'undefined') {
+          NotificationManager.showToast('Empleado no encontrado', 'error');
+        } else {
+          alert('Empleado no encontrado');
+        }
         return;
       }
       
@@ -271,7 +243,12 @@ class AdminDashboard {
       
     } catch (error) {
       console.error('Error al mostrar detalles del empleado:', error);
-      alert('Error al cargar los detalles del empleado');
+      // Usar NotificationManager si está disponible
+      if (typeof NotificationManager !== 'undefined') {
+        NotificationManager.showToast('Error al cargar los detalles del empleado', 'error');
+      } else {
+        alert('Error al cargar los detalles del empleado');
+      }
     }
   }
   
@@ -535,29 +512,25 @@ class AdminDashboard {
       link.click();
       document.body.removeChild(link);
       
-      alert('Datos exportados correctamente');
+      // Usar NotificationManager si está disponible
+      if (typeof NotificationManager !== 'undefined') {
+        NotificationManager.showToast('Datos exportados correctamente', 'success');
+      } else {
+        alert('Datos exportados correctamente');
+      }
       
     } catch (error) {
       console.error('Error al exportar datos:', error);
-      alert('Error al exportar datos');
+      // Usar NotificationManager si está disponible
+      if (typeof NotificationManager !== 'undefined') {
+        NotificationManager.showToast('Error al exportar datos', 'error');
+      } else {
+        alert('Error al exportar datos');
+      }
     }
   }
   
-  logout() {
-    // Confirmar cierre de sesión
-    if (confirm('¿Está seguro que desea cerrar sesión?')) {
-      // Limpiar datos de sesión
-      localStorage.removeItem('currentSession');
-      
-      // Redirigir a la página de login
-      window.location.href = '../../components/auth/login.html';
-    }
-  }
-  
-  redirectToLogin(message) {
-    alert(message || 'Debe iniciar sesión para acceder a esta página');
-    window.location.href = '../../components/auth/login.html';
-  }
+  // Los métodos logout() y redirectToLogin() ya están implementados en BaseDashboard
 }
 
 // Inicializar el dashboard cuando se cargue la página
