@@ -18,18 +18,35 @@ const recoveryCodes = {};
  */
 exports.register = async (req, res) => {
   try {
+    console.log('🔵 === INICIO REGISTRO ===');
+    console.log('📦 Body recibido:', JSON.stringify(req.body, null, 2));
+    
     const { 
       nombreCompleto, 
       numeroDocumento, 
       correoElectronico, 
       password,
       tipoUsuario,
+      codigoAdmin,
       edad,
       cargo,
       horarioAsignado
     } = req.body;
 
+    console.log('✅ Datos extraídos:', {
+      nombreCompleto,
+      numeroDocumento,
+      correoElectronico,
+      password: password ? '***' : undefined,
+      tipoUsuario,
+      edad,
+      cargo,
+      horarioAsignado,
+      codigoAdmin
+    });
+
     // Verificar si ya existe usuario con ese documento o correo
+    console.log('🔍 Verificando si existe usuario...');
     let user = await User.findOne({ 
       $or: [
         { numeroDocumento },
@@ -38,14 +55,17 @@ exports.register = async (req, res) => {
     });
 
     if (user) {
+      console.log('⚠️ Usuario ya existe:', user.correoElectronico);
       return res.status(400).json({
         success: false,
         message: 'Ya existe un usuario con ese documento o correo electrónico'
       });
     }
 
+    console.log('✅ Usuario no existe, procediendo a crear...');
+
     // Crear nuevo usuario
-    user = new User({
+    const userData = {
       nombreCompleto,
       numeroDocumento,
       correoElectronico,
@@ -54,31 +74,57 @@ exports.register = async (req, res) => {
       edad,
       cargo,
       horarioAsignado
-    });
+    };
+
+    console.log('📝 userData preparado:', { ...userData, password: '***' });
+
+    // Si es administrador, incluir código de administrador
+    if (tipoUsuario === 'administrador' && codigoAdmin) {
+      userData.codigoAdmin = codigoAdmin;
+      console.log('👑 Usuario administrador, código incluido');
+    }
+
+    console.log('💾 Creando documento User...');
+    user = new User(userData);
 
     // Guardar usuario
+    console.log('💾 Guardando usuario en MongoDB...');
     await user.save();
+    console.log('✅ Usuario guardado exitosamente:', user._id);
 
     // Generar token JWT
+    console.log('🔑 Generando token JWT...');
     const token = user.getSignedJwtToken();
+
+    // Preparar datos del usuario para la respuesta
+    const responseUserData = {
+      id: user._id,
+      nombreCompleto: user.nombreCompleto,
+      correoElectronico: user.correoElectronico,
+      tipoUsuario: user.tipoUsuario,
+      numeroDocumento: user.numeroDocumento,
+      cargo: user.cargo || null,
+      horarioAsignado: user.horarioAsignado || null
+    };
+
+    // Si es administrador, incluir código de administrador
+    if (user.tipoUsuario === 'administrador') {
+      responseUserData.codigoAdmin = user.codigoAdmin;
+    }
+
+    console.log('✅ Registro completado exitosamente');
+    console.log('🔵 === FIN REGISTRO ===');
 
     // Responder con el token y datos del usuario
     res.status(201).json({
       success: true,
       message: 'Usuario registrado correctamente',
       token,
-      user: {
-        id: user._id,
-        nombreCompleto: user.nombreCompleto,
-        correoElectronico: user.correoElectronico,
-        tipoUsuario: user.tipoUsuario,
-        numeroDocumento: user.numeroDocumento,
-        cargo: user.cargo || null,
-        horarioAsignado: user.horarioAsignado || null
-      }
+      user: responseUserData
     });
   } catch (error) {
-    console.error('Error en registro de usuario:', error);
+    console.error('❌ ERROR EN REGISTRO:', error);
+    console.error('Stack trace:', error.stack);
     res.status(500).json({
       success: false,
       message: 'Error al registrar usuario',
@@ -94,10 +140,13 @@ exports.register = async (req, res) => {
  */
 exports.login = async (req, res) => {
   try {
-    const { correoElectronico, password } = req.body;
+    const { correoElectronico, password, codigoAdmin } = req.body;
+
+    console.log('🔐 Intento de login:', { correoElectronico, tienePassword: !!password, tieneCodigoAdmin: !!codigoAdmin });
 
     // Validar que se proporcionó correo y contraseña
     if (!correoElectronico || !password) {
+      console.log('❌ Login fallido: Datos incompletos');
       return res.status(400).json({
         success: false,
         message: 'Por favor, proporcione correo electrónico y contraseña'
@@ -106,9 +155,11 @@ exports.login = async (req, res) => {
 
     // Buscar usuario y traer la contraseña (que normalmente está excluida)
     const user = await User.findOne({ correoElectronico }).select('+password');
+    console.log('🔍 Usuario encontrado:', user ? `Sí (${user.tipoUsuario})` : 'No');
 
     // Verificar si el usuario existe
     if (!user) {
+      console.log('❌ Usuario no encontrado en la base de datos');
       return res.status(401).json({
         success: false,
         message: 'Credenciales inválidas'
@@ -116,17 +167,22 @@ exports.login = async (req, res) => {
     }
 
     // Verificar si la contraseña coincide
+    console.log('🔑 Verificando contraseña...');
     const isMatch = await user.matchPassword(password);
+    console.log('🔑 Contraseña coincide:', isMatch);
 
     // Si la contraseña no coincide, verificar si es una contraseña legacy (btoa)
     if (!isMatch) {
+      console.log('⚠️ Contraseña no coincide, verificando formato legacy...');
       const isLegacyMatch = user.isLegacyPassword(user.password, password);
       
       if (isLegacyMatch) {
+        console.log('✅ Contraseña legacy detectada, actualizando...');
         // Actualizar a nuevo formato de contraseña
         user.password = password;
         await user.save();
       } else {
+        console.log('❌ Credenciales incorrectas');
         return res.status(401).json({
           success: false,
           message: 'Credenciales inválidas'
@@ -134,26 +190,58 @@ exports.login = async (req, res) => {
       }
     }
 
+    // Si es administrador, verificar código de administrador
+    if (user.tipoUsuario === 'administrador') {
+      console.log('🔐 Usuario es administrador, verificando código...');
+      if (!codigoAdmin) {
+        console.log('❌ Código de administrador no proporcionado');
+        return res.status(401).json({
+          success: false,
+          message: 'Código de administrador requerido'
+        });
+      }
+
+      console.log('🔍 Comparando códigos:', { almacenado: user.codigoAdmin, recibido: codigoAdmin });
+      if (user.codigoAdmin !== codigoAdmin) {
+        console.log('❌ Código de administrador incorrecto');
+        return res.status(401).json({
+          success: false,
+          message: 'Código de administrador incorrecto'
+        });
+      }
+      console.log('✅ Código de administrador correcto');
+    }
+
     // Generar token JWT
+    console.log('✅ Autenticación exitosa, generando token...');
     const token = user.getSignedJwtToken();
 
+    // Preparar datos del usuario para la respuesta
+    const userData = {
+      id: user._id,
+      nombreCompleto: user.nombreCompleto,
+      correoElectronico: user.correoElectronico,
+      tipoUsuario: user.tipoUsuario,
+      numeroDocumento: user.numeroDocumento,
+      cargo: user.cargo || null,
+      horarioAsignado: user.horarioAsignado || null
+    };
+
+    // Si es administrador, incluir código de administrador
+    if (user.tipoUsuario === 'administrador') {
+      userData.codigoAdmin = user.codigoAdmin;
+    }
+
     // Responder con token y datos del usuario
+    console.log('📤 Enviando respuesta de login exitoso');
     res.status(200).json({
       success: true,
       message: 'Inicio de sesión exitoso',
       token,
-      user: {
-        id: user._id,
-        nombreCompleto: user.nombreCompleto,
-        correoElectronico: user.correoElectronico,
-        tipoUsuario: user.tipoUsuario,
-        numeroDocumento: user.numeroDocumento,
-        cargo: user.cargo || null,
-        horarioAsignado: user.horarioAsignado || null
-      }
+      user: userData
     });
   } catch (error) {
-    console.error('Error en login:', error);
+    console.error('❌ Error en login:', error);
     res.status(500).json({
       success: false,
       message: 'Error al iniciar sesión',

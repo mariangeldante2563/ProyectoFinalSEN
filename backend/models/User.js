@@ -36,7 +36,7 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: [true, 'La contraseña es requerida'],
-    minlength: [8, 'La contraseña debe tener al menos 8 caracteres'],
+    minlength: [6, 'La contraseña debe tener al menos 6 caracteres'],
     select: false // No incluir en consultas por defecto
   },
   tipoUsuario: {
@@ -46,6 +46,14 @@ const userSchema = new mongoose.Schema({
       message: '{VALUE} no es un tipo de usuario válido'
     },
     default: 'empleado'
+  },
+  codigoAdmin: {
+    type: String,
+    trim: true,
+    match: [/^[0-9]{1,4}$/, 'El código de administrador debe ser un número de máximo 4 dígitos'],
+    required: function() {
+      return this.tipoUsuario === 'administrador';
+    }
   },
   edad: {
     type: Number,

@@ -168,7 +168,7 @@ class RegistroManager {
           errorMessage = 'El código de administrador es requerido';
         } else if (this.tipoUsuarioInput.value === 'administrador' && value && !this.validateAdminCode(value)) {
           isValid = false;
-          errorMessage = 'El código debe cumplir con todos los requisitos de seguridad';
+          errorMessage = 'El código debe ser un número de máximo 4 dígitos';
         }
         break;
     }
@@ -272,37 +272,80 @@ class RegistroManager {
       if (formData.tipoUsuario === 'administrador') {
         const isValidAdminCode = this.validateAdminCode(formData.codigoAdmin);
         if (!isValidAdminCode) {
-          this.showMessage('El código de administrador no cumple con los requisitos de seguridad. Revise los requisitos indicados.', 'error');
+          this.showMessage('El código de administrador debe ser un número de máximo 4 dígitos.', 'error');
           return;
         }
       }
 
-      // Verificar si el documento ya existe
+      // Verificar si el documento ya existe en localStorage
       if (this.isDocumentExists(formData.numeroDocumento)) {
         this.showMessage('Este número de documento ya está registrado.', 'error');
         return;
       }
 
-      // Guardar en localStorage
-      this.saveUserData(formData);
-
-      // Mostrar mensaje de éxito
-      this.showMessage(
-        `¡Registro exitoso! Bienvenido/a ${formData.nombreCompleto}. Su registro como ${formData.tipoUsuario} ha sido completado.`,
-        'success'
-      );
-
-      // Actualizar lista de usuarios
-      this.updateUsersList();
-      this.showUsersPanel();
+      // ENVIAR AL BACKEND
+      console.log('📡 Enviando registro al backend...');
+      const backendUrl = 'http://localhost:5000/api/auth/register';
       
-      // Redireccionar después de mostrar mensaje
-      setTimeout(() => {
-        window.location.href = '../../proyectopages/index.html';
-      }, 3000);
+      const registroData = {
+        nombreCompleto: formData.nombreCompleto,
+        numeroDocumento: formData.numeroDocumento,
+        correoElectronico: formData.correoElectronico,
+        password: formData.password,
+        tipoUsuario: formData.tipoUsuario,
+        edad: formData.edad ? parseInt(formData.edad) : undefined,
+        cargo: formData.cargo || undefined,
+        horarioAsignado: formData.horarioAsignado || undefined
+      };
+
+      // Si es administrador, incluir código
+      if (formData.tipoUsuario === 'administrador') {
+        registroData.codigoAdmin = formData.codigoAdmin;
+        registroData.departamento = formData.departamento || undefined;
+      }
+
+      console.log('📦 Datos a enviar:', { ...registroData, password: '***' });
+
+      const response = await fetch(backendUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(registroData)
+      });
+
+      const data = await response.json();
+      console.log('📨 Respuesta del backend:', data);
+
+      if (response.ok && data.success) {
+        console.log('✅ Usuario registrado en MongoDB');
+        
+        // También guardar en localStorage para acceso offline
+        this.saveUserData(formData);
+
+        // Mostrar mensaje de éxito
+        this.showMessage(
+          `¡Registro exitoso! Bienvenido/a ${formData.nombreCompleto}. Su registro como ${formData.tipoUsuario} ha sido completado.`,
+          'success'
+        );
+
+        // Actualizar lista de usuarios
+        this.updateUsersList();
+        this.showUsersPanel();
+        
+        // Redireccionar al login después de mostrar mensaje
+        setTimeout(() => {
+          window.location.href = 'login.html';
+        }, 2000);
+      } else {
+        console.log('❌ Error del backend:', data.message);
+        this.showMessage(data.message || 'Error al registrar usuario', 'error');
+      }
 
     } catch (error) {
-      this.showMessage('Error inesperado. Por favor, intente nuevamente.', 'error');
+      console.error('💥 Error en registro:', error);
+      this.showMessage('Error al conectar con el servidor: ' + error.message, 'error');
     }
   }
 
@@ -354,23 +397,18 @@ class RegistroManager {
   validateAdminCode(code) {
     if (!code) return false;
 
-    // Validar los requisitos de seguridad
-    const minLength = code.length >= 15;
-    const hasUppercase = /[A-Z]/.test(code);
-    const hasNumber = /[0-9]/.test(code);
-    const hasSymbol = /[\/\*\+\$\%]/.test(code);
+    // Validar que sea un número de máximo 4 dígitos
+    const isNumeric = /^[0-9]+$/.test(code);
+    const isValidLength = code.length <= 4 && code.length >= 1;
 
     // Actualizar indicadores visuales si el campo está visible
     const adminFields = document.getElementById('adminFields');
     if (adminFields && adminFields.style.display !== 'none') {
-      this.updateRequirementCheck('length-check', minLength);
-      this.updateRequirementCheck('uppercase-check', hasUppercase);
-      this.updateRequirementCheck('number-check', hasNumber);
-      this.updateRequirementCheck('symbol-check', hasSymbol);
+      this.updateRequirementCheck('digits-check', isNumeric && isValidLength);
     }
 
-    // Todos los requisitos deben cumplirse
-    return minLength && hasUppercase && hasNumber && hasSymbol;
+    // Ambos requisitos deben cumplirse
+    return isNumeric && isValidLength;
   }
 
   updateRequirementCheck(elementId, isValid) {

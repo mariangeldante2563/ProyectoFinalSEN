@@ -118,7 +118,7 @@
               <div class="input-container">
                 <i class="fas fa-lock input-icon"></i>
                 <input type="password" id="password" name="password" required 
-                      minlength="8" 
+                      minlength="6" 
                       aria-describedby="passwordError"
                       placeholder="Su contraseña">
                 <span class="input-focus-effect"></span>
@@ -135,17 +135,17 @@
               <label for="adminCode">Código de Administrador <span class="required">*</span></label>
               <div class="input-container">
                 <i class="fas fa-key input-icon"></i>
-                <input type="text" id="adminCode" name="adminCode" 
-                      minlength="6" 
-                      maxlength="20"
+                <input type="number" id="adminCode" name="adminCode" 
+                      minlength="1" 
+                      maxlength="4"
                       aria-describedby="adminCodeError"
-                      placeholder="Ingrese el código de administrador">
+                      placeholder="Ingrese su código de 4 dígitos">
                 <span class="input-focus-effect"></span>
               </div>
               <div class="error-message" id="adminCodeError" aria-live="polite"></div>
               <div class="admin-code-info">
                 <i class="fas fa-info-circle"></i>
-                <span>Ingrese el código de administrador que registró al crear su cuenta.</span>
+                <span>Ingrese el código numérico de máximo 4 dígitos que registró al crear su cuenta.</span>
               </div>
             </div>
             

@@ -10,8 +10,8 @@ class EnhancedApiClient {
    * @param {string} baseUrl - URL base del API (opcional)
    */
   constructor(baseUrl = null) {
-    // URL base de la API - usar puerto 5001 actualmente activo
-    this.apiUrl = baseUrl || 'http://localhost:5001/api';
+    // URL base de la API - usar puerto 5000 para el backend
+    this.apiUrl = baseUrl || 'http://localhost:5000/api';
     
     // Estado de conexión
     this.isOnline = navigator.onLine;
@@ -142,21 +142,30 @@ class EnhancedApiClient {
    * @param {Object} credentials - Credenciales de login
    * @param {string} credentials.email - Correo electrónico
    * @param {string} credentials.password - Contraseña
+   * @param {string} credentials.adminCode - Código de administrador (opcional)
    * @returns {Promise} - Datos del usuario y token
    */
   async login(credentials) {
     try {
-      const { email, password } = credentials;
+      const { email, password, adminCode } = credentials;
       
       // Verificar conexión
       const serverAvailable = await this.checkServerConnection();
       
       if (serverAvailable) {
-        // Intentar login con el servidor - convertir email a correoElectronico para el backend
-        const response = await this.post('/auth/login', { 
+        // Preparar datos para enviar al backend
+        const loginData = { 
           correoElectronico: email, 
           password 
-        });
+        };
+
+        // Si se proporciona código de administrador, incluirlo
+        if (adminCode) {
+          loginData.codigoAdmin = adminCode;
+        }
+
+        // Intentar login con el servidor
+        const response = await this.post('/auth/login', loginData);
         
         // Guardar token
         if (response.token) {

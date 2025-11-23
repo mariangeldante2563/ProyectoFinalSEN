@@ -8,7 +8,7 @@
     'use strict';
 
     const CONFIG = {
-        minPasswordLength: 8,
+        minPasswordLength: 6,
         redirectDelay: 1000,
         loadingText: 'Cargando...',
         successMessage: 'Inicio de sesión exitoso',
@@ -152,16 +152,25 @@
 
         async handleSubmit(e) {
             e.preventDefault();
+            console.log('🔵 === SUBMIT DEL FORMULARIO ===');
 
-            if (this.isLoading) return;
+            if (this.isLoading) {
+                console.log('⚠️ Ya hay un login en proceso');
+                return;
+            }
 
             try {
-              
-                if (!this.validateForm()) return;
+                console.log('✅ Validando formulario...');
+                if (!this.validateForm()) {
+                    console.log('❌ Validación de formulario fallida');
+                    return;
+                }
 
+                console.log('✅ Formulario válido, iniciando login...');
                 this.setLoadingState(true);
 
                 const formData = this.getFormData();
+                console.log('📋 Datos del formulario:', { ...formData, password: '***' });
 
                 await this.processLogin(formData);
 
@@ -177,69 +186,68 @@
             try {
                 console.log('🔄 Iniciando proceso de login:', formData);
                 
-                // Usar la instancia global del APIService
-                if (typeof window.apiService === 'undefined') {
-                    console.log('⚠️ APIService global no disponible, creando instancia...');
-                    // Fallback: crear instancia si no está disponible
-                    if (typeof EnhancedApiClient !== 'undefined') {
-                        window.apiService = new EnhancedApiClient();
-                    } else {
-                        throw new Error('API Service no disponible');
-                    }
+                // Construir URL del backend
+                const backendUrl = 'http://localhost:5000/api/auth/login';
+                
+                // Preparar datos para enviar
+                const loginData = {
+                    correoElectronico: formData.email,
+                    password: formData.password
+                };
+
+                // Si es administrador, incluir código
+                if (formData.adminCode) {
+                    loginData.codigoAdmin = formData.adminCode;
                 }
 
-                const apiClient = window.apiService;
+                console.log('📡 Enviando credenciales al backend:', backendUrl);
+                console.log('📦 Datos a enviar:', { ...loginData, password: '***' });
                 
-                // Realizar login en el backend
-                console.log('📡 Enviando credenciales al backend...');
-                const response = await apiClient.login({
-                    email: formData.email,
-                    password: formData.password
+                // Realizar petición al backend
+                const response = await fetch(backendUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(loginData)
                 });
 
-                console.log('📦 Respuesta del backend:', response);
+                console.log('📨 Respuesta HTTP status:', response.status);
+                
+                const data = await response.json();
+                console.log('📦 Datos recibidos:', data);
 
-                if (response.success && response.data) {
-                    const user = response.data.user;
-                    const token = response.data.token;
+                if (response.ok && data.success) {
+                    const user = data.user;
+                    const token = data.token;
 
-                    console.log('✅ Login exitoso, usuario:', user);
-                    console.log('🔑 Token recibido:', token ? 'Sí' : 'No');
+                    console.log('✅ Login exitoso');
+                    console.log('👤 Usuario:', user.nombreCompleto);
+                    console.log('🔑 Token:', token ? 'Recibido' : 'No recibido');
 
-                    // Verificar tipo de usuario (rol)
-                    console.log('🎭 Verificando rol: usuario =', user.tipoUsuario, 'seleccionado =', formData.role);
-                    if (user.tipoUsuario !== formData.role) {
-                        console.log('❌ Rol no coincide');
-                        this.showErrorMessage(`Credenciales incorrectas para ${formData.role}.`);
-                        return;
-                    }
-
-                    // Si es administrador, verificar código de administrador si es necesario
-                    if (formData.role === 'administrador' && formData.adminCode) {
-                        console.log('🔐 Verificando código de administrador...');
-                        // Aquí podrías verificar el código de administrador si lo tienes guardado
-                    }
-
-                    // Guardar token y información de sesión
+                    // Guardar token y sesión
                     console.log('💾 Guardando sesión...');
                     localStorage.setItem('authToken', token);
+                    localStorage.setItem('token', token);
                     this.saveSession(user);
                     
                     console.log('✅ Mostrando mensaje de éxito...');
-                    this.showSuccessMessage(CONFIG.successMessage);
+                    this.showSuccessMessage('¡Login exitoso! Redirigiendo...');
                     
-                    console.log('⏱️ Programando redirección en', CONFIG.redirectDelay, 'ms...');
+                    console.log('⏱️ Programando redirección...');
                     setTimeout(() => {
-                        console.log('🚀 Ejecutando redirección...');
+                        console.log('🚀 Redirigiendo al dashboard...');
                         this.redirectToDashboard();
                     }, CONFIG.redirectDelay);
                 } else {
-                    console.log('❌ Login fallido:', response);
-                    this.showErrorMessage(response.message || 'Error de autenticación');
+                    console.log('❌ Login fallido');
+                    console.log('📄 Mensaje:', data.message);
+                    this.showErrorMessage(data.message || 'Credenciales incorrectas');
                 }
             } catch (error) {
                 console.error('💥 Error en login:', error);
-                this.showErrorMessage('Error al conectar con el servidor. Verifique su conexión.');
+                this.showErrorMessage('Error: ' + error.message);
             }
         }
         
@@ -329,8 +337,8 @@
                     if (!value) {
                         errorMessage = 'El código de administrador es obligatorio';
                         isValid = false;
-                    } else if (value.length < 6) {
-                        errorMessage = 'El código debe tener al menos 6 caracteres';
+                    } else if (!/^[0-9]{1,4}$/.test(value)) {
+                        errorMessage = 'El código debe ser un número de máximo 4 dígitos';
                         isValid = false;
                     }
                     break;
@@ -458,18 +466,25 @@
         }
 
         redirectToDashboard() {
-            // Usar SessionManager si está disponible
-            if (typeof SessionManager !== 'undefined') {
+            console.log('🚀 Login: Redirigiendo al dashboard...', this.selectedRole);
+            
+            // Usar PathManager para redirección con rutas absolutas
+            if (typeof PathManager !== 'undefined' && PathManager.navigateToDashboard) {
+                console.log('✅ Login: Usando PathManager para redirección');
+                PathManager.navigateToDashboard(this.selectedRole);
+            } else if (typeof SessionManager !== 'undefined' && SessionManager.redirectToDashboard) {
+                console.log('⚠️ Login: PathManager no disponible, usando SessionManager');
                 SessionManager.redirectToDashboard(this.selectedRole);
             } else {
-                // Fallback si SessionManager no está disponible
+                // Fallback con rutas relativas
+                console.log('⚠️ Login: Usando fallback con rutas relativas');
                 const dashboardUrls = {
                     empleado: '../empleado/dashboard-empleado.html',
                     administrador: '../admin/dashboard-admin.html'
                 };
 
                 const url = dashboardUrls[this.selectedRole] || dashboardUrls.empleado;
-                console.log('Redirigiendo a:', url);
+                console.log('🎯 Login: Redirigiendo a:', url);
                 window.location.href = url;
             }
         }

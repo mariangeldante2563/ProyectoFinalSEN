@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Administrador - IN OUT MANAGER</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            line-height: 1.6;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            margin-bottom: 0.5rem;
+        }
+        
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .dashboard-card {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-icon {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.2rem;
+        }
+        
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+            display: block;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 0.5rem;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #667eea;
+            color: white;
+            font-weight: 600;
+        }
+        
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin: 0.25rem;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-small {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.8rem;
+        }
+        
+        .logout-btn {
+            background: #dc3545;
+            float: right;
+        }
+        
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            border-left: 4px solid #28a745;
+        }
+        
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            border-left: 4px solid #dc3545;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+        
+        .no-data {
+            text-align: center;
+            padding: 2rem;
+            color: #999;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1><i class="fas fa-tachometer-alt"></i> Dashboard Administrador</h1>
+        <p>Bienvenido/a, <span id="adminName">Administrador</span></p>
+        <button class="btn logout-btn" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+        </button>
+    </header>
+
+    <div class="dashboard-container">
+        <div id="message-container"></div>
+
+        <div class="dashboard-grid">
+            <!-- Estadísticas Generales -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <h3 class="card-title">Estadísticas Generales</h3>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="stat-number" id="totalEmployees">0</span>
+                        <span class="stat-label">Empleados</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="presentToday">0</span>
+                        <span class="stat-label">Presentes Hoy</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="totalRecords">0</span>
+                        <span class="stat-label">Registros</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lista de Empleados -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3 class="card-title">Empleados Registrados</h3>
+                </div>
+                <div class="table-container">
+                    <table id="employeesTable">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Documento</th>
+                                <th>Cargo</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="employeesTableBody">
+                            <tr>
+                                <td colspan="4" class="loading">
+                                    <i class="fas fa-spinner fa-spin"></i> Cargando empleados...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Registros de Asistencia -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <h3 class="card-title">Registros de Asistencia Recientes</h3>
+            </div>
+            <div class="table-container">
+                <table id="attendanceTable">
+                    <thead>
+                        <tr>
+                            <th>Empleado</th>
+                            <th>Fecha</th>
+                            <th>Hora</th>
+                            <th>Tipo</th>
+                        </tr>
+                    </thead>
+                    <tbody id="attendanceTableBody">
+                        <tr>
+                            <td colspan="4" class="loading">
+                                <i class="fas fa-spinner fa-spin"></i> Cargando registros...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let currentUser = null;
+        let allUsers = [];
+        let allRecords = [];
+
+        // Inicializar dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Iniciando Dashboard Administrador Simple...');
+            
+            // Verificar autenticación
+            if (!checkAuthentication()) {
+                return;
+            }
+
+            // Cargar datos
+            loadUserData();
+            loadEmployees();
+            loadAttendanceRecords();
+            loadStats();
+        });
+
+        // Verificar autenticación
+        function checkAuthentication() {
+            try {
+                // Obtener sesión actual
+                const sessionData = localStorage.getItem('currentSession');
+                
+                if (!sessionData) {
+                    showMessage('No hay sesión activa', 'error');
+                    setTimeout(() => {
+                        window.location.href = '../auth/login.html';
+                    }, 2000);
+                    return false;
+                }
+
+                currentUser = JSON.parse(sessionData);
+                
+                // Verificar que sea administrador
+                if (currentUser.tipoUsuario !== 'administrador') {
+                    showMessage('Acceso denegado. Solo administradores pueden acceder.', 'error');
+                    setTimeout(() => {
+                        window.location.href = '../auth/login.html';
+                    }, 2000);
+                    return false;
+                }
+
+                return true;
+            } catch (error) {
+                console.error('Error al verificar autenticación:', error);
+                showMessage('Error de autenticación', 'error');
+                setTimeout(() => {
+                    window.location.href = '../auth/login.html';
+                }, 2000);
+                return false;
+            }
+        }
+
+        // Cargar datos del usuario
+        function loadUserData() {
+            if (currentUser && currentUser.nombreCompleto) {
+                document.getElementById('adminName').textContent = currentUser.nombreCompleto;
+            }
+        }
+
+        // Cargar lista de empleados
+        function loadEmployees() {
+            try {
+                // Obtener usuarios registrados
+                const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+                
+                // Filtrar solo empleados
+                allUsers = registeredUsers.filter(user => user.tipoUsuario === 'empleado');
+                
+                const tableBody = document.getElementById('employeesTableBody');
+                
+                if (allUsers.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="4" class="no-data">No hay empleados registrados</td></tr>';
+                    return;
+                }
+
+                // Generar HTML de empleados
+                let html = '';
+                allUsers.forEach(employee => {
+                    html += `
+                        <tr>
+                            <td>${employee.nombreCompleto}</td>
+                            <td>${employee.numeroDocumento}</td>
+                            <td>${employee.cargo || 'No especificado'}</td>
+                            <td>
+                                <button class="btn btn-small" onclick="viewEmployee('${employee.id}')">
+                                    <i class="fas fa-eye"></i> Ver
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                tableBody.innerHTML = html;
+            } catch (error) {
+                console.error('Error al cargar empleados:', error);
+                document.getElementById('employeesTableBody').innerHTML = 
+                    '<tr><td colspan="4" class="error-message">Error al cargar empleados</td></tr>';
+            }
+        }
+
+        // Cargar registros de asistencia
+        function loadAttendanceRecords() {
+            try {
+                // Obtener registros de asistencia
+                const attendanceRecords = JSON.parse(localStorage.getItem('attendanceRecords') || '[]');
+                
+                // Ordenar por fecha (más recientes primero)
+                allRecords = attendanceRecords.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                
+                const tableBody = document.getElementById('attendanceTableBody');
+                
+                if (allRecords.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="4" class="no-data">No hay registros de asistencia</td></tr>';
+                    return;
+                }
+
+                // Mostrar solo los últimos 20 registros
+                const recentRecords = allRecords.slice(0, 20);
+                
+                // Generar HTML de registros
+                let html = '';
+                recentRecords.forEach(record => {
+                    // Buscar el nombre del empleado
+                    const employee = allUsers.find(u => u.id === record.userId);
+                    const employeeName = employee ? employee.nombreCompleto : 'Usuario no encontrado';
+                    
+                    const typeIcon = record.type === 'entrada' ? 
+                        '<i class="fas fa-sign-in-alt" style="color: green;"></i>' : 
+                        '<i class="fas fa-sign-out-alt" style="color: red;"></i>';
+                    
+                    html += `
+                        <tr>
+                            <td>${employeeName}</td>
+                            <td>${record.date}</td>
+                            <td>${record.time}</td>
+                            <td>${typeIcon} ${record.type.charAt(0).toUpperCase() + record.type.slice(1)}</td>
+                        </tr>
+                    `;
+                });
+
+                tableBody.innerHTML = html;
+            } catch (error) {
+                console.error('Error al cargar registros:', error);
+                document.getElementById('attendanceTableBody').innerHTML = 
+                    '<tr><td colspan="4" class="error-message">Error al cargar registros</td></tr>';
+            }
+        }
+
+        // Cargar estadísticas
+        function loadStats() {
+            try {
+                // Total de empleados
+                document.getElementById('totalEmployees').textContent = allUsers.length;
+                
+                // Total de registros
+                document.getElementById('totalRecords').textContent = allRecords.length;
+                
+                // Empleados presentes hoy
+                const today = new Date().toLocaleDateString('es-ES');
+                const entriesToday = new Set();
+                
+                allRecords.forEach(record => {
+                    if (record.date === today && record.type === 'entrada') {
+                        entriesToday.add(record.userId);
+                    }
+                });
+                
+                document.getElementById('presentToday').textContent = entriesToday.size;
+                
+            } catch (error) {
+                console.error('Error al cargar estadísticas:', error);
+            }
+        }
+
+        // Ver detalles de empleado
+        function viewEmployee(employeeId) {
+            const employee = allUsers.find(u => u.id === employeeId);
+            if (!employee) {
+                showMessage('Empleado no encontrado', 'error');
+                return;
+            }
+
+            // Obtener registros del empleado
+            const employeeRecords = allRecords.filter(r => r.userId === employeeId);
+            
+            let recordsHtml = '';
+            if (employeeRecords.length === 0) {
+                recordsHtml = '<p>No hay registros de asistencia</p>';
+            } else {
+                recordsHtml = '<h4>Últimos registros:</h4>';
+                employeeRecords.slice(0, 10).forEach(record => {
+                    const typeIcon = record.type === 'entrada' ? '🟢' : '🔴';
+                    recordsHtml += `<p>${typeIcon} ${record.date} - ${record.time} (${record.type})</p>`;
+                });
+            }
+
+            const modal = `
+                <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center;" onclick="closeModal(event)">
+                    <div style="background: white; padding: 2rem; border-radius: 10px; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto;" onclick="event.stopPropagation()">
+                        <h3>Detalles del Empleado</h3>
+                        <p><strong>Nombre:</strong> ${employee.nombreCompleto}</p>
+                        <p><strong>Documento:</strong> ${employee.numeroDocumento}</p>
+                        <p><strong>Email:</strong> ${employee.correoElectronico}</p>
+                        <p><strong>Cargo:</strong> ${employee.cargo || 'No especificado'}</p>
+                        <p><strong>Horario:</strong> ${employee.horarioAsignado || 'No especificado'}</p>
+                        <hr style="margin: 1rem 0;">
+                        ${recordsHtml}
+                        <br>
+                        <button class="btn" onclick="closeModal()">Cerrar</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', modal);
+        }
+
+        // Cerrar modal
+        function closeModal(event) {
+            if (event && event.target !== event.currentTarget) return;
+            const modal = document.querySelector('div[style*="position: fixed"]');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        // Mostrar mensaje
+        function showMessage(message, type) {
+            const messageContainer = document.getElementById('message-container');
+            const messageClass = type === 'error' ? 'error-message' : 'success-message';
+            
+            messageContainer.innerHTML = `
+                <div class="${messageClass}">
+                    <i class="fas fa-${type === 'error' ? 'exclamation-triangle' : 'check-circle'}"></i>
+                    ${message}
+                </div>
+            `;
+            
+            // Auto-ocultar después de 5 segundos
+            setTimeout(() => {
+                messageContainer.innerHTML = '';
+            }, 5000);
+        }
+
+        // Cerrar sesión
+        function logout() {
+            if (confirm('¿Está seguro que desea cerrar sesión?')) {
+                // Limpiar datos de sesión
+                localStorage.removeItem('currentSession');
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('token');
+                
+                showMessage('Sesión cerrada correctamente', 'success');
+                
+                setTimeout(() => {
+                    window.location.href = '../auth/login.html';
+                }, 1000);
+            }
+        }
+    </script>
+</body>
+</html>

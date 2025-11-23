@@ -287,21 +287,18 @@
                   <label for="codigoAdmin">Código de Administrador <span class="required">*</span></label>
                   <div class="input-container">
                     <i class="fas fa-shield-alt input-icon"></i>
-                    <input type="password" id="codigoAdmin" name="codigoAdmin" 
-                          placeholder="Ingrese el código de administrador"
-                          title="Mínimo 15 caracteres, debe incluir mayúsculas, números y símbolos (/, *, +, $, %)"
-                          minlength="15"
-                          pattern="^(?=.*[A-Z])(?=.*[0-9])(?=.*[\/\*\+\$\%]).{15,}$"
+                    <input type="number" id="codigoAdmin" name="codigoAdmin" 
+                          placeholder="Ingrese un número de máximo 4 dígitos"
+                          title="Número de máximo 4 dígitos"
+                          maxlength="4"
+                          pattern="[0-9]{1,4}"
                           aria-required="true">
                     <span class="input-focus-effect"></span>
                   </div>
                   <div class="password-requirements">
                     <small>El código debe tener:</small>
                     <ul class="requirements-list">
-                      <li id="length-check"><i class="fas fa-times-circle"></i> Mínimo 15 caracteres</li>
-                      <li id="uppercase-check"><i class="fas fa-times-circle"></i> Al menos una letra mayúscula</li>
-                      <li id="number-check"><i class="fas fa-times-circle"></i> Al menos un número</li>
-                      <li id="symbol-check"><i class="fas fa-times-circle"></i> Al menos un símbolo (/, *, +, $, %)</li>
+                      <li id="digits-check"><i class="fas fa-times-circle"></i> Máximo 4 dígitos numéricos</li>
                     </ul>
                   </div>
                 </div>

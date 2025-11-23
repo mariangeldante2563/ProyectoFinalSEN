@@ -12,6 +12,8 @@ const { body, param, validationResult } = require('express-validator');
 exports.validate = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    console.log('❌ Errores de validación:', JSON.stringify(errors.array(), null, 2));
+    console.log('📦 Datos recibidos:', JSON.stringify(req.body, null, 2));
     return res.status(400).json({
       success: false,
       message: 'Error en los datos de entrada',
@@ -44,14 +46,18 @@ exports.registerRules = [
   
   body('password')
     .notEmpty().withMessage('La contraseña es requerida')
-    .isLength({ min: 8 }).withMessage('La contraseña debe tener al menos 8 caracteres'),
+    .isLength({ min: 6 }).withMessage('La contraseña debe tener al menos 6 caracteres'),
   
   body('tipoUsuario')
     .optional()
     .isIn(['empleado', 'administrador']).withMessage('Tipo de usuario no válido'),
   
-  body('edad')
+  body('codigoAdmin')
     .optional()
+    .matches(/^[0-9]{1,4}$/).withMessage('El código de administrador debe ser un número de máximo 4 dígitos'),
+  
+  body('edad')
+    .optional({ nullable: true, checkFalsy: true })
     .isInt({ min: 18, max: 100 }).withMessage('La edad debe ser entre 18 y 100 años')
 ];
 
@@ -65,7 +71,11 @@ exports.loginRules = [
     .normalizeEmail(),
   
   body('password')
-    .notEmpty().withMessage('La contraseña es requerida')
+    .notEmpty().withMessage('La contraseña es requerida'),
+  
+  body('codigoAdmin')
+    .optional()
+    .matches(/^[0-9]{1,4}$/).withMessage('El código de administrador debe ser un número de máximo 4 dígitos')
 ];
 
 /**

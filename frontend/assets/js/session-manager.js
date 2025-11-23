@@ -1,8 +1,11 @@
 /**
  * IN OUT MANAGER - SESSION MANAGER MODULE
- * @version 1.0.0
+ * @version 2.0.0
  * @description Módulo para centralizar la gestión de sesiones en la aplicación
  */
+
+// Importar PathManager para navegación
+import PathManager from './path-manager.js';
 
 class SessionManager {
   /**
@@ -124,6 +127,59 @@ class SessionManager {
     localStorage.removeItem('currentSession');
     return true;
   }
+
+  /**
+   * Cierra la sesión y redirige al login usando PathManager
+   * @param {string} message - Mensaje opcional para mostrar
+   */
+  static logout(message = null) {
+    console.log('🚪 SessionManager: Cerrando sesión...');
+    
+    // Cerrar sesión
+    this.endSession();
+    
+    // Redirigir usando PathManager
+    if (typeof PathManager !== 'undefined' && PathManager.navigateToLogin) {
+      PathManager.navigateToLogin(message || 'Sesión cerrada correctamente.');
+    } else {
+      // Fallback si PathManager no está disponible
+      window.location.href = '../auth/login.html';
+    }
+  }
+
+  /**
+   * Obtiene los datos del usuario actual de forma simplificada
+   * @returns {Object|null} - Los datos del usuario o null si no hay sesión
+   */
+  static getUserData() {
+    const session = this.getCurrentSession();
+    if (!session) return null;
+    
+    return {
+      id: session.id,
+      nombre: session.nombreCompleto,
+      correo: session.correoElectronico,
+      tipo: session.tipoUsuario,
+      lastLogin: session.lastLogin
+    };
+  }
+
+  /**
+   * Verifica si el usuario tiene permisos de administrador
+   * @returns {boolean} - true si es administrador
+   */
+  static isAdmin() {
+    const userData = this.getUserData();
+    return userData && userData.tipo === 'administrador';
+  }
+
+  /**
+   * Verifica si el usuario está autenticado
+   * @returns {boolean} - true si está autenticado
+   */
+  static isAuthenticated() {
+    return this.getCurrentSession() !== null;
+  }
   
   /**
    * Actualiza los datos de la sesión actual
@@ -239,7 +295,7 @@ class SessionManager {
   }
 }
 
-// Exportar clase para uso en otros módulos
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = SessionManager;
+// Hacer SessionManager disponible globalmente
+if (typeof window !== 'undefined') {
+  window.SessionManager = SessionManager;
 }
