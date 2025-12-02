@@ -69,10 +69,6 @@ app.use('/api/stats', statsRoutes);
 
 // Carpeta estática para archivos descargables (reportes Excel)
 app.use('/downloads', express.static(path.join(__dirname, 'downloads')));
-// Carpeta para los reportes generados
-app.use('/api/downloads/reports', express.static(path.join(__dirname, 'uploads/reports')));
-// Carpeta para imágenes de perfil
-app.use('/api/uploads/profiles', express.static(path.join(__dirname, 'uploads/profiles')));
 
 // Importar middleware de manejo de errores
 const { errorHandler, notFoundHandler } = require('./middlewares/errorHandler');

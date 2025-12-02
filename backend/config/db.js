@@ -37,9 +37,9 @@ const connectDB = async () => {
 const closeConnection = async () => {
   try {
     await mongoose.connection.close();
-    console.log('🔒 Conexión a MongoDB cerrada correctamente');
+    console.log(' Conexión a MongoDB cerrada correctamente');
   } catch (error) {
-    console.error(`❌ Error al cerrar la conexión: ${error.message}`);
+    console.error(` Error al cerrar la conexión: ${error.message}`);
   }
 };
 

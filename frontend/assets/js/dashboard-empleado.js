@@ -208,316 +208,158 @@ class EmployeeDashboard extends BaseDashboard {
     }
   }
   
-  // Subir la foto de perfil
-  uploadProfilePhoto() {
-    console.log('Método uploadProfilePhoto ejecutado');
+  /**
+   * Subir foto de perfil al servidor
+   * Método unificado y profesional para manejar la subida de fotos
+   */
+  async uploadProfilePhoto() {
+    console.log('[uploadProfilePhoto] Iniciando proceso de subida de foto');
     
-    // Verificación de elementos necesarios
+    // Validar elementos del DOM
     if (!this.photoInput) {
-      console.error('No se encontró el elemento del input de foto');
       this.photoInput = document.getElementById('photoInput');
       if (!this.photoInput) {
-        if (typeof NotificationManager !== 'undefined') {
-          NotificationManager.showToast('Error: No se pudo encontrar el elemento para seleccionar fotos', 'error');
-        } else {
-          alert('Error: No se pudo encontrar el elemento para seleccionar fotos');
-        }
+        this.showNotification('Error: No se encontró el selector de fotos', 'error');
         return;
       }
     }
     
     if (!this.uploadPhotoBtn) {
-      console.error('No se encontró el botón de upload');
       this.uploadPhotoBtn = document.getElementById('uploadPhotoBtn');
-      if (!this.uploadPhotoBtn) {
-        if (typeof NotificationManager !== 'undefined') {
-          NotificationManager.showToast('Error: No se pudo encontrar el botón de actualizar foto', 'error');
-        } else {
-          alert('Error: No se pudo encontrar el botón de actualizar foto');
-        }
-        return;
-      }
     }
     
-    // Verificar si hay un archivo seleccionado
-    if (!this.selectedFile) {
-      console.warn('No hay archivo seleccionado');
-      // Verificar si hay archivos en el input
-      if (this.photoInput && this.photoInput.files && this.photoInput.files.length > 0) {
-        console.log('Se encontró un archivo en el input de foto');
-        this.selectedFile = this.photoInput.files[0];
-      } else {
-        if (typeof NotificationManager !== 'undefined') {
-          NotificationManager.showToast('Por favor, seleccione una imagen primero.', 'warning');
-        } else {
-          alert('Por favor, seleccione una imagen primero.');
-        }
-        return;
-      }
+    // Obtener el archivo seleccionado
+    const file = this.selectedFile || (this.photoInput.files && this.photoInput.files[0]);
+    
+    if (!file) {
+      this.showNotification('Por favor, seleccione una imagen primero', 'warning');
+      return;
     }
     
-    console.log('Archivo seleccionado:', this.selectedFile);
-    
-    // Mostrar estado de carga
-    if (this.uploadPhotoBtn) {
-      this.uploadPhotoBtn.disabled = true;
-      this.uploadPhotoBtn.innerHTML = '<span class="loading-spinner"></span> Subiendo...';
+    // Validar que sea una imagen
+    if (!file.type.startsWith('image/')) {
+      this.showNotification('El archivo debe ser una imagen', 'error');
+      return;
     }
+    
+    // Validar tamaño (máx 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      this.showNotification('La imagen no debe superar 5MB', 'error');
+      return;
+    }
+    
+    console.log('[uploadProfilePhoto] Archivo válido:', file.name, file.size, 'bytes');
+    
+    // Deshabilitar botón y mostrar estado de carga
+    this.setUploadButtonState(true, 'Subiendo...');
     
     try {
-      // Verificar si el servicio API mejorado está disponible
+      // Intentar subir al servidor primero
       if (typeof window.apiService !== 'undefined' && typeof window.apiService.uploadProfilePhoto === 'function') {
-        console.log('Usando apiService para subir foto');
-        // Usar el nuevo servicio API mejorado
-        window.apiService.uploadProfilePhoto(this.currentUser.id, this.selectedFile)
-          .then(response => {
-            console.log('Respuesta de la subida de foto:', response);
-            
-            // Mostrar mensaje de éxito
-            const successMessage = `Foto de perfil actualizada correctamente${response && response.mode === 'offline' ? ' (guardada localmente)' : ' en el servidor'}.`;
-            console.log(successMessage);
-            
-            if (typeof NotificationManager !== 'undefined') {
-              NotificationManager.showToast(successMessage, 'success');
-            } else {
-              alert(successMessage);
-            }
-            
-            // Actualizar la vista de perfil
-            if (response && response.photoUrl) {
-              console.log('Actualizando avatar con URL:', response.photoUrl);
-              if (this.profileAvatar) {
-                this.profileAvatar.src = response.photoUrl;
-              } else {
-                console.error('No se encontró el elemento profileAvatar');
-              }
-            } else {
-              // Recargar la foto desde localStorage
-              console.log('Recargando foto desde localStorage');
-              this.loadProfilePhoto();
-            }
-          })
-          .catch(error => {
-            console.error('Error al subir la foto:', error);
-            
-            // Mostrar mensaje de error
-            const errorMessage = 'Error al subir la foto: ' + (error.message || 'Ocurrió un error desconocido');
-            
-            if (typeof NotificationManager !== 'undefined') {
-              NotificationManager.showToast(errorMessage, 'error');
-            } else {
-              alert(errorMessage);
-            }
-            
-            // Intentar con el método legacy como respaldo
-            console.log('Intentando con método legacy como respaldo');
-            this.uploadPhotoLegacy();
-          })
-          .finally(() => {
-            // Siempre limpiar y restablecer UI, independientemente del resultado
-            console.log('Finalizando proceso de subida, restableciendo UI');
-            if (this.photoInput) this.photoInput.value = '';
-            this.selectedFile = null;
-            if (this.uploadPhotoBtn) {
-              this.uploadPhotoBtn.disabled = false;
-              this.uploadPhotoBtn.textContent = 'Actualizar Foto';
-            }
-          });
+        console.log('[uploadProfilePhoto] Subiendo al servidor via API');
+        
+        const response = await window.apiService.uploadProfilePhoto(this.currentUser.id, file);
+        
+        console.log('[uploadProfilePhoto] Respuesta del servidor:', response);
+        
+        // Actualizar avatar con la URL del servidor
+        const photoUrl = response.fotoPerfil ? `/uploads/${response.fotoPerfil}` : response.photoUrl;
+        
+        if (photoUrl && this.profileAvatar) {
+          this.profileAvatar.src = photoUrl;
+        }
+        
+        this.showNotification('Foto de perfil actualizada correctamente', 'success');
+        
       } else {
-        console.log('API Service no disponible, usando método legacy');
-        // Método de respaldo usando la implementación anterior
-        this.uploadPhotoLegacy();
+        // Fallback: guardar en localStorage
+        console.log('[uploadProfilePhoto] API no disponible, guardando en localStorage');
+        await this.savePhotoLocally(file);
+        this.showNotification('Foto guardada localmente', 'success');
       }
-    } catch (generalError) {
-      console.error('Error general al subir foto:', generalError);
       
-      // En caso de error general, usar el método legacy
-      this.uploadPhotoLegacy();
+    } catch (error) {
+      console.error('[uploadProfilePhoto] Error:', error);
+      
+      // Si falla el servidor, intentar guardar localmente
+      try {
+        console.log('[uploadProfilePhoto] Fallback a localStorage por error');
+        await this.savePhotoLocally(file);
+        this.showNotification('Foto guardada localmente (sin conexión al servidor)', 'warning');
+      } catch (localError) {
+        console.error('[uploadProfilePhoto] Error al guardar localmente:', localError);
+        this.showNotification('Error al guardar la foto', 'error');
+      }
+      
+    } finally {
+      // Restablecer UI
+      this.setUploadButtonState(false, 'Actualizar Foto');
+      if (this.photoInput) this.photoInput.value = '';
+      this.selectedFile = null;
+      console.log('[uploadProfilePhoto] Proceso finalizado');
     }
   }
   
-  // Método de respaldo (legacy) para compatibilidad
-  uploadPhotoLegacy() {
-    try {
-      console.log('Usando método legacy para subir foto...');
-      
-      // Verificar que tenemos un archivo seleccionado
-      if (!this.selectedFile) {
-        console.warn('No hay archivo seleccionado en el método legacy');
-        
-        // Verificar si hay archivos en el input
-        if (this.photoInput && this.photoInput.files && this.photoInput.files.length > 0) {
-          console.log('Se encontró un archivo en el input de foto (legacy)');
-          this.selectedFile = this.photoInput.files[0];
-        } else {
-          console.error('No se encontró ningún archivo para subir');
-          
-          // Mostrar mensaje de error
-          if (typeof NotificationManager !== 'undefined') {
-            NotificationManager.showToast('Error: No se encontró imagen para subir.', 'error');
-          } else {
-            alert('Error: No se encontró imagen para subir.');
-          }
-          
-          // Restablecer el estado del botón
-          if (this.uploadPhotoBtn) {
-            this.uploadPhotoBtn.disabled = false;
-            this.uploadPhotoBtn.textContent = 'Actualizar Foto';
-          }
-          return;
-        }
-      }
-      
-      console.log('Procesando archivo en método legacy:', this.selectedFile.name);
-      
-      // Leer la imagen como base64
+  /**
+   * Guardar foto localmente en localStorage
+   * @param {File} file - Archivo de imagen
+   * @returns {Promise} Promesa que resuelve cuando se guarda la foto
+   */
+  savePhotoLocally(file) {
+    return new Promise((resolve, reject) => {
       const reader = new FileReader();
       
       reader.onload = (e) => {
         try {
-          // Guardar la foto en localStorage directamente (sin usar el método asíncrono)
-          console.log('Guardando foto en localStorage directamente...');
-          
-          // Obtener las fotos actuales
           const userPhotos = JSON.parse(localStorage.getItem('userProfilePhotos') || '{}');
-          
-          // Guardar la nueva foto
           userPhotos[this.currentUser.id] = e.target.result;
           localStorage.setItem('userProfilePhotos', JSON.stringify(userPhotos));
           
-          console.log('Foto guardada en localStorage correctamente');
-          
-          // Actualizar la vista con la nueva foto
           if (this.profileAvatar) {
-            console.log('Actualizando avatar en la vista');
             this.profileAvatar.src = e.target.result;
-          } else {
-            console.error('No se encontró el elemento profileAvatar');
           }
           
-          // Mostrar mensaje de éxito
-          if (typeof NotificationManager !== 'undefined') {
-            NotificationManager.showToast('Foto de perfil guardada localmente.', 'success');
-          } else {
-            alert('Foto de perfil guardada localmente.');
-          }
-        } catch (saveError) {
-          console.error('Error al guardar la foto en localStorage:', saveError);
-          
-          // Mostrar mensaje de error
-          if (typeof NotificationManager !== 'undefined') {
-            NotificationManager.showToast('Error al guardar la foto. Intente nuevamente.', 'error');
-          } else {
-            alert('Error al guardar la foto. Intente nuevamente.');
-          }
-        } finally {
-          // Restablecer el estado del botón
-          if (this.uploadPhotoBtn) {
-            this.uploadPhotoBtn.disabled = false;
-            this.uploadPhotoBtn.textContent = 'Actualizar Foto';
-          }
-          
-          // Limpiar el input de archivo
-          if (this.photoInput) this.photoInput.value = '';
-          this.selectedFile = null;
+          resolve(e.target.result);
+        } catch (error) {
+          reject(error);
         }
       };
       
-      reader.onerror = (error) => {
-        console.error('Error al leer el archivo:', error);
-        
-        // Mostrar mensaje de error
-        if (typeof NotificationManager !== 'undefined') {
-          NotificationManager.showToast('Error al procesar la imagen. Intente nuevamente.', 'error');
-        } else {
-          alert('Error al procesar la imagen. Intente nuevamente.');
-        }
-        
-        // Restablecer el estado del botón
-        if (this.uploadPhotoBtn) {
-          this.uploadPhotoBtn.disabled = false;
-          this.uploadPhotoBtn.textContent = 'Actualizar Foto';
-        }
-      };
-      
-      console.log('Iniciando lectura del archivo como DataURL (legacy)');
-      reader.readAsDataURL(this.selectedFile);
-    } catch (error) {
-      console.error('Error general en uploadPhotoLegacy:', error);
-      
-      // Mostrar mensaje de error detallado
-      if (typeof NotificationManager !== 'undefined') {
-        NotificationManager.showToast(`Error al guardar la foto: ${error.message || 'Error desconocido'}. Intente nuevamente.`, 'error');
-      } else {
-        alert(`Error al guardar la foto: ${error.message || 'Error desconocido'}. Intente nuevamente.`);
-      }
-      
-      // Restablecer el estado del botón
-      if (this.uploadPhotoBtn) {
-        this.uploadPhotoBtn.disabled = false;
-        this.uploadPhotoBtn.textContent = 'Actualizar Foto';
-      }
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+  
+  /**
+   * Establecer el estado del botón de subida
+   * @param {boolean} loading - Si está en estado de carga
+   * @param {string} text - Texto del botón
+   */
+  setUploadButtonState(loading, text) {
+    if (this.uploadPhotoBtn) {
+      this.uploadPhotoBtn.disabled = loading;
+      this.uploadPhotoBtn.textContent = text;
     }
   }
   
-  // Guardar la foto en localStorage - versión sincrónica mejorada
-  savePhotoToLocalStorage(photoData = null) {
-    console.log('Ejecutando savePhotoToLocalStorage');
-    
-    if (!photoData && !this.selectedFile) {
-      console.error('No hay datos para guardar en localStorage');
-      return false;
-    }
-    
-    try {
-      // Si no nos pasaron datos de foto y tenemos un archivo seleccionado,
-      // lo convertimos a base64
-      if (!photoData && this.selectedFile) {
-        console.log('Convirtiendo archivo a base64');
-        const reader = new FileReader();
-        
-        // Retornar una promesa para que este método sea asíncrono
-        return new Promise((resolve, reject) => {
-          reader.onload = (e) => {
-            try {
-              const userPhotos = JSON.parse(localStorage.getItem('userProfilePhotos') || '{}');
-              userPhotos[this.currentUser.id] = e.target.result;
-              localStorage.setItem('userProfilePhotos', JSON.stringify(userPhotos));
-              
-              // Actualizar la imagen de perfil en el DOM
-              this.profileAvatar.src = e.target.result;
-              
-              resolve(true);
-            } catch (error) {
-              console.error('Error en onload de FileReader:', error);
-              reject(error);
-            }
-          };
-          
-          reader.onerror = (error) => {
-            console.error('Error en FileReader:', error);
-            reject(error);
-          };
-          
-          reader.readAsDataURL(this.selectedFile);
-        });
-      } else if (photoData) {
-        // Si nos pasaron datos de foto, los guardamos directamente
-        console.log('Guardando datos de foto directamente');
-        const userPhotos = JSON.parse(localStorage.getItem('userProfilePhotos') || '{}');
-        userPhotos[this.currentUser.id] = photoData;
-        localStorage.setItem('userProfilePhotos', JSON.stringify(userPhotos));
-        
-        // Actualizar la imagen de perfil en el DOM
-        this.profileAvatar.src = photoData;
-        
-        return true;
-      }
-    } catch (error) {
-      console.error('Error al guardar foto en localStorage:', error);
-      return false;
+  /**
+   * Mostrar notificación al usuario
+   * @param {string} message - Mensaje a mostrar
+   * @param {string} type - Tipo de notificación (success, error, warning)
+   */
+  showNotification(message, type = 'info') {
+    console.log(`[Notificación ${type}]:`, message);
+    if (typeof NotificationManager !== 'undefined') {
+      NotificationManager.showToast(message, type);
+    } else {
+      alert(message);
     }
   }
+  
+  // ==========================================================================
+  // FIN DE MÉTODOS DE SUBIDA DE FOTOS - Código legacy eliminado
+  // ==========================================================================
+
   
   setupChartTabs() {
     // Configurar pestañas para cambiar entre vista semanal y mensual

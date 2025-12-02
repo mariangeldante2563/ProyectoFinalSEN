@@ -4,14 +4,29 @@
 
 ## Descripción del Proyecto
 
-InOutManager es un sistema de gestión de asistencia diseñado para facilitar el registro de entrada y salida de empleados, así como la administración de datos de asistencia por parte de administradores. El sistema permite un seguimiento eficiente del tiempo de trabajo, generación de reportes y gestión de usuarios.
+InOutManager es un sistema completo de gestión de asistencia y control de jornada laboral desarrollado con tecnologías modernas. El sistema permite el registro preciso de entradas y salidas de empleados, cálculo automático de tiempos laborados según la legislación colombiana vigente (2025), generación de reportes avanzados y administración completa de usuarios con roles diferenciados.
 
 ## Tecnologías Utilizadas
+
+### Backend
+- **Node.js**: Entorno de ejecución JavaScript del lado del servidor
+- **Express.js**: Framework web para Node.js con arquitectura RESTful
+- **MongoDB**: Base de datos NoSQL para almacenamiento de datos
+- **Mongoose**: ODM para modelado de datos MongoDB
+- **JWT**: Autenticación basada en tokens JSON Web Token
+- **bcrypt**: Encriptación de contraseñas
+- **ExcelJS**: Generación de reportes en formato Excel
+- **Multer**: Manejo de archivos y subida de imágenes
+- **CORS**: Configuración de políticas de origen cruzado
+- **Helmet**: Seguridad HTTP con headers apropiados
+- **Morgan**: Logging de solicitudes HTTP
 
 ### Frontend
 - **HTML5**: Estructura semántica para la interfaz de usuario
 - **CSS3**: Estilos con variables CSS personalizadas, flexbox y grid para layouts responsivos
 - **JavaScript (ES6+)**: Programación orientada a objetos con clases para la lógica de la aplicación
+- **Chart.js**: Librería para gráficos interactivos
+- **D3.js**: Librería avanzada para visualización de datos
 - **FontAwesome**: Biblioteca de iconos vectoriales
 - **LocalStorage API**: Almacenamiento de datos en el navegador
 
@@ -19,179 +34,224 @@ InOutManager es un sistema de gestión de asistencia diseñado para facilitar el
 - **Vite**: Servidor de desarrollo y herramienta de construcción
 - **npm**: Gestor de paquetes para dependencias
 - **Git**: Control de versiones
+- **PowerShell**: Scripts de automatización para Windows
 
 ## Características Implementadas
 
-### Autenticación y Autorización
-- Registro de usuarios (empleados y administradores)
-- Inicio de sesión con validación de credenciales
-- Permisos basados en roles (empleado/administrador)
-- Cierre de sesión seguro
+### 🔐 Autenticación y Autorización
+- **Registro de usuarios**: Empleados y administradores con validación completa
+- **Inicio de sesión seguro**: Autenticación JWT con roles diferenciados
+- **Código de administrador**: Verificación adicional para acceso administrativo
+- **Recuperación de contraseña**: Sistema de recuperación con códigos de verificación
+- **Gestión de sesiones**: Control de sesiones activas y logout seguro
+- **Middleware de protección**: Rutas protegidas por autenticación y roles
 
-### Dashboard de Empleado
-- Registro de entrada y salida
-- Visualización de histórico de asistencias
-- Perfil de usuario con datos personales
-- Reloj en tiempo real
+### 👥 Gestión de Usuarios
+- **CRUD completo**: Crear, leer, actualizar y eliminar usuarios
+- **Roles y permisos**: Sistema de roles empleado/administrador
+- **Validación de datos**: Validaciones exhaustivas en frontend y backend
+- **Subida de fotos de perfil**: Gestión de avatares de usuario
+- **Perfiles detallados**: Información completa de empleados (documento, cargo, horario, etc.)
 
-### Dashboard de Administrador
-- Listado completo de empleados
-- Registros de asistencia de todos los empleados
-- Filtros por fecha y empleado
-- Estadísticas básicas de asistencia
+### ⏰ Registro de Asistencia y Control de Jornada
+- **Registro de entrada/salida**: Marcación precisa con timestamp
+- **Sesiones de trabajo**: Creación automática de sesiones laborales
+- **Cálculo de tiempos**: Algoritmos avanzados para cálculo de tiempo laborado
+- **Legislación colombiana**: Implementación completa de la legislación laboral 2025
+- **Recargos automáticos**: Cálculo de recargos nocturnos, extras y dominicales
+- **Validación de integridad**: Verificación de consistencia de datos
 
-## Arquitectura del Proyecto
+### 📊 Estadísticas y Reportes
+- **Estadísticas diarias**: Resumen completo del día laboral
+- **Estadísticas semanales/mensuales**: Análisis de productividad por períodos
+- **Gráficos interactivos**: Visualización con Chart.js y D3.js
+- **Reportes Excel**: Generación automática de reportes personalizados
+- **Dashboard en tiempo real**: Actualización automática de métricas
+- **KPIs avanzados**: Indicadores clave de rendimiento
 
-```
-inoutmanager/
-├── frontend/
-│   ├── assets/
-│   │   ├── css/
-│   │   │   ├── styles.css          # Estilos principales
-│   │   │   ├── auth.css            # Estilos para autenticación
-│   │   │   └── footer-styles.css   # Estilos para el footer
-│   │   ├── js/
-│   │   │   ├── login.js            # Lógica de inicio de sesión
-│   │   │   ├── registro.js         # Lógica de registro
-│   │   │   ├── dashboard-admin.js  # Funcionalidad del dashboard admin
-│   │   │   └── dashboard-empleado.js # Funcionalidad del dashboard empleado
-│   ├── components/
-│   │   ├── admin/
-│   │   │   └── dashboard-admin.html # Panel de administrador
-│   │   ├── auth/
-│   │   │   ├── login.html          # Página de inicio de sesión
-│   │   │   └── registro.html       # Página de registro
-│   │   └── empleado/
-│   │       └── dashboard-empleado.html # Panel de empleado
-│   └── proyectopages/
-│       └── index.html              # Página principal
-├── img/                            # Imágenes del proyecto
-├── vite.config.js                  # Configuración de Vite
-├── package.json                    # Dependencias y scripts
-└── index.html                      # Punto de entrada
-```
+### 🏢 Panel de Administración Avanzado
+- **Dashboard administrativo**: Panel completo con métricas y gráficos
+- **Vista en tiempo real**: Monitoreo continuo de asistencia
+- **Gestión de empleados**: Administración completa del personal
+- **Auditoría de acciones**: Registro detallado de todas las operaciones
+- **Alertas y notificaciones**: Sistema de alertas configurables
+- **Backup y restauración**: Funcionalidades de respaldo de datos
+
+### 📈 Funcionalidades Avanzadas
+- **Cálculos legislativos**: Implementación de jornada ordinaria, horas extras, recargos
+- **Migración de datos**: Conversión de registros antiguos a nuevo formato
+- **Validación de datos**: Verificación automática de integridad
+- **API RESTful completa**: Endpoints documentados y seguros
+- **PWA Features**: Funcionalidades de aplicación web progresiva
+- **Responsive Design**: Interfaz adaptativa para todos los dispositivos
+
+### 🔧 Arquitectura y Seguridad
+- **Arquitectura modular**: Separación clara de responsabilidades
+- **Middleware de seguridad**: Protección contra vulnerabilidades comunes
+- **Validación de entrada**: Sanitización y validación de datos
+- **Manejo de errores**: Sistema robusto de gestión de errores
+- **Logging completo**: Registro detallado de operaciones y errores
+- **Configuración flexible**: Variables de entorno y configuración centralizada
+
+
 
 ## Requisitos para Ejecutar el Proyecto
 
-1. Node.js (v14.0.0 o superior)
-2. npm (v6.0.0 o superior)
+1. **Node.js** (v14.0.0 o superior)
+2. **MongoDB** (v4.0.0 o superior)
+3. **npm** (v6.0.0 o superior)
+4. **PowerShell** (para scripts de automatización en Windows)
 
 ## Instalación y Ejecución
 
-1. Clonar el repositorio:
-   ```bash
-   git clone https://github.com/mariangeldante2563/ProyectoFinalSEN.git
-   cd inoutmanager
-   ```
+### Opción 1: Inicio Automático (Recomendado)
+```bash
+# Clonar el repositorio
+git clone https://github.com/mariangeldante2563/ProyectoFinalSEN.git
+cd ProyectoFinalSEN
 
-2. Instalar dependencias:
-   ```bash
-   npm install
-   ```
+# Ejecutar script de inicio automático (Windows PowerShell)
+.\start-both.ps1
+```
 
-3. Ejecutar el servidor de desarrollo:
-   ```bash
-   npm run dev
-   ```
 
-4. Acceder a la aplicación:
-   Abrir http://localhost:5173 en el navegador
 
-## Análisis de Mejoras Necesarias
+## API Endpoints Principales
 
-### Aspectos Técnicos Pendientes
+### Autenticación
+- `POST /api/auth/register` - Registro de usuario
+- `POST /api/auth/login` - Inicio de sesión
+- `POST /api/auth/recover-password` - Recuperación de contraseña
+- `GET /api/auth/me` - Información del usuario actual
 
-1. **Backend Robusto**:
-   - Implementar un servidor backend (Node.js/Express, Python/Django o similar)
-   - Reemplazar LocalStorage por base de datos relacional (MySQL, PostgreSQL)
-   - Crear APIs RESTful para comunicación cliente-servidor
+### Usuarios
+- `GET /api/users` - Listar usuarios (admin)
+- `POST /api/users` - Crear usuario (admin)
+- `GET /api/users/:id` - Obtener usuario específico
+- `PUT /api/users/:id` - Actualizar usuario
+- `DELETE /api/users/:id` - Eliminar usuario
 
-2. **Autenticación Avanzada**:
-   - Implementar JWT para autenticación segura
-   - Añadir recuperación de contraseñas
-   - Implementar autenticación de dos factores
+### Asistencia
+- `POST /api/attendance` - Registrar entrada/salida
+- `GET /api/attendance/user/:userId` - Historial de asistencia
+- `GET /api/attendance/stats/weekly/:userId` - Estadísticas semanales
+- `GET /api/attendance/stats/monthly/:userId` - Estadísticas mensuales
 
-3. **Seguridad**:
-   - Validación y sanitización de datos en frontend y backend
-   - Protección contra ataques XSS y CSRF
-   - Cifrado de información sensible
+### Estadísticas
+- `GET /api/stats/dashboard` - Dashboard completo
+- `GET /api/stats/today` - Estadísticas del día
+- `GET /api/stats/charts` - Datos para gráficos
 
-4. **Optimización de Rendimiento**:
-   - Minificación y empaquetado de archivos para producción
-   - Implementación de lazy loading para componentes pesados
-   - Optimización de imágenes y recursos estáticos
+### Reportes
+- `GET /api/reports/user/:userId` - Generar reporte de usuario
+- `GET /api/reports/general` - Generar reporte general
+- `GET /api/reports/download/:fileName` - Descargar reporte
 
-5. **Mejoras UX/UI**:
-   - Implementar un framework/biblioteca frontend (React, Vue, Angular)
-   - Mejorar la accesibilidad (WCAG 2.1)
-   - Añadir animaciones y transiciones más fluidas
+### Auditoría
+- `GET /api/audit` - Obtener registros de auditoría
+- `POST /api/audit` - Crear registro de auditoría
 
-### Características Funcionales a Implementar
+## Legislación Laboral Implementada
 
-1. **Gestión Avanzada de Usuarios**:
-   - Panel para creación/edición/eliminación de empleados
-   - Gestión de permisos y roles más granulares
-   - Importación/exportación masiva de usuarios
+El sistema implementa completamente la legislación laboral colombiana vigente para 2025:
 
-2. **Sistema de Reportes**:
-   - Generación de reportes en PDF, Excel, CSV
-   - Reportes personalizables por período
-   - Gráficos y visualizaciones estadísticas
+- **Jornada ordinaria**: Máximo 8 horas diarias, 44 horas semanales
+- **Horas extras**: Recargo del 25% diurno, 75% nocturno
+- **Trabajo nocturno**: Recargo del 35% (22:00 - 06:00)
+- **Trabajo dominical/festivo**: Recargo del 75% diurno, 100% nocturno
+- **Días festivos**: Reconocimiento automático de festivos nacionales
 
-3. **Notificaciones**:
-   - Sistema de alertas para administradores
-   - Notificaciones por email para eventos importantes
-   - Recordatorios automatizados
+## Características de Seguridad
 
-4. **Geolocalización**:
-   - Verificación de ubicación al registrar entrada/salida
-   - Mapas de asistencia por ubicación geográfica
+- **Encriptación de contraseñas**: bcrypt con salt rounds
+- **Autenticación JWT**: Tokens seguros con expiración
+- **Validación de entrada**: Sanitización y validación completa
+- **Protección CORS**: Configuración de orígenes permitidos
+- **Headers de seguridad**: Helmet.js para protección HTTP
+- **Auditoría completa**: Registro de todas las acciones relevantes
 
-5. **Integración con otros Sistemas**:
-   - API para integración con sistemas de RRHH
-   - Sincronización con calendarios (Google Calendar, Outlook)
-   - Conexión con sistemas de nómina
+## Scripts Disponibles
 
-## Escalabilidad y Mantenimiento
+### Backend
+```bash
+npm start      # Iniciar servidor en producción
+npm run dev    # Iniciar servidor en desarrollo con nodemon
+npm test       # Ejecutar pruebas
+```
 
-Para asegurar que el proyecto sea escalable y mantenible a futuro, se recomienda:
+### Frontend
+```bash
+npm run dev    # Iniciar servidor de desarrollo Vite
+npm run build  # Construir para producción
+npm run preview # Vista previa de producción
+```
 
-1. **Arquitectura Modular**:
-   - Refactorizar el código con patrones de diseño (MVC, MVVM)
-   - Dividir componentes grandes en componentes más pequeños y reutilizables
-   - Implementar inyección de dependencias
+### Utilidades
+```powershell
+.\start-both.ps1              # Iniciar backend y frontend
+.\start-both.ps1 -OnlyBackend # Solo backend
+.\start-both.ps1 -OnlyFrontend# Solo frontend
+```
 
-2. **Infraestructura Cloud**:
-   - Migrar a una solución cloud (AWS, Azure, Google Cloud)
-   - Implementar balanceo de carga y auto-escalado
-   - Configurar CDN para recursos estáticos
+## Desarrollo y Contribución
 
-3. **DevOps y CI/CD**:
-   - Configurar integración continua (GitHub Actions, Jenkins)
-   - Implementar pruebas automatizadas (unit, integration, e2e)
-   - Despliegue automático a entornos de staging y producción
+### Estructura de Commits
+- `feat:` Nuevas funcionalidades
+- `fix:` Corrección de bugs
+- `docs:` Cambios en documentación
+- `style:` Cambios de estilo
+- `refactor:` Refactorización de código
+- `test:` Añadir o modificar tests
 
-4. **Monitoreo y Análisis**:
-   - Implementar logging centralizado
-   - Monitoreo de rendimiento y errores (New Relic, Sentry)
-   - Análisis de uso y comportamiento del usuario
+### Pruebas
+```bash
+# Backend
+cd backend
+npm test
 
-5. **Documentación**:
-   - Documentación técnica detallada (API docs, arquitectura)
-   - Guías de usuario para cada rol
-   - Documentación de procesos de desarrollo y despliegue
+# Ejecutar pruebas específicas
+npm run test -- --grep "nombre de la prueba"
+```
 
-## Conclusión
+## Despliegue
 
-InOutManager es un proyecto con un sólido fundamento en tecnologías web estándar que tiene el potencial de evolucionar hacia una solución empresarial robusta. La implementación actual demuestra las funcionalidades básicas con una interfaz de usuario intuitiva, pero requiere mejoras significativas en backend, seguridad y escalabilidad para convertirse en una herramienta de producción completa.
+### Producción
+1. Configurar variables de entorno de producción
+2. Construir frontend: `npm run build`
+3. Iniciar backend: `npm start`
+4. Configurar proxy reverso (nginx/apache) si es necesario
+
+### Docker (Futuro)
+```dockerfile
+# Configuración Docker pendiente de implementación
+```
+
+## Monitoreo y Logs
+
+- **Morgan**: Logging de solicitudes HTTP
+- **Winston**: Logging estructurado (pendiente)
+- **PM2**: Gestor de procesos para producción (pendiente)
+
+## Soporte y Contacto
+
+Para soporte técnico o consultas sobre el proyecto:
+
+- **Desarrollador**: Mariangel Dante
+- **Email**: mariangeldante2563@ejemplo.com
+- **GitHub**: [mariangeldante2563](https://github.com/mariangeldante2563)
+- **Repositorio**: [ProyectoFinalSEN](https://github.com/mariangeldante2563/ProyectoFinalSEN)
 
 ## Licencia
 
 Este proyecto está bajo la Licencia MIT - ver el archivo LICENSE.md para más detalles.
 
-## Contacto
+## Estado del Proyecto
 
-Para más información, contactar a:
-- Desarrollador: Mariangel Dante
-- Email: mariangeldante2563@ejemplo.com
-- GitHub: [mariangeldante2563](https://github.com/mariangeldante2563)
+✅ **Completado**: Sistema funcional con todas las características principales implementadas
+🔄 **En desarrollo**: Optimizaciones de rendimiento y nuevas funcionalidades
+📋 **Pendiente**: Tests automatizados completos, documentación API, despliegue cloud
+
+---
+
+**Última actualización**: 30 de noviembre de 2025
+**Versión**: 1.0.0

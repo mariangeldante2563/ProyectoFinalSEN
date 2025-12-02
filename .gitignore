@@ -129,3 +129,16 @@ backend/.venv
 TEMP_*.md
 DEV_*.md
 DEBUG_*.md
+
+# ==========================================
+# ARCHIVOS GENERADOS DINÁMICAMENTE
+# ==========================================
+# Reportes Excel generados (no rastrear archivos, solo estructura)
+backend/downloads/reports/*.xlsx
+backend/downloads/reports/*.xls
+!backend/downloads/reports/.gitkeep
+
+# Fotos de perfil de usuarios (no rastrear archivos, solo estructura)
+backend/uploads/profiles/*
+!backend/uploads/profiles/.gitkeep
+!backend/uploads/profiles/default.png
