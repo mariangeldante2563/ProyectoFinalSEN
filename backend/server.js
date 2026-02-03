@@ -67,6 +67,8 @@ app.use('/api/reports', reportRoutes);
 app.use('/api/audit', auditRoutes);
 app.use('/api/stats', statsRoutes);
 
+// foto de perfil
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Carpeta estática para archivos descargables (reportes Excel)
 app.use('/downloads', express.static(path.join(__dirname, 'downloads')));
 

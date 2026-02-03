@@ -295,13 +295,16 @@ class RegistroManager {
         tipoUsuario: formData.tipoUsuario,
         edad: formData.edad ? parseInt(formData.edad) : undefined,
         cargo: formData.cargo || undefined,
-        horarioAsignado: formData.horarioAsignado || undefined
+        horarioAsignado: formData.horarioAsignado || undefined,
+        telefono: formData.telefono || undefined,
+        direccion: formData.direccion || undefined,
+        fechaIngreso: formData.fechaIngreso || undefined,
+        departamento: formData.departamento || undefined
       };
 
       // Si es administrador, incluir código
       if (formData.tipoUsuario === 'administrador') {
         registroData.codigoAdmin = formData.codigoAdmin;
-        registroData.departamento = formData.departamento || undefined;
       }
 
       console.log('📦 Datos a enviar:', { ...registroData, password: '***' });

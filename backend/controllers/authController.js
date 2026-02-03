@@ -30,7 +30,11 @@ exports.register = async (req, res) => {
       codigoAdmin,
       edad,
       cargo,
-      horarioAsignado
+      horarioAsignado,
+      telefono,
+      direccion,
+      fechaIngreso,
+      departamento
     } = req.body;
 
     console.log('✅ Datos extraídos:', {
@@ -42,11 +46,15 @@ exports.register = async (req, res) => {
       edad,
       cargo,
       horarioAsignado,
+      telefono,
+      direccion,
+      fechaIngreso,
+      departamento,
       codigoAdmin
     });
 
     // Verificar si ya existe usuario con ese documento o correo
-    console.log('🔍 Verificando si existe usuario...');
+    console.log(' Verificando si existe usuario...');
     let user = await User.findOne({ 
       $or: [
         { numeroDocumento },
@@ -55,14 +63,14 @@ exports.register = async (req, res) => {
     });
 
     if (user) {
-      console.log('⚠️ Usuario ya existe:', user.correoElectronico);
+      console.log(' Usuario ya existe:', user.correoElectronico);
       return res.status(400).json({
         success: false,
         message: 'Ya existe un usuario con ese documento o correo electrónico'
       });
     }
 
-    console.log('✅ Usuario no existe, procediendo a crear...');
+    console.log(' Usuario no existe, procediendo a crear...');
 
     // Crear nuevo usuario
     const userData = {
@@ -73,27 +81,31 @@ exports.register = async (req, res) => {
       tipoUsuario: tipoUsuario || 'empleado',
       edad,
       cargo,
-      horarioAsignado
+      horarioAsignado,
+      telefono,
+      direccion,
+      fechaIngreso,
+      departamento
     };
 
-    console.log('📝 userData preparado:', { ...userData, password: '***' });
+    console.log('📋 userData preparado:', { ...userData, password: '***' });
 
     // Si es administrador, incluir código de administrador
     if (tipoUsuario === 'administrador' && codigoAdmin) {
       userData.codigoAdmin = codigoAdmin;
-      console.log('👑 Usuario administrador, código incluido');
+      console.log('👤 Usuario administrador, código incluido');
     }
 
-    console.log('💾 Creando documento User...');
+    console.log(' Creando documento User...');
     user = new User(userData);
 
     // Guardar usuario
-    console.log('💾 Guardando usuario en MongoDB...');
+    console.log(' Guardando usuario en MongoDB...');
     await user.save();
-    console.log('✅ Usuario guardado exitosamente:', user._id);
+    console.log(' Usuario guardado exitosamente:', user._id);
 
     // Generar token JWT
-    console.log('🔑 Generando token JWT...');
+    console.log(' Generando token JWT...');
     const token = user.getSignedJwtToken();
 
     // Preparar datos del usuario para la respuesta
@@ -112,8 +124,8 @@ exports.register = async (req, res) => {
       responseUserData.codigoAdmin = user.codigoAdmin;
     }
 
-    console.log('✅ Registro completado exitosamente');
-    console.log('🔵 === FIN REGISTRO ===');
+    console.log(' Registro completado exitosamente');
+    console.log(' === FIN REGISTRO ===');
 
     // Responder con el token y datos del usuario
     res.status(201).json({
@@ -123,7 +135,7 @@ exports.register = async (req, res) => {
       user: responseUserData
     });
   } catch (error) {
-    console.error('❌ ERROR EN REGISTRO:', error);
+    console.error(' ERROR EN REGISTRO:', error);
     console.error('Stack trace:', error.stack);
     res.status(500).json({
       success: false,
@@ -142,11 +154,11 @@ exports.login = async (req, res) => {
   try {
     const { correoElectronico, password, codigoAdmin } = req.body;
 
-    console.log('🔐 Intento de login:', { correoElectronico, tienePassword: !!password, tieneCodigoAdmin: !!codigoAdmin });
+    console.log(' Intento de login:', { correoElectronico, tienePassword: !!password, tieneCodigoAdmin: !!codigoAdmin });
 
     // Validar que se proporcionó correo y contraseña
     if (!correoElectronico || !password) {
-      console.log('❌ Login fallido: Datos incompletos');
+      console.log(' Login fallido: Datos incompletos');
       return res.status(400).json({
         success: false,
         message: 'Por favor, proporcione correo electrónico y contraseña'
@@ -155,11 +167,11 @@ exports.login = async (req, res) => {
 
     // Buscar usuario y traer la contraseña (que normalmente está excluida)
     const user = await User.findOne({ correoElectronico }).select('+password');
-    console.log('🔍 Usuario encontrado:', user ? `Sí (${user.tipoUsuario})` : 'No');
+    console.log(' Usuario encontrado:', user ? `Sí (${user.tipoUsuario})` : 'No');
 
     // Verificar si el usuario existe
     if (!user) {
-      console.log('❌ Usuario no encontrado en la base de datos');
+      console.log(' Usuario no encontrado en la base de datos');
       return res.status(401).json({
         success: false,
         message: 'Credenciales inválidas'
@@ -167,22 +179,22 @@ exports.login = async (req, res) => {
     }
 
     // Verificar si la contraseña coincide
-    console.log('🔑 Verificando contraseña...');
+    console.log(' Verificando contraseña...');
     const isMatch = await user.matchPassword(password);
-    console.log('🔑 Contraseña coincide:', isMatch);
+    console.log(' Contraseña coincide:', isMatch);
 
     // Si la contraseña no coincide, verificar si es una contraseña legacy (btoa)
     if (!isMatch) {
-      console.log('⚠️ Contraseña no coincide, verificando formato legacy...');
+      console.log(' Contraseña no coincide, verificando formato legacy...');
       const isLegacyMatch = user.isLegacyPassword(user.password, password);
       
       if (isLegacyMatch) {
-        console.log('✅ Contraseña legacy detectada, actualizando...');
+        console.log(' Contraseña legacy detectada, actualizando...');
         // Actualizar a nuevo formato de contraseña
         user.password = password;
         await user.save();
       } else {
-        console.log('❌ Credenciales incorrectas');
+        console.log(' Credenciales incorrectas');
         return res.status(401).json({
           success: false,
           message: 'Credenciales inválidas'
@@ -192,9 +204,9 @@ exports.login = async (req, res) => {
 
     // Si es administrador, verificar código de administrador
     if (user.tipoUsuario === 'administrador') {
-      console.log('🔐 Usuario es administrador, verificando código...');
+      console.log(' Usuario es administrador, verificando código...');
       if (!codigoAdmin) {
-        console.log('❌ Código de administrador no proporcionado');
+        console.log(' Código de administrador no proporcionado');
         return res.status(401).json({
           success: false,
           message: 'Código de administrador requerido'
@@ -203,17 +215,17 @@ exports.login = async (req, res) => {
 
       console.log('🔍 Comparando códigos:', { almacenado: user.codigoAdmin, recibido: codigoAdmin });
       if (user.codigoAdmin !== codigoAdmin) {
-        console.log('❌ Código de administrador incorrecto');
+        console.log(' Código de administrador incorrecto');
         return res.status(401).json({
           success: false,
           message: 'Código de administrador incorrecto'
         });
       }
-      console.log('✅ Código de administrador correcto');
+      console.log(' Código de administrador correcto');
     }
 
     // Generar token JWT
-    console.log('✅ Autenticación exitosa, generando token...');
+    console.log(' Autenticación exitosa, generando token...');
     const token = user.getSignedJwtToken();
 
     // Preparar datos del usuario para la respuesta
@@ -233,7 +245,7 @@ exports.login = async (req, res) => {
     }
 
     // Responder con token y datos del usuario
-    console.log('📤 Enviando respuesta de login exitoso');
+    console.log(' Enviando respuesta de login exitoso');
     res.status(200).json({
       success: true,
       message: 'Inicio de sesión exitoso',
@@ -241,7 +253,7 @@ exports.login = async (req, res) => {
       user: userData
     });
   } catch (error) {
-    console.error('❌ Error en login:', error);
+    console.error(' Error en login:', error);
     res.status(500).json({
       success: false,
       message: 'Error al iniciar sesión',

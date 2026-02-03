@@ -68,6 +68,26 @@ const userSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  // Campos adicionales capturados del formulario
+  telefono: {
+    type: String,
+    trim: true,
+    match: [/^[\+]?[0-9\s\-\(\)]{7,15}$/, 'Formato de teléfono inválido']
+  },
+  direccion: {
+    type: String,
+    trim: true,
+    maxlength: [100, 'La dirección no puede exceder 100 caracteres']
+  },
+  fechaIngreso: {
+    type: Date,
+    default: null
+  },
+  departamento: {
+    type: String,
+    trim: true,
+    maxlength: [50, 'El departamento no puede exceder 50 caracteres']
+  },
   fotoPerfil: {
     type: String,
     default: 'default-profile.png'

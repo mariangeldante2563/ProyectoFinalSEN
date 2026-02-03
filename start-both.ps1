@@ -59,25 +59,22 @@ function Test-MongoDB {
 
 function Start-Backend {
     Write-Host "🚀 Iniciando Backend..." -ForegroundColor Yellow
-    $backendPath = "C:\Users\User\Documents\SENA\inoutmanager\backend"
+    $backendPath = "$PSScriptRoot\backend"
     
     if (-not (Test-Path $backendPath)) {
         Write-Host "❌ No se encontró el directorio del backend: $backendPath" -ForegroundColor Red
         return $null
     }
     
-    if (-not (Test-Path "$backendPath\server-smart.js")) {
-        Write-Host "⚠️  server-smart.js no encontrado, usando server.js" -ForegroundColor Yellow
-        $serverFile = "server.js"
-    } else {
-        $serverFile = "server-smart.js"
+    if (-not (Test-Path "$backendPath\server.js")) {
+        Write-Host "❌ No se encontró server.js en: $backendPath" -ForegroundColor Red
+        return $null
     }
     
     try {
-        $backendProcess = Start-Process -FilePath "powershell" -ArgumentList "-Command", "Set-Location '$backendPath'; Write-Host '🚀 Backend iniciado con gestión automática de puertos' -ForegroundColor Green; node $serverFile" -PassThru
+        $backendProcess = Start-Process -FilePath "powershell" -ArgumentList "-Command", "Set-Location '$backendPath'; Write-Host '🚀 Backend iniciado' -ForegroundColor Green; node server.js" -PassThru
         Write-Host "✅ Backend iniciado (PID: $($backendProcess.Id))" -ForegroundColor Green
-        Write-Host "   Archivo: $serverFile" -ForegroundColor Cyan
-        Write-Host "   Puerto: Se detectará automáticamente" -ForegroundColor Cyan
+        Write-Host "   URL: http://localhost:5000" -ForegroundColor Cyan
         return $backendProcess
     }
     catch {
@@ -88,20 +85,15 @@ function Start-Backend {
 
 function Start-Frontend {
     Write-Host "🚀 Iniciando Frontend..." -ForegroundColor Yellow
-    $frontendPath = "C:\Users\User\Documents\SENA\inoutmanager"
+    $frontendPath = "$PSScriptRoot\frontend"
     
     if (-not (Test-Path $frontendPath)) {
         Write-Host "❌ No se encontró el directorio del frontend: $frontendPath" -ForegroundColor Red
         return $null
     }
     
-    if (-not (Test-Path "$frontendPath\package.json")) {
-        Write-Host "❌ No se encontró package.json en: $frontendPath" -ForegroundColor Red
-        return $null
-    }
-    
     try {
-        $frontendProcess = Start-Process -FilePath "powershell" -ArgumentList "-Command", "Set-Location '$frontendPath'; Write-Host '🚀 Frontend iniciado en puerto 3000' -ForegroundColor Green; npm run dev" -PassThru
+        $frontendProcess = Start-Process -FilePath "powershell" -ArgumentList "-Command", "Set-Location '$PSScriptRoot'; Write-Host '🚀 Frontend iniciado en puerto 3000' -ForegroundColor Green; npm run dev" -PassThru
         Write-Host "✅ Frontend iniciado (PID: $($frontendProcess.Id))" -ForegroundColor Green
         Write-Host "   URL: http://localhost:3000" -ForegroundColor Cyan
         return $frontendProcess
