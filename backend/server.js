@@ -123,7 +123,7 @@ mongoose.connect(process.env.MONGODB_URI, {
   process.exit(1);
 });
 
-module.exports = app; // export para pruebas (supertest)
+module.exports = app;
 
 process.on('SIGINT', () => {
   mongoose.connection.close(() => {

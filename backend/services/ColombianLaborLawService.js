@@ -1,5 +1,5 @@
-// Servicio de legislación laboral colombiana
-// Calcula horas según normativas locales
+// logica y de Servicio de legislación laboral colombiana
+
 
 class ColombianLaborLawService {
     static JORNADAS = {
@@ -19,14 +19,14 @@ class ColombianLaborLawService {
 
     static RECARGOS = {
         NOCTURNO_ORDINARIO: 35, 
-        EXTRA_DIURNO: 25, // % 
+        EXTRA_DIURNO: 25,  
         // Horas extras nocturnas (después de 8 horas + nocturno)
-        EXTRA_NOCTURNO: 75, // % (Art. 168 CST)
+        EXTRA_NOCTURNO: 75, //  (Art. 168 CST)
         // Trabajo dominical y festivo
-        DOMINICAL_DIURNO: 75, // % (Art. 179 CST)
-        DOMINICAL_NOCTURNO: 100, // % (Art. 179 + 168 CST)
+        DOMINICAL_DIURNO: 75, //  (Art. 179 CST)
+        DOMINICAL_NOCTURNO: 100, //  (Art. 179 + 168 CST)
         // Trabajo en día de descanso compensatorio
-        DESCANSO_COMPENSATORIO: 100 // %
+        DESCANSO_COMPENSATORIO: 100 
     };
 
 

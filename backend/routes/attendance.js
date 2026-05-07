@@ -30,6 +30,8 @@ const {
 router.use(protect);
 
 router.post('/', attendanceRules, validate, registerAttendance);
+router.post('/check-in', attendanceRules, validate, registerAttendance);  // ← Ruta solicitada
+router.get('/', getAllAttendance);  // ← Agregado para soportar GET /api/attendance
 router.get('/user/:userId', authorize('administrador'), getUserAttendance);
 router.get('/stats/weekly/:userId', authorize('administrador'), getWeeklyStats);
 router.get('/stats/monthly/:userId', authorize('administrador'), getMonthlyStats);
