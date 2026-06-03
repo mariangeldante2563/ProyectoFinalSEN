@@ -1,3 +1,12 @@
+<<<<<<< HEAD
+=======
+/**
+ * BACKUP MANAGER MODULE
+ * IN OUT MANAGER - Advanced Backup and Restore System
+ * Version: 2.0.0
+ * Author: IN OUT MANAGER Team
+ */
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 
 class BackupManagerModule {
     constructor() {
@@ -8,6 +17,11 @@ class BackupManagerModule {
         this.backupProgress = 0;
         this.currentBackupId = null;
     }
+<<<<<<< HEAD
+=======
+
+    // Initialize backup manager
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     initialize() {
         this.setupEventListeners();
         this.loadBackupHistory();
@@ -16,30 +30,61 @@ class BackupManagerModule {
         
         console.log('💾 Backup Manager initialized successfully');
     }
+<<<<<<< HEAD
     setupEventListeners() {
+=======
+
+    // Setup event listeners
+    setupEventListeners() {
+        // Quick backup button
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         const quickBackupBtn = document.getElementById('quickBackup');
         if (quickBackupBtn) {
             quickBackupBtn.addEventListener('click', () => this.performQuickBackup());
         }
+<<<<<<< HEAD
+=======
+
+        // Full backup button
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         const fullBackupBtn = document.getElementById('fullBackup');
         if (fullBackupBtn) {
             fullBackupBtn.addEventListener('click', () => this.performFullBackup());
         }
+<<<<<<< HEAD
+=======
+
+        // Custom backup button
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         const customBackupBtn = document.getElementById('customBackup');
         if (customBackupBtn) {
             customBackupBtn.addEventListener('click', () => this.showCustomBackupModal());
         }
 
+<<<<<<< HEAD
+=======
+        // Schedule backup button
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         const scheduleBackupBtn = document.getElementById('scheduleBackup');
         if (scheduleBackupBtn) {
             scheduleBackupBtn.addEventListener('click', () => this.showScheduleBackupModal());
         }
+<<<<<<< HEAD
+=======
+
+        // Restore buttons
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         document.addEventListener('click', (e) => {
             if (e.target.classList.contains('restore-backup-btn')) {
                 const backupId = e.target.dataset.backupId;
                 this.showRestoreModal(backupId);
             }
         });
+<<<<<<< HEAD
+=======
+
+        // Download backup buttons
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         document.addEventListener('click', (e) => {
             if (e.target.classList.contains('download-backup-btn')) {
                 const backupId = e.target.dataset.backupId;
@@ -47,6 +92,10 @@ class BackupManagerModule {
             }
         });
 
+<<<<<<< HEAD
+=======
+        // Delete backup buttons
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         document.addEventListener('click', (e) => {
             if (e.target.classList.contains('delete-backup-btn')) {
                 const backupId = e.target.dataset.backupId;
@@ -54,6 +103,10 @@ class BackupManagerModule {
             }
         });
 
+<<<<<<< HEAD
+=======
+        // Auto-backup toggle
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         const autoBackupToggle = document.getElementById('autoBackupEnabled');
         if (autoBackupToggle) {
             autoBackupToggle.addEventListener('change', (e) => {
@@ -61,6 +114,10 @@ class BackupManagerModule {
             });
         }
 
+<<<<<<< HEAD
+=======
+        // Cloud storage toggle
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         const cloudStorageToggle = document.getElementById('cloudStorageEnabled');
         if (cloudStorageToggle) {
             cloudStorageToggle.addEventListener('change', (e) => {
@@ -68,6 +125,11 @@ class BackupManagerModule {
             });
         }
     }
+<<<<<<< HEAD
+=======
+
+    // Load backup history
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     async loadBackupHistory() {
         try {
             const response = await fetch('/api/admin/backup/history', {
@@ -86,6 +148,11 @@ class BackupManagerModule {
             this.showNotification('Error al cargar el historial de respaldos', 'error');
         }
     }
+<<<<<<< HEAD
+=======
+
+    // Load scheduled backups
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     async loadScheduledBackups() {
         try {
             const response = await fetch('/api/admin/backup/scheduled', {
@@ -102,6 +169,11 @@ class BackupManagerModule {
             console.error('Error loading scheduled backups:', error);
         }
     }
+<<<<<<< HEAD
+=======
+
+    // Check backup status
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     async checkBackupStatus() {
         try {
             const response = await fetch('/api/admin/backup/status', {
@@ -118,6 +190,11 @@ class BackupManagerModule {
             console.error('Error checking backup status:', error);
         }
     }
+<<<<<<< HEAD
+=======
+
+    // Perform quick backup
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     async performQuickBackup() {
         if (this.isBackupInProgress) {
             this.showNotification('Ya hay un respaldo en progreso', 'warning');
@@ -152,6 +229,11 @@ class BackupManagerModule {
             this.stopBackupProgress();
         }
     }
+<<<<<<< HEAD
+=======
+
+    // Perform full backup
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     async performFullBackup() {
         if (this.isBackupInProgress) {
             this.showNotification('Ya hay un respaldo en progreso', 'warning');
@@ -186,6 +268,11 @@ class BackupManagerModule {
             this.stopBackupProgress();
         }
     }
+<<<<<<< HEAD
+=======
+
+    // Show custom backup modal
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     showCustomBackupModal() {
         const modalHTML = `
             <div id="customBackupModal" class="modal-overlay">
@@ -259,9 +346,18 @@ class BackupManagerModule {
 
         document.body.insertAdjacentHTML('beforeend', modalHTML);
         const modal = document.getElementById('customBackupModal');
+<<<<<<< HEAD
         modal.querySelector('.modal-close').addEventListener('click', () => {
             modal.remove();
         });
+=======
+
+        // Event listeners
+        modal.querySelector('.modal-close').addEventListener('click', () => {
+            modal.remove();
+        });
+
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         modal.querySelector('#cancelCustomBackup').addEventListener('click', () => {
             modal.remove();
         });
@@ -273,11 +369,20 @@ class BackupManagerModule {
 
         modal.classList.add('active');
     }
+<<<<<<< HEAD
+=======
+
+    // Perform custom backup
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     async performCustomBackup() {
         if (this.isBackupInProgress) {
             this.showNotification('Ya hay un respaldo en progreso', 'warning');
             return;
         }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         const backupConfig = {
             name: document.getElementById('backupName').value,
             description: document.getElementById('backupDescription').value,
@@ -292,8 +397,15 @@ class BackupManagerModule {
                 compressionLevel: document.getElementById('compressionLevel').value
             }
         };
+<<<<<<< HEAD
         try {
             this.startBackupProgress(backupConfig.name);
+=======
+
+        try {
+            this.startBackupProgress(backupConfig.name);
+            
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
             const response = await fetch('/api/admin/backup/custom', {
                 method: 'POST',
                 headers: {
@@ -302,6 +414,10 @@ class BackupManagerModule {
                 },
                 body: JSON.stringify(backupConfig)
             });
+<<<<<<< HEAD
+=======
+
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
             if (response.ok) {
                 const result = await response.json();
                 this.currentBackupId = result.backupId;
@@ -315,6 +431,11 @@ class BackupManagerModule {
             this.stopBackupProgress();
         }
     }
+<<<<<<< HEAD
+=======
+
+    // Show schedule backup modal
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     showScheduleBackupModal() {
         const modalHTML = `
             <div id="scheduleBackupModal" class="modal-overlay">
@@ -385,12 +506,25 @@ class BackupManagerModule {
 
         document.body.insertAdjacentHTML('beforeend', modalHTML);
         const modal = document.getElementById('scheduleBackupModal');
+<<<<<<< HEAD
         modal.querySelector('.modal-close').addEventListener('click', () => {
             modal.remove();
         });
         modal.querySelector('#cancelScheduledBackup').addEventListener('click', () => {
             modal.remove();
         });
+=======
+
+        // Event listeners
+        modal.querySelector('.modal-close').addEventListener('click', () => {
+            modal.remove();
+        });
+
+        modal.querySelector('#cancelScheduledBackup').addEventListener('click', () => {
+            modal.remove();
+        });
+
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         modal.querySelector('#saveScheduledBackup').addEventListener('click', () => {
             this.saveScheduledBackup();
             modal.remove();
@@ -399,6 +533,10 @@ class BackupManagerModule {
         modal.classList.add('active');
     }
 
+<<<<<<< HEAD
+=======
+    // Save scheduled backup
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     async saveScheduledBackup() {
         const scheduleConfig = {
             name: document.getElementById('scheduledBackupName').value,
@@ -412,6 +550,10 @@ class BackupManagerModule {
                 email: document.getElementById('scheduledBackupEmail').value
             }
         };
+<<<<<<< HEAD
+=======
+
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         try {
             const response = await fetch('/api/admin/backup/schedule', {
                 method: 'POST',
@@ -433,17 +575,35 @@ class BackupManagerModule {
             this.showNotification('Error al programar el respaldo', 'error');
         }
     }
+<<<<<<< HEAD
     startBackupProgress(backupName) {
         this.isBackupInProgress = true;
         this.backupProgress = 0;
         this.updateBackupProgressUI(backupName, 0);
         this.showNotification(`Iniciando ${backupName}...`, 'info');
+=======
+
+    // Start backup progress
+    startBackupProgress(backupName) {
+        this.isBackupInProgress = true;
+        this.backupProgress = 0;
+
+        // Update UI
+        this.updateBackupProgressUI(backupName, 0);
+        this.showNotification(`Iniciando ${backupName}...`, 'info');
+
+        // Disable backup buttons
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         const backupButtons = document.querySelectorAll('.backup-btn');
         backupButtons.forEach(btn => {
             btn.disabled = true;
         });
     }
 
+<<<<<<< HEAD
+=======
+    // Monitor backup progress
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     async monitorBackupProgress(backupId) {
         const progressInterval = setInterval(async () => {
             try {
@@ -474,6 +634,11 @@ class BackupManagerModule {
             }
         }, 2000);
     }
+<<<<<<< HEAD
+=======
+
+    // Update backup progress UI
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     updateBackupProgressUI(step, percentage) {
         const progressContainer = document.querySelector('.backup-progress');
         if (!progressContainer) return;
@@ -488,38 +653,81 @@ class BackupManagerModule {
             </div>
         `;
     }
+<<<<<<< HEAD
     completeBackupProgress(result) {
         this.stopBackupProgress();
         this.showNotification('Respaldo completado exitosamente', 'success');
         this.loadBackupHistory();
+=======
+
+    // Complete backup progress
+    completeBackupProgress(result) {
+        this.stopBackupProgress();
+        this.showNotification('Respaldo completado exitosamente', 'success');
+        
+        // Reload backup history
+        this.loadBackupHistory();
+        
+        // Update backup status
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         this.updateBackupStatus({
             lastBackup: new Date().toISOString(),
             lastBackupStatus: 'success',
             lastBackupSize: result.size
         });
     }
+<<<<<<< HEAD
     failBackupProgress(error) {
         this.stopBackupProgress();
         this.showNotification(`Error en el respaldo: ${error}`, 'error');
+=======
+
+    // Fail backup progress
+    failBackupProgress(error) {
+        this.stopBackupProgress();
+        this.showNotification(`Error en el respaldo: ${error}`, 'error');
+        
+        // Update backup status
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         this.updateBackupStatus({
             lastBackup: new Date().toISOString(),
             lastBackupStatus: 'error',
             lastBackupError: error
         });
     }
+<<<<<<< HEAD
+=======
+
+    // Stop backup progress
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     stopBackupProgress() {
         this.isBackupInProgress = false;
         this.backupProgress = 0;
         this.currentBackupId = null;
+<<<<<<< HEAD
+=======
+
+        // Clear progress UI
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         const progressContainer = document.querySelector('.backup-progress');
         if (progressContainer) {
             progressContainer.innerHTML = '';
         }
+<<<<<<< HEAD
+=======
+
+        // Re-enable backup buttons
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         const backupButtons = document.querySelectorAll('.backup-btn');
         backupButtons.forEach(btn => {
             btn.disabled = false;
         });
     }
+<<<<<<< HEAD
+=======
+
+    // Update backup status
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     updateBackupStatus(status) {
         const statusContainer = document.querySelector('.backup-status');
         if (!statusContainer) return;
@@ -542,6 +750,11 @@ class BackupManagerModule {
             </div>
         `;
     }
+<<<<<<< HEAD
+=======
+
+    // Render backup history
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     renderBackupHistory() {
         const container = document.querySelector('.backup-history');
         if (!container) return;
@@ -555,6 +768,10 @@ class BackupManagerModule {
             `;
             return;
         }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         container.innerHTML = this.backups.map(backup => `
             <div class="backup-item" data-backup-id="${backup.id}">
                 <div class="backup-info">
@@ -583,6 +800,11 @@ class BackupManagerModule {
             </div>
         `).join('');
     }
+<<<<<<< HEAD
+=======
+
+    // Render scheduled backups
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     renderScheduledBackups() {
         const container = document.querySelector('.scheduled-backups');
         if (!container) return;
@@ -618,6 +840,11 @@ class BackupManagerModule {
             </div>
         `).join('');
     }
+<<<<<<< HEAD
+=======
+
+    // Update backup stats
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     updateBackupStats() {
         const totalBackups = this.backups.length;
         const totalSize = this.backups.reduce((sum, backup) => sum + backup.size, 0);
@@ -642,6 +869,11 @@ class BackupManagerModule {
             `;
         }
     }
+<<<<<<< HEAD
+=======
+
+    // Show restore modal
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     showRestoreModal(backupId) {
         const backup = this.backups.find(b => b.id === backupId);
         if (!backup) return;
@@ -698,12 +930,25 @@ class BackupManagerModule {
 
         document.body.insertAdjacentHTML('beforeend', modalHTML);
         const modal = document.getElementById('restoreBackupModal');
+<<<<<<< HEAD
         modal.querySelector('.modal-close').addEventListener('click', () => {
             modal.remove();
         });
         modal.querySelector('#cancelRestore').addEventListener('click', () => {
             modal.remove();
         });
+=======
+
+        // Event listeners
+        modal.querySelector('.modal-close').addEventListener('click', () => {
+            modal.remove();
+        });
+
+        modal.querySelector('#cancelRestore').addEventListener('click', () => {
+            modal.remove();
+        });
+
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         modal.querySelector('#confirmRestoreBackup').addEventListener('click', () => {
             const confirmed = document.getElementById('confirmRestore').checked;
             if (confirmed) {
@@ -713,8 +958,16 @@ class BackupManagerModule {
                 this.showNotification('Debe confirmar la restauración', 'error');
             }
         });
+<<<<<<< HEAD
         modal.classList.add('active');
     }
+=======
+
+        modal.classList.add('active');
+    }
+
+    // Restore backup
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     async restoreBackup(backupId) {
         try {
             this.showNotification('Iniciando restauración...', 'info');
@@ -725,9 +978,18 @@ class BackupManagerModule {
                     'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
                 }
             });
+<<<<<<< HEAD
             if (response.ok) {
                 const result = await response.json();
                 this.showNotification('Restauración completada exitosamente', 'success');
+=======
+
+            if (response.ok) {
+                const result = await response.json();
+                this.showNotification('Restauración completada exitosamente', 'success');
+                
+                // Reload the page after a short delay
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
                 setTimeout(() => {
                     window.location.reload();
                 }, 3000);
@@ -739,6 +1001,11 @@ class BackupManagerModule {
             this.showNotification('Error al restaurar el respaldo', 'error');
         }
     }
+<<<<<<< HEAD
+=======
+
+    // Download backup
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     async downloadBackup(backupId) {
         try {
             const response = await fetch(`/api/admin/backup/download/${backupId}`, {
@@ -760,6 +1027,11 @@ class BackupManagerModule {
             this.showNotification('Error al descargar el respaldo', 'error');
         }
     }
+<<<<<<< HEAD
+=======
+
+    // Delete backup
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     async deleteBackup(backupId) {
         const backup = this.backups.find(b => b.id === backupId);
         if (!backup) return;
@@ -787,6 +1059,11 @@ class BackupManagerModule {
             this.showNotification('Error al eliminar el respaldo', 'error');
         }
     }
+<<<<<<< HEAD
+=======
+
+    // Toggle auto backup
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     async toggleAutoBackup(enabled) {
         try {
             const response = await fetch('/api/admin/backup/settings/auto', {
@@ -809,6 +1086,11 @@ class BackupManagerModule {
             this.showNotification('Error al cambiar configuración de respaldo automático', 'error');
         }
     }
+<<<<<<< HEAD
+=======
+
+    // Toggle cloud storage
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     async toggleCloudStorage(enabled) {
         try {
             const response = await fetch('/api/admin/backup/settings/cloud', {
@@ -831,6 +1113,11 @@ class BackupManagerModule {
             this.showNotification('Error al cambiar configuración de almacenamiento', 'error');
         }
     }
+<<<<<<< HEAD
+=======
+
+    // Utility functions
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     getBackupTypes() {
         return {
             quick: 'Respaldo Rápido',
@@ -839,9 +1126,17 @@ class BackupManagerModule {
             custom: 'Respaldo Personalizado'
         };
     }
+<<<<<<< HEAD
     getBackupTypeText(type) {
         return this.backupTypes[type] || type;
     }
+=======
+
+    getBackupTypeText(type) {
+        return this.backupTypes[type] || type;
+    }
+
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     getBackupStatusText(status) {
         const statusMap = {
             'pending': 'Pendiente',
@@ -852,6 +1147,10 @@ class BackupManagerModule {
         };
         return statusMap[status] || status;
     }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     getFrequencyText(frequency) {
         const frequencies = {
             daily: 'Diario',
@@ -860,6 +1159,10 @@ class BackupManagerModule {
         };
         return frequencies[frequency] || frequency;
     }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     formatDateTime(timestamp) {
         return new Date(timestamp).toLocaleString('es-ES', {
             year: 'numeric',
@@ -869,6 +1172,10 @@ class BackupManagerModule {
             minute: '2-digit'
         });
     }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     formatFileSize(bytes) {
         if (bytes === 0) return '0 Bytes';
         const k = 1024;
@@ -876,6 +1183,10 @@ class BackupManagerModule {
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     downloadBlob(blob, fileName) {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -886,17 +1197,31 @@ class BackupManagerModule {
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
     }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     showNotification(message, type) {
         if (window.notificationSystem) {
             window.notificationSystem.showToast(message, type);
         }
     }
+<<<<<<< HEAD
+=======
+
+    // Refresh backup data
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     async refresh() {
         await this.loadBackupHistory();
         await this.loadScheduledBackups();
         await this.checkBackupStatus();
     }
 }
+<<<<<<< HEAD
+=======
+
+// Export module
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = BackupManagerModule;
 } else {

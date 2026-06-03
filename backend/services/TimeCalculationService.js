@@ -2,8 +2,25 @@ const WorkSession = require('../models/WorkSession');
 const DailyStats = require('../models/DailyStats');
 const Attendance = require('../models/Attendance');
 
+<<<<<<< HEAD
 // Servicio de cálculo de tiempo
 // Maneja sesiones de trabajo
+=======
+/**
+ * TimeCalculationService - Servicio de Cálculo de Tiempo Laborado
+ * 
+ * Este servicio coordina el procesamiento de registros de asistencia,
+ * creando sesiones de trabajo y actualizando estadísticas diarias.
+ * 
+ * Funcionalidades:
+ * - Procesar registros de entrada/salida
+ * - Crear sesiones de trabajo automáticamente
+ * - Calcular tiempos según legislación colombiana
+ * - Actualizar estadísticas diarias
+ * - Generar reportes y métricas
+ */
+
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 class TimeCalculationService {
     
     /**
@@ -16,7 +33,11 @@ class TimeCalculationService {
      */
     static async procesarRegistroAsistencia(userId, type, timestamp = new Date(), location = null) {
         try {
+<<<<<<< HEAD
             console.log(` Procesando ${type} para usuario ${userId} a las ${timestamp}`);
+=======
+            console.log(`📋 Procesando ${type} para usuario ${userId} a las ${timestamp}`);
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 
             // 1. Crear el registro de asistencia tradicional
             const attendance = new Attendance({
@@ -42,6 +63,7 @@ class TimeCalculationService {
             };
 
             if (type === 'entrada') {
+<<<<<<< HEAD
                 
                 if (workSession) {
                     console.log(' Encontrada sesión abierta previa - cerrando automáticamente');
@@ -53,6 +75,28 @@ class TimeCalculationService {
                     await DailyStats.crearOActualizarEstadisticas(userId, fechaAnterior, workSession);
                     resultado.mensaje += 'Sesión anterior cerrada automáticamente. ';
                 }
+=======
+                // === PROCESO DE ENTRADA ===
+                
+                if (workSession) {
+                    // Ya tiene una sesión abierta - cerrar la anterior automáticamente
+                    console.log('⚠️ Encontrada sesión abierta previa - cerrando automáticamente');
+                    
+                    // Cerrar sesión anterior con timestamp actual menos 1 minuto
+                    const salidaAnterior = new Date(timestamp.getTime() - 60000);
+                    workSession.salida = salidaAnterior;
+                    await workSession.save();
+                    
+                    // Actualizar estadísticas de la sesión cerrada
+                    const fechaAnterior = new Date(workSession.entrada);
+                    fechaAnterior.setHours(0, 0, 0, 0);
+                    await DailyStats.crearOActualizarEstadisticas(userId, fechaAnterior, workSession);
+                    
+                    resultado.mensaje += 'Sesión anterior cerrada automáticamente. ';
+                }
+
+                // Crear nueva sesión de trabajo
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
                 workSession = new WorkSession({
                     userId,
                     entrada: timestamp,
@@ -65,15 +109,31 @@ class TimeCalculationService {
                 resultado.mensaje += 'Nueva sesión de trabajo iniciada.';
 
             } else if (type === 'salida') {
+<<<<<<< HEAD
 
                 if (!workSession) {
                     console.log('No hay sesión abierta - creando entrada estimada');
                     const entradaEstimada = new Date(timestamp.getTime() - (8 * 60 * 60 * 1000));
+=======
+                // === PROCESO DE SALIDA ===
+                
+                if (!workSession) {
+                    // No hay sesión abierta - crear una con entrada estimada
+                    console.log('⚠️ No hay sesión abierta - creando entrada estimada');
+                    
+                    // Estimar entrada 8 horas antes
+                    const entradaEstimada = new Date(timestamp.getTime() - (8 * 60 * 60 * 1000));
+                    
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
                     workSession = new WorkSession({
                         userId,
                         entrada: entradaEstimada,
                         salida: timestamp,
+<<<<<<< HEAD
                          ubicacionSalida: location,
+=======
+                        ubicacionSalida: location,
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
                         metadata: {
                             entradaEstimada: true,
                             observaciones: 'Entrada estimada por registro de salida sin entrada previa'
@@ -84,6 +144,10 @@ class TimeCalculationService {
                     resultado.mensaje = 'Salida registrada con entrada estimada (8 horas antes).';
 
                 } else {
+<<<<<<< HEAD
+=======
+                    // Cerrar sesión existente
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
                     workSession.salida = timestamp;
                     workSession.ubicacionSalida = location;
                     
@@ -93,6 +157,11 @@ class TimeCalculationService {
 
                 await workSession.save();
                 resultado.sesion = workSession;
+<<<<<<< HEAD
+=======
+
+                // Actualizar estadísticas diarias
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
                 const fechaSesion = new Date(workSession.entrada);
                 fechaSesion.setHours(0, 0, 0, 0);
                 
@@ -105,19 +174,32 @@ class TimeCalculationService {
                 resultado.estadisticas = estadisticas;
             }
 
+<<<<<<< HEAD
             console.log(`${type} procesada exitosamente: ${resultado.mensaje}`);
             return resultado;
 
         } catch (error) {
             console.error(` Error procesando ${type}:`, error);
+=======
+            console.log(`✅ ${type} procesada exitosamente: ${resultado.mensaje}`);
+            return resultado;
+
+        } catch (error) {
+            console.error(`❌ Error procesando ${type}:`, error);
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
             throw new Error(`Error al procesar ${type}: ${error.message}`);
         }
     }
 
     /**
      * Obtener sesión de trabajo activa para un usuario
+<<<<<<< HEAD
      * @param {ObjectId} userId
      * @returns {Object|null} 
+=======
+     * @param {ObjectId} userId - ID del usuario
+     * @returns {Object|null} Sesión activa o null
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
      */
     static async obtenerSesionActiva(userId) {
         try {
@@ -127,6 +209,10 @@ class TimeCalculationService {
             }).sort({ entrada: -1 });
 
             if (sesionActiva) {
+<<<<<<< HEAD
+=======
+                // Calcular duración actual
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
                 const ahora = new Date();
                 const duracionMinutos = Math.floor((ahora - sesionActiva.entrada) / (1000 * 60));
                 
@@ -149,8 +235,13 @@ class TimeCalculationService {
 
     /**
      * Obtener estadísticas del día actual para un usuario
+<<<<<<< HEAD
      * @param {ObjectId} userId 
      * @returns {Object} 
+=======
+     * @param {ObjectId} userId - ID del usuario
+     * @returns {Object} Estadísticas del día
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
      */
     static async obtenerEstadisticasHoy(userId) {
         try {
@@ -163,12 +254,21 @@ class TimeCalculationService {
             });
 
             if (!estadisticas) {
+<<<<<<< HEAD
+=======
+                // Crear estadísticas vacías para hoy
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
                 estadisticas = new DailyStats({
                     userId,
                     fecha: hoy
                 });
                 await estadisticas.save();
             }
+<<<<<<< HEAD
+=======
+
+            // Agregar sesión activa si existe
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
             const sesionActiva = await this.obtenerSesionActiva(userId);
             
             return {
@@ -190,8 +290,13 @@ class TimeCalculationService {
 
     /**
      * Obtener estadísticas semanales para un usuario
+<<<<<<< HEAD
      * @param {ObjectId} userId 
      * @returns {Object} 
+=======
+     * @param {ObjectId} userId - ID del usuario
+     * @returns {Object} Estadísticas de la semana
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
      */
     static async obtenerEstadisticasSemanales(userId) {
         try {
@@ -203,8 +308,13 @@ class TimeCalculationService {
 
     /**
      * Obtener estadísticas mensuales para un usuario
+<<<<<<< HEAD
      * @param {ObjectId} userId 
      * @returns {Object} 
+=======
+     * @param {ObjectId} userId - ID del usuario
+     * @returns {Object} Estadísticas del mes
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
      */
     static async obtenerEstadisticasMensuales(userId) {
         try {
@@ -216,9 +326,15 @@ class TimeCalculationService {
 
     /**
      * Obtener datos para gráficas del dashboard
+<<<<<<< HEAD
      * @param {ObjectId} userId 
      * @param {Number} ultimosDias 
      * @returns {Object} 
+=======
+     * @param {ObjectId} userId - ID del usuario
+     * @param {Number} ultimosDias - Número de días (default: 7)
+     * @returns {Object} Datos para gráficas
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
      */
     static async obtenerDatosGraficas(userId, ultimosDias = 7) {
         try {
@@ -230,6 +346,7 @@ class TimeCalculationService {
 
     /**
      * Procesar registros de asistencia existentes para un usuario
+<<<<<<< HEAD
      * @param {ObjectId} userId 
      * @param {Date} fechaInicio 
      * @param {Date} fechaFin 
@@ -238,6 +355,17 @@ class TimeCalculationService {
     static async migrarRegistrosExistentes(userId, fechaInicio, fechaFin) {
         try {
             console.log(`Migrando registros existentes para usuario ${userId}`);
+=======
+     * Esta función migra registros antiguos al nuevo sistema
+     * @param {ObjectId} userId - ID del usuario
+     * @param {Date} fechaInicio - Fecha de inicio del procesamiento
+     * @param {Date} fechaFin - Fecha fin del procesamiento
+     * @returns {Object} Resultado del procesamiento
+     */
+    static async migrarRegistrosExistentes(userId, fechaInicio, fechaFin) {
+        try {
+            console.log(`🔄 Migrando registros existentes para usuario ${userId}`);
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 
             // Obtener todos los registros de asistencia en el rango
             const registros = await Attendance.find({
@@ -248,22 +376,40 @@ class TimeCalculationService {
                 }
             }).sort({ timestamp: 1 });
 
+<<<<<<< HEAD
             console.log(`Encontrados ${registros.length} registros para migrar`);
+=======
+            console.log(`📊 Encontrados ${registros.length} registros para migrar`);
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 
             let sesionesCreadas = 0;
             let estadisticasActualizadas = 0;
             let errores = [];
 
+<<<<<<< HEAD
+=======
+            // Agrupar registros por día
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
             const registrosPorDia = this.agruparRegistrosPorDia(registros);
 
             for (const [fecha, registrosDelDia] of Object.entries(registrosPorDia)) {
                 try {
+<<<<<<< HEAD
                     console.log(`Procesando ${fecha} - ${registrosDelDia.length} registros`);
 
                     const sesiones = this.emparejarEntradaSalida(registrosDelDia);
 
                     for (const sesionData of sesiones) {
 
+=======
+                    console.log(`📅 Procesando ${fecha} - ${registrosDelDia.length} registros`);
+
+                    // Emparejar entradas y salidas
+                    const sesiones = this.emparejarEntradaSalida(registrosDelDia);
+
+                    for (const sesionData of sesiones) {
+                        // Crear WorkSession
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
                         const workSession = new WorkSession({
                             userId,
                             entrada: sesionData.entrada,
@@ -277,6 +423,10 @@ class TimeCalculationService {
                         await workSession.save();
                         sesionesCreadas++;
 
+<<<<<<< HEAD
+=======
+                        // Actualizar estadísticas diarias
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
                         const fechaSesion = new Date(sesionData.entrada);
                         fechaSesion.setHours(0, 0, 0, 0);
 
@@ -289,7 +439,11 @@ class TimeCalculationService {
                     }
 
                 } catch (error) {
+<<<<<<< HEAD
                     console.error(` Error procesando día ${fecha}:`, error);
+=======
+                    console.error(`❌ Error procesando día ${fecha}:`, error);
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
                     errores.push({
                         fecha,
                         error: error.message
@@ -305,7 +459,11 @@ class TimeCalculationService {
                 exitoso: errores.length === 0
             };
 
+<<<<<<< HEAD
             console.log(`Migración completada:`, resultado);
+=======
+            console.log(`✅ Migración completada:`, resultado);
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
             return resultado;
 
         } catch (error) {
@@ -315,8 +473,13 @@ class TimeCalculationService {
 
     /**
      * Agrupar registros de asistencia por día
+<<<<<<< HEAD
      * @param {Array} registros 
      * @returns {Object} 
+=======
+     * @param {Array} registros - Array de registros de asistencia
+     * @returns {Object} Registros agrupados por fecha
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
      */
     static agruparRegistrosPorDia(registros) {
         const registrosPorDia = {};
@@ -394,7 +557,11 @@ class TimeCalculationService {
      */
     static async validarIntegridadDatos(userId) {
         try {
+<<<<<<< HEAD
             console.log(`Validando integridad de datos para usuario ${userId}`);
+=======
+            console.log(`🔍 Validando integridad de datos para usuario ${userId}`);
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 
             const reporte = {
                 usuario: userId,
@@ -471,7 +638,11 @@ class TimeCalculationService {
                 estadoGeneral: reporte.errores.length === 0 ? 'CORRECTO' : 'CON_ERRORES'
             };
 
+<<<<<<< HEAD
             console.log(`Validación completada: ${reporte.resumen.estadoGeneral}`);
+=======
+            console.log(`✅ Validación completada: ${reporte.resumen.estadoGeneral}`);
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
             return reporte;
 
         } catch (error) {
@@ -500,7 +671,11 @@ class TimeCalculationService {
      */
     static async obtenerResumenDashboard(userId) {
         try {
+<<<<<<< HEAD
             console.log(`Generando resumen completo del dashboard para usuario ${userId}`);
+=======
+            console.log(`📊 Generando resumen completo del dashboard para usuario ${userId}`);
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 
             // Obtener todas las estadísticas en paralelo
             const [

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // logica y de Servicio de legislación laboral colombiana
 
 
@@ -31,6 +32,65 @@ class ColombianLaborLawService {
 
 
 
+=======
+/**
+ * ColombianLaborLawService - Servicio de Legislación Laboral Colombiana
+ * 
+ * Este servicio implementa los cálculos específicos de la legislación laboral
+ * colombiana vigente para 2025, incluyendo todos los recargos, horas extras
+ * y premios especiales.
+ * 
+ * Legislación base:
+ * - Código Sustantivo del Trabajo (CST)
+ * - Ley 2101 de 2021 (Jornada laboral)
+ * - Decreto 1072 de 2015 (Decreto Único Reglamentario)
+ * - Resoluciones del Ministerio del Trabajo 2025
+ */
+
+class ColombianLaborLawService {
+
+    /**
+     * Configuración de jornadas laborales según legislación colombiana
+     */
+    static JORNADAS = {
+        // Jornada máxima ordinaria
+        MAXIMA_DIARIA: 8, // horas
+        MAXIMA_SEMANAL: 44, // horas (Ley 2101 de 2021)
+        
+        // Horarios de jornadas
+        DIURNA: {
+            INICIO: 6, // 06:00
+            FIN: 22    // 22:00
+        },
+        
+        NOCTURNA: {
+            INICIO: 22, // 22:00
+            FIN: 6      // 06:00 del día siguiente
+        }
+    };
+
+    /**
+     * Recargos según legislación colombiana 2025
+     */
+    static RECARGOS = {
+        // Trabajo nocturno ordinario (22:00 - 06:00)
+        NOCTURNO_ORDINARIO: 35, // % (Art. 168 CST)
+        
+        // Horas extras diurnas (después de 8 horas diarias)
+        EXTRA_DIURNO: 25, // % (Art. 159 CST)
+        
+        // Horas extras nocturnas (después de 8 horas + nocturno)
+        EXTRA_NOCTURNO: 75, // % (Art. 168 CST)
+        
+        // Trabajo dominical y festivo
+        DOMINICAL_DIURNO: 75, // % (Art. 179 CST)
+        DOMINICAL_NOCTURNO: 100, // % (Art. 179 + 168 CST)
+        
+        // Trabajo en día de descanso compensatorio
+        DESCANSO_COMPENSATORIO: 100 // %
+    };
+
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     /**
      * Días festivos fijos de Colombia
      */
@@ -43,8 +103,11 @@ class ColombianLaborLawService {
         { mes: 12, dia: 25 }  // Navidad
     ];
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     /**
      * Días festivos que se trasladan al lunes siguiente
      */
@@ -58,7 +121,10 @@ class ColombianLaborLawService {
         { mes: 11, dia: 11 }  // Independencia de Cartagena
     ];
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     /**
      * Verificar si una fecha es domingo
      * @param {Date} fecha - Fecha a verificar
@@ -68,7 +134,10 @@ class ColombianLaborLawService {
         return fecha.getDay() === 0;
     }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     /**
      * Verificar si una fecha es día festivo en Colombia
      * @param {Date} fecha - Fecha a verificar
@@ -101,31 +170,60 @@ class ColombianLaborLawService {
 
         if (esFestivoLunes) return true;
 
+<<<<<<< HEAD
+=======
+        // TODO: Agregar cálculo de Semana Santa (fechas variables)
+        // Las fechas de Semana Santa cambian cada año y requieren cálculo especial
+
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         return false;
     }
 
     /**
+<<<<<<< HEAD
      * @param {Date} fecha 
      * @returns {Boolean} 
+=======
+     * Verificar si una fecha es domingo o festivo
+     * @param {Date} fecha - Fecha a verificar
+     * @returns {Boolean} True si es domingo o festivo
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
      */
     static esDomingoOFestivo(fecha) {
         return this.esDomingo(fecha) || this.esFestivo(fecha);
     }
 
     /**
+<<<<<<< HEAD
      * @param {Date} timestamp 
      * @returns {Boolean} 
      */
     static esHorarioNocturno(timestamp) {
         const hora = timestamp.getHours();
+=======
+     * Verificar si una hora está en horario nocturno
+     * @param {Date} timestamp - Timestamp a verificar
+     * @returns {Boolean} True si es horario nocturno
+     */
+    static esHorarioNocturno(timestamp) {
+        const hora = timestamp.getHours();
+        // Nocturno: 22:00 a 06:00
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         return hora >= this.JORNADAS.NOCTURNA.INICIO || hora < this.JORNADAS.NOCTURNA.FIN;
     }
 
     /**
+<<<<<<< HEAD
 
      * @param {Date} entrada 
      * @param {Date} salida 
      * @returns {Object} 
+=======
+     * Calcular distribución de tiempo entre diurno y nocturno
+     * @param {Date} entrada - Hora de entrada
+     * @param {Date} salida - Hora de salida
+     * @returns {Object} Distribución de tiempo
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
      */
     static calcularDistribucionHoraria(entrada, salida) {
         const resultado = {
@@ -169,10 +267,17 @@ class ColombianLaborLawService {
     }
 
     /**
+<<<<<<< HEAD
      *  (cambio de diurno/nocturno)
      * @param {Date} actual 
      * @param {Date} limite 
      * @returns {Date} 
+=======
+     * Obtener el siguiente hito horario (cambio de diurno/nocturno)
+     * @param {Date} actual - Hora actual
+     * @param {Date} limite - Hora límite
+     * @returns {Date} Siguiente hito
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
      */
     static obtenerSiguienteHitoHorario(actual, limite) {
         const fecha = new Date(actual);
@@ -184,13 +289,20 @@ class ColombianLaborLawService {
             proximoNocturno.setDate(proximoNocturno.getDate() + 1);
         }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         // Próximo cambio a diurno (06:00)
         const proximoDiurno = new Date(fecha);
         proximoDiurno.setHours(this.JORNADAS.DIURNA.INICIO, 0, 0, 0);
         if (proximoDiurno <= actual) {
             proximoDiurno.setDate(proximoDiurno.getDate() + 1);
         }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         // Retornar el hito más cercano que no exceda el límite
         const siguienteHito = proximoNocturno < proximoDiurno ? proximoNocturno : proximoDiurno;
         return siguienteHito > limite ? limite : siguienteHito;
@@ -198,10 +310,17 @@ class ColombianLaborLawService {
 
     /**
      * Calcular recargos para una sesión de trabajo
+<<<<<<< HEAD
      * @param {Date} entrada 
      * @param {Date} salida 
      * @param {Number} tiempoTotalMinutos 
      * @returns {Object} 
+=======
+     * @param {Date} entrada - Hora de entrada
+     * @param {Date} salida - Hora de salida
+     * @param {Number} tiempoTotalMinutos - Tiempo total trabajado
+     * @returns {Object} Cálculo de recargos
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
      */
     static calcularRecargos(entrada, salida, tiempoTotalMinutos) {
         const fechaEntrada = new Date(entrada);
@@ -210,13 +329,21 @@ class ColombianLaborLawService {
         const esDomingoOFestivo = this.esDomingoOFestivo(fechaEntrada);
         const distribucion = this.calcularDistribucionHoraria(entrada, salida);
 
+<<<<<<< HEAD
 
 
+=======
+        // Tiempo en minutos para cálculos
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         const tiempoTotalHoras = tiempoTotalMinutos / 60;
         const JORNADA_ORDINARIA = this.JORNADAS.MAXIMA_DIARIA; // 8 horas
 
         const resultado = {
+<<<<<<< HEAD
 
+=======
+            // Horas ordinarias (hasta 8 horas)
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
             horasOrdinarias: {
                 diurnas: { minutos: 0, formato: "00:00" },
                 nocturnas: { minutos: 0, formato: "00:00" },
@@ -240,7 +367,10 @@ class ColombianLaborLawService {
                 totalRecargos: { minutos: 0, formato: "00:00" }
             },
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
             // Información adicional
             metadata: {
                 esDomingoOFestivo,
@@ -251,7 +381,11 @@ class ColombianLaborLawService {
         };
 
         if (esDomingoOFestivo) {
+<<<<<<< HEAD
             //TRABAJO EN DOMINGO O FESTIVO
+=======
+            // === TRABAJO EN DOMINGO O FESTIVO ===
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
             
             // Todo el tiempo trabajado en domingo/festivo tiene recargo
             resultado.horasOrdinarias.diurnas.minutos = distribucion.tiempoDiurno;
@@ -267,7 +401,11 @@ class ColombianLaborLawService {
             );
 
         } else {
+<<<<<<< HEAD
             // TRABAJO EN DÍA ORDINARIO 
+=======
+            // === TRABAJO EN DÍA ORDINARIO ===
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 
             if (tiempoTotalHoras <= JORNADA_ORDINARIA) {
                 // Trabajo dentro de jornada ordinaria
@@ -333,7 +471,11 @@ class ColombianLaborLawService {
 
     /**
      * Formatear todos los campos de tiempo en un objeto
+<<<<<<< HEAD
      * @param {Object} objeto 
+=======
+     * @param {Object} objeto - Objeto con campos de tiempo
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
      */
     static formatearTodosLosTiempos(objeto) {
         const formatear = (minutos) => {
@@ -363,9 +505,15 @@ class ColombianLaborLawService {
 
     /**
      * Validar límites legales de trabajo
+<<<<<<< HEAD
      * @param {Number} horasSemanales 
      * @param {Number} horasDiarias 
      * @returns {Object} 
+=======
+     * @param {Number} horasSemanales - Horas trabajadas en la semana
+     * @param {Number} horasDiarias - Horas trabajadas en el día
+     * @returns {Object} Resultado de validación
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
      */
     static validarLimitesLegales(horasSemanales, horasDiarias) {
         const validacion = {
@@ -416,9 +564,15 @@ class ColombianLaborLawService {
 
     /**
      * Calcular valor monetario de recargos
+<<<<<<< HEAD
      * @param {Object} recargos 
      * @param {Number} salarioHora 
      * @returns {Object} 
+=======
+     * @param {Object} recargos - Objeto con minutos de recargos
+     * @param {Number} salarioHora - Salario por hora base
+     * @returns {Object} Valores monetarios de recargos
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
      */
     static calcularValorMonetarioRecargos(recargos, salarioHora) {
         const valores = {
@@ -449,12 +603,19 @@ class ColombianLaborLawService {
         return valores;
     }
 
+<<<<<<< HEAD
 
 
     /**
      * Generar reporte detallado de legislación aplicada
      * @param {Object} calculos 
      * @returns {Object} 
+=======
+    /**
+     * Generar reporte detallado de legislación aplicada
+     * @param {Object} calculos - Resultado de cálculos
+     * @returns {Object} Reporte legal
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
      */
     static generarReporteLegal(calculos) {
         const reporte = {
@@ -464,7 +625,11 @@ class ColombianLaborLawService {
             resumen: {}
         };
 
+<<<<<<< HEAD
 
+=======
+        // Determinar qué legislación se aplicó
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         if (calculos.metadata.esDomingoOFestivo) {
             reporte.legislacionAplicada.push('Trabajo dominical y festivo');
             reporte.articulos.push('Art. 179 CST - Trabajo en domingo y días de descanso obligatorio');
@@ -480,11 +645,19 @@ class ColombianLaborLawService {
             reporte.articulos.push('Art. 159 CST - Trabajo suplementario');
         }
 
+<<<<<<< HEAD
+=======
+        // Generar resumen
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         reporte.resumen = {
             tiempoTotal: calculos.metadata.tiempoTotalHoras,
             excedeLimiteOrdinario: calculos.metadata.excedeLimiteOrdinario,
             aplicaRecargos: calculos.recargos.totalRecargos.minutos > 0,
+<<<<<<< HEAD
             cumpleLegislacion: true 
+=======
+            cumpleLegislacion: true // Se puede expandir con validaciones adicionales
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         };
 
         return reporte;

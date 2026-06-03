@@ -1,4 +1,14 @@
+<<<<<<< HEAD
 // Servidor principal - Proyecto Final SENA
+=======
+/**
+ * IN OUT MANAGER - SERVER
+ * @version 1.0.0
+ * @description Archivo principal del servidor backend
+ */
+
+// Cargar variables de entorno desde .env
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 require('dotenv').config();
 
 // Importaciones
@@ -24,6 +34,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
+<<<<<<< HEAD
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -41,6 +52,15 @@ app.use((err, req, res, next) => {
 app.use(helmet()); 
 app.use(morgan(NODE_ENV === 'development' ? 'dev' : 'combined')); 
 
+=======
+// Middlewares
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(helmet()); // Seguridad HTTP
+app.use(morgan(NODE_ENV === 'development' ? 'dev' : 'combined')); // Logging
+
+// Configuración de CORS
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 const corsEnabled = process.env.CORS_ENABLED === 'true';
 if (corsEnabled) {
   const corsOptions = {
@@ -50,6 +70,7 @@ if (corsEnabled) {
     credentials: true
   };
   app.use(cors(corsOptions));
+<<<<<<< HEAD
   console.log(` CORS habilitado para: ${corsOptions.origin}`);
 }
 
@@ -62,6 +83,11 @@ app.get('/health', (req, res) => {
   });
 });
 
+=======
+  console.log(`✅ CORS habilitado para: ${corsOptions.origin}`);
+}
+
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 // Ruta de verificación
 app.get('/', (req, res) => {
   res.json({
@@ -72,6 +98,7 @@ app.get('/', (req, res) => {
   });
 });
 
+<<<<<<< HEAD
 // Ruta base de API para evitar 404 en /api
 app.get('/api', (req, res) => {
   res.json({
@@ -90,6 +117,8 @@ app.get('/api', (req, res) => {
   });
 });
 
+=======
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 // Rutas de la API
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
@@ -98,6 +127,7 @@ app.use('/api/reports', reportRoutes);
 app.use('/api/audit', auditRoutes);
 app.use('/api/stats', statsRoutes);
 
+<<<<<<< HEAD
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/downloads', express.static(path.join(__dirname, 'downloads')));
 
@@ -105,12 +135,31 @@ const { errorHandler, notFoundHandler } = require('./middlewares/errorHandler');
 app.use(notFoundHandler);
 app.use(errorHandler);
 mongoose.set('strictQuery', false); 
+=======
+// foto de perfil
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Carpeta estática para archivos descargables (reportes Excel)
+app.use('/downloads', express.static(path.join(__dirname, 'downloads')));
+
+// Importar middleware de manejo de errores
+const { errorHandler, notFoundHandler } = require('./middlewares/errorHandler');
+
+// Middleware para manejo de rutas no encontradas (debe ir después de todas las rutas)
+app.use(notFoundHandler);
+
+// Middleware para manejo global de errores (debe ser el último middleware)
+app.use(errorHandler);
+
+// Conexión a MongoDB
+mongoose.set('strictQuery', false); // Eliminar advertencia de deprecación
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 })
 .then(() => {
+<<<<<<< HEAD
   console.log(' Conexión establecida con MongoDB');
 
   app.listen(PORT, () => {
@@ -128,6 +177,25 @@ module.exports = app;
 process.on('SIGINT', () => {
   mongoose.connection.close(() => {
     console.log('Conexión con MongoDB cerrada por terminación del servidor');
+=======
+  console.log('✅ Conexión establecida con MongoDB');
+  
+  // Iniciar servidor
+  app.listen(PORT, () => {
+    console.log(`🚀 Servidor corriendo en el puerto ${PORT}`);
+    console.log(`📝 Ambiente: ${NODE_ENV}`);
+  });
+})
+.catch(err => {
+  console.error('❌ Error al conectar con MongoDB:', err.message);
+  process.exit(1);
+});
+
+// Manejar señales de terminación
+process.on('SIGINT', () => {
+  mongoose.connection.close(() => {
+    console.log('⚠️ Conexión con MongoDB cerrada por terminación del servidor');
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     process.exit(0);
   });
 });

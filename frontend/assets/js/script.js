@@ -1,9 +1,24 @@
+<<<<<<< HEAD
 // Funciones utilities del frontend - Proyecto Final
 // TODO: Unificar con otros archivos JS
+=======
+/**
+ * IN OUT MANAGER - Script Principal 
+ * Funcionalidades principales del sitio web 
+ * componentes del frontend
+ * 
+ * @author IN OUT MANAGER Team
+ * @version 3.0.0
+ */
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 
 (function() {
     'use strict';
 
+<<<<<<< HEAD
+=======
+    // Configuración global del sistema
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     const CONFIG = {
         carousel: {
             autoplayDelay: 5000,
@@ -15,12 +30,20 @@
         }
     };
 
+<<<<<<< HEAD
+=======
+    // Utilidades DOM simplificadas
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     const DOM = {
         select: (selector, context = document) => {
             try {
                 return context.querySelector(selector);
             } catch (error) {
+<<<<<<< HEAD
                 console.warn(`Selector inválido: ${selector}`);
+=======
+                console.warn(`⚠️ Selector inválido: ${selector}`);
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
                 return null;
             }
         },
@@ -29,7 +52,11 @@
             try {
                 return Array.from(context.querySelectorAll(selector));
             } catch (error) {
+<<<<<<< HEAD
                 console.warn(` Selector inválido: ${selector}`);
+=======
+                console.warn(`⚠️ Selector inválido: ${selector}`);
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
                 return [];
             }
         },
@@ -40,7 +67,11 @@
                 element.addEventListener(event, handler, options);
                 return true;
             } catch (error) {
+<<<<<<< HEAD
                 console.warn(` Error agregando evento ${event}:`, error);
+=======
+                console.warn(`⚠️ Error agregando evento ${event}:`, error);
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
                 return false;
             }
         },
@@ -66,6 +97,10 @@
         }
     };
 
+<<<<<<< HEAD
+=======
+    // Utilidades UI simplificadas
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     const UI = {
         scrollTo: (element, offset = CONFIG.scroll.offset) => {
             if (!element) return false;
@@ -77,23 +112,49 @@
             return true;
         }
     };
+<<<<<<< HEAD
+=======
+
+    /**
+     * Clase principal para manejar el sitio
+     */
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     class SiteManager {
         constructor() {
             this.components = new Map();
             this.isInitialized = false;
         }
+<<<<<<< HEAD
+=======
+
+        /**
+         * Inicializa todos los componentes del sitio
+         */
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         async init() {
             if (this.isInitialized) return;
 
             try {
                 await this.initializeComponents();
                 this.isInitialized = true;
+<<<<<<< HEAD
                 console.log(' SiteManager inicializado correctamente');
             } catch (err) {
                 console.error(' Error inicializando SiteManager:', err);
             }
         }
 
+=======
+                console.log('✅ SiteManager inicializado correctamente');
+            } catch (err) {
+                console.error('❌ Error inicializando SiteManager:', err);
+            }
+        }
+
+        /**
+         * Inicializa todos los componentes
+         */
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         async initializeComponents() {
             const components = [
                 { name: 'navigation', init: () => this.initNavigation() },
@@ -108,12 +169,25 @@
                 try {
                     await component.init();
                     this.components.set(component.name, true);
+<<<<<<< HEAD
                     console.log(` ${component.name} inicializado`);
                 } catch (err) {
                     console.warn(` Error en componente ${component.name}:`, err);
                 }
             }
         }
+=======
+                    console.log(`✅ ${component.name} inicializado`);
+                } catch (err) {
+                    console.warn(`⚠️ Error en componente ${component.name}:`, err);
+                }
+            }
+        }
+
+        /**
+         * Inicializa la navegación optimizada
+         */
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         initNavigation() {
             const navLinks = DOM.selectAll('.nav-btn');
             
@@ -122,6 +196,12 @@
             });
         }
 
+<<<<<<< HEAD
+=======
+        /**
+         * Maneja clics en navegación
+         */
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         handleNavigationClick(e) {
             const href = e.target.getAttribute('href');
             
@@ -131,6 +211,12 @@
             }
         }
 
+<<<<<<< HEAD
+=======
+        /**
+         * Scroll suave a sección
+         */
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         scrollToSection(targetId) {
             const targetElement = DOM.select(`#${targetId}`);
             if (targetElement) {
@@ -138,6 +224,12 @@
             }
         }
 
+<<<<<<< HEAD
+=======
+        /**
+         * Inicializa el carrusel de imágenes
+         */
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         initCarousel() {
             const carousel = DOM.select('.carousel-wrapper');
             if (!carousel) return;
@@ -146,28 +238,58 @@
             carouselManager.init();
         }
 
+<<<<<<< HEAD
+=======
+        /**
+         * Inicializa las animaciones
+         */
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         initAnimations() {
             const animationManager = new AnimationManager();
             animationManager.init();
         }
 
+<<<<<<< HEAD
+=======
+        /**
+         * Inicializa la validación de formularios
+         */
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         initFormValidation() {
             const formManager = new FormManager();
             formManager.init();
         }
 
+<<<<<<< HEAD
+=======
+        /**
+         * Inicializa el menú móvil
+         */
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         initMobileMenu() {
             const mobileManager = new MobileMenuManager();
             mobileManager.init();
         }
 
+<<<<<<< HEAD
+=======
+        /**
+         * Inicializa los efectos de contacto
+         */
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         initContactEffects() {
             const contactManager = new ContactEffectsManager();
             contactManager.init();
         }
     }
 
+<<<<<<< HEAD
 
+=======
+    /**
+     * Gestor del carrusel de imágenes
+     */
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     class CarouselManager {
         constructor(carousel) {
             this.carousel = carousel;
@@ -229,6 +351,10 @@
                 });
             }
 
+<<<<<<< HEAD
+=======
+            // Pausar autoplay al hacer hover
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
             DOM.addEvent(this.carousel, 'mouseenter', () => {
                 this.pauseAutoplay();
             });
@@ -344,6 +470,12 @@
             });
         }
     }
+<<<<<<< HEAD
+=======
+
+    // Gestor de animaciones
+     
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     class AnimationManager {
         constructor() {
             this.observer = null;
@@ -404,6 +536,10 @@
                 element.style.transform = 'translateY(0)';
             }, delay);
 
+<<<<<<< HEAD
+=======
+            // Animaciones específicas por sección
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
             if (element.classList.contains('technologies-section')) {
                 this.animateTechnologyItems();
             } else if (element.classList.contains('portfolio-section')) {
@@ -438,6 +574,11 @@
                 item.style.opacity = '0';
                 item.style.transform = 'translateY(40px)';
                 item.style.transition = 'opacity 0.7s ease-out, transform 0.7s ease-out';
+<<<<<<< HEAD
+=======
+
+                // OJO Efecto hover 3D
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
                 DOM.addEvent(item, 'mousemove', (e) => {
                     const { left, top, width, height } = item.getBoundingClientRect();
                     const x = (e.clientX - left) / width - 0.5;
@@ -461,6 +602,11 @@
             });
         }
     }
+<<<<<<< HEAD
+=======
+
+    // Gestor de formularios
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     class FormManager {
         constructor() {
         }
@@ -478,6 +624,11 @@
             const emailInput = form.querySelector('#email');
             const messageInput = form.querySelector('#message');
             const formStatus = form.querySelector('.form-status');
+<<<<<<< HEAD
+=======
+
+            // Configurar validación en tiempo real
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
             this.setupFieldValidation(nameInput, {
                 valueMissing: 'Por favor, introduce tu nombre.',
                 patternMismatch: 'El nombre solo debe contener letras.',
@@ -496,6 +647,10 @@
                 tooLong: 'El mensaje no puede exceder los 500 caracteres.'
             });
 
+<<<<<<< HEAD
+=======
+            // Manejar envío del formulario
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
             DOM.addEvent(form, 'submit', (e) => {
                 e.preventDefault();
                 this.handleFormSubmit(form, formStatus);
@@ -563,6 +718,10 @@
             const messageInput = form.querySelector('#message');
             const submitBtn = form.querySelector('.submit-btn');
 
+<<<<<<< HEAD
+=======
+            // Validar todos los campos
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
             const isValid = [nameInput, emailInput, messageInput].every(input => 
                 this.validateField(input, DOM.select(`#${input.id}Error`))
             );
@@ -573,9 +732,17 @@
                 return;
             }
 
+<<<<<<< HEAD
             submitBtn.classList.add('loading');
             submitBtn.disabled = true;
 
+=======
+            // Mostrar estado de carga
+            submitBtn.classList.add('loading');
+            submitBtn.disabled = true;
+
+            // Simular envío del formulario
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
             setTimeout(() => {
                 formStatus.textContent = '¡Gracias! Tu mensaje ha sido enviado correctamente.';
                 formStatus.className = 'form-status success';
@@ -584,7 +751,12 @@
                 submitBtn.disabled = false;
                 
                 form.reset();
+<<<<<<< HEAD
 
+=======
+                
+                // Limpiar validaciones
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
                 form.querySelectorAll('.error-message').forEach(el => {
                     el.textContent = '';
                     el.classList.remove('visible');
@@ -614,7 +786,13 @@
             });
         }
     }
+<<<<<<< HEAD
         class MobileMenuManager {
+=======
+
+    // Gestor de menú móvil
+    class MobileMenuManager {
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         init() {
             const toggle = DOM.select('#mobileMenuToggle');
             const nav = DOM.select('.main-nav');
@@ -631,6 +809,10 @@
                 toggle.setAttribute('aria-label', isOpen ? 'Abrir menú' : 'Cerrar menú');
             });
 
+<<<<<<< HEAD
+=======
+            // Cerrar menú al hacer clic en enlaces
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
             const navLinks = nav.querySelectorAll('a');
             navLinks.forEach(link => {
                 DOM.addEvent(link, 'click', () => {
@@ -643,9 +825,20 @@
                 });
             });
 
+<<<<<<< HEAD
             toggle.setAttribute('aria-expanded', 'false');
         }
     }
+=======
+            // Inicializar estado aria
+            toggle.setAttribute('aria-expanded', 'false');
+        }
+    }
+
+    /**
+     * Gestor de efectos de contacto
+     */
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     class ContactEffectsManager {
         init() {
             const contactCard = DOM.select('.contact-card');
@@ -666,6 +859,10 @@
                 
                 const centerX = rect.width / 2;
                 const centerY = rect.height / 2;
+<<<<<<< HEAD
+=======
+                
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
                 const maxRotation = 5;
                 const rotateY = maxRotation * (x - centerX) / centerX;
                 const rotateX = maxRotation * (centerY - y) / centerY;
@@ -679,6 +876,10 @@
         }
     }
 
+<<<<<<< HEAD
+=======
+    // Inicializar cuando el DOM esté listo
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     if (document.readyState === 'loading') {
         DOM.addEvent(document, 'DOMContentLoaded', () => {
             const siteManager = new SiteManager();

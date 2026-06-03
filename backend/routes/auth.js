@@ -1,10 +1,17 @@
 /**
+<<<<<<< HEAD
  * @version 1.0.0
  * @description 
+=======
+ * IN OUT MANAGER - RUTAS DE AUTENTICACIÓN
+ * @version 1.0.0
+ * @description Rutas para autenticación de usuarios
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
  */
 
 const express = require('express');
 const router = express.Router();
+<<<<<<< HEAD
 const multer = require('multer');
 // Permite procesar formularios form-data sin archivos 
 const parseFormData = multer().none();
@@ -44,6 +51,10 @@ const normalizeAuthFields = (req, _res, next) => {
   next();
 };
 
+=======
+
+// Importar controladores
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 const {
   register,
   login,
@@ -53,6 +64,10 @@ const {
   getMe
 } = require('../controllers/authController');
 
+<<<<<<< HEAD
+=======
+// Importar middlewares
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 const { protect } = require('../middlewares/auth');
 const { 
   registerRules, 
@@ -62,11 +77,23 @@ const {
   resetPasswordRules,
   validate 
 } = require('../middlewares/validation');
+<<<<<<< HEAD
 router.post('/register', bodyParsers, normalizeAuthFields, registerRules, validate, register);
 router.post('/login', bodyParsers, normalizeAuthFields, loginRules, validate, login);
 router.post('/recover-password', bodyParsers, normalizeAuthFields, recoverPasswordRules, validate, recoverPassword);
 router.post('/verify-code', bodyParsers, normalizeAuthFields, verifyCodeRules, validate, verifyCode);
 router.post('/reset-password', bodyParsers, normalizeAuthFields, resetPasswordRules, validate, resetPassword);
+=======
+
+// Rutas públicas
+router.post('/register', registerRules, validate, register);
+router.post('/login', loginRules, validate, login);
+router.post('/recover-password', recoverPasswordRules, validate, recoverPassword);
+router.post('/verify-code', verifyCodeRules, validate, verifyCode);
+router.post('/reset-password', resetPasswordRules, validate, resetPassword);
+
+// Rutas protegidas
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 router.get('/me', protect, getMe);
 
 module.exports = router;

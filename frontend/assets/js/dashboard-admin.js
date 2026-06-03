@@ -2,9 +2,16 @@
 
 class AdminDashboard extends BaseDashboard {
   constructor() {
+<<<<<<< HEAD
     super('administrador');
     
    //DOM
+=======
+    // Llamar al constructor de la clase base
+    super('administrador');
+    
+    // Referencias a elementos del DOM
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     this.adminName = document.getElementById('adminName');
     this.employeesList = document.getElementById('employeesList');
     this.attendanceRecords = document.getElementById('attendanceRecords');
@@ -20,6 +27,7 @@ class AdminDashboard extends BaseDashboard {
     this.settingsBtn = document.getElementById('settingsBtn');
   }
   
+<<<<<<< HEAD
   initSpecific() {
     this.setupEventListeners();
     this.loadEmployeesList();
@@ -31,27 +39,75 @@ class AdminDashboard extends BaseDashboard {
     if (this.adminName) {
       this.adminName.textContent = this.currentUser.nombreCompleto;
     }
+=======
+  // Método específico para inicializar el dashboard de administrador
+  initSpecific() {
+    // Configurar eventos de botones
+    this.setupEventListeners();
+    
+    // Cargar lista de empleados
+    this.loadEmployeesList();
+    
+    // Cargar registros de asistencia
+    this.loadAttendanceRecords();
+    
+    // Cargar estadísticas
+    this.loadDashboardStats();
+  }
+  
+  // Los métodos checkUserSession() y loadUserData() ya están implementados en BaseDashboard
+  
+  /**
+   * Sobreescribimos el método de la clase base para personalizar
+   * la interfaz específica del dashboard de administrador
+   */
+  updateUserInterface() {
+    // Actualizar nombre del administrador
+    if (this.adminName) {
+      this.adminName.textContent = this.currentUser.nombreCompleto;
+    }
+    
+    // Actualizar departamento
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     if (this.adminDepartment) {
       this.adminDepartment.textContent = this.currentUser.departamento || 'No especificado';
     }
   }
   
   setupEventListeners() {
+<<<<<<< HEAD
+=======
+    // Búsqueda de empleados
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     if (this.searchBtn) {
       this.searchBtn.addEventListener('click', () => this.searchEmployees());
     }
     
+<<<<<<< HEAD
+=======
+    // Filtro de fechas para registros
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     if (this.dateFilter) {
       this.dateFilter.addEventListener('change', () => this.loadAttendanceRecords());
     }
     
+<<<<<<< HEAD
     if (this.logoutBtn) {
       this.logoutBtn.addEventListener('click', () => this.logout());
     }
+=======
+    // Botón de logout
+    if (this.logoutBtn) {
+      this.logoutBtn.addEventListener('click', () => this.logout());
+    }
+    
+    // Botón de exportar
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     if (this.exportBtn) {
       this.exportBtn.addEventListener('click', () => this.exportData());
     }
     
+<<<<<<< HEAD
     if (this.newEmployeeBtn) {
       this.newEmployeeBtn.addEventListener('click', () => {
         if (typeof PathManager !== 'undefined') {
@@ -64,6 +120,17 @@ class AdminDashboard extends BaseDashboard {
     
     if (this.reportsBtn) {
       this.reportsBtn.addEventListener('click', () => {
+=======
+    // Botón de nuevo empleado
+    if (this.newEmployeeBtn) {
+      this.newEmployeeBtn.addEventListener('click', () => window.location.href = 'registro.html');
+    }
+    
+    // Botón de informes
+    if (this.reportsBtn) {
+      this.reportsBtn.addEventListener('click', () => {
+        // Usar NotificationManager si está disponible
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         if (typeof NotificationManager !== 'undefined') {
           NotificationManager.showToast('Funcionalidad de informes en desarrollo', 'info');
         } else {
@@ -71,8 +138,16 @@ class AdminDashboard extends BaseDashboard {
         }
       });
     }
+<<<<<<< HEAD
     if (this.settingsBtn) {
       this.settingsBtn.addEventListener('click', () => {
+=======
+    
+    // Botón de configuración
+    if (this.settingsBtn) {
+      this.settingsBtn.addEventListener('click', () => {
+        // Usar NotificationManager si está disponible
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         if (typeof NotificationManager !== 'undefined') {
           NotificationManager.showToast('Funcionalidad de configuración en desarrollo', 'info');
         } else {
@@ -82,6 +157,7 @@ class AdminDashboard extends BaseDashboard {
     }
   }
   
+<<<<<<< HEAD
   _authHeaders() {
     const token = localStorage.getItem('token');
     return {
@@ -106,10 +182,24 @@ class AdminDashboard extends BaseDashboard {
       }
 
       const employees = result.data;
+=======
+  loadEmployeesList() {
+    try {
+      if (!this.employeesList) return;
+      
+      // Obtener todos los usuarios registrados
+      const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+      
+      // Filtrar solo empleados (excluir administradores)
+      const employees = users.filter(user => user.tipoUsuario === 'empleado');
+      
+      // Mostrar empleados
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
       if (employees.length === 0) {
         this.employeesList.innerHTML = '<p>No hay empleados registrados.</p>';
         return;
       }
+<<<<<<< HEAD
 
       let employeesHTML = '<div class="employees-table"><table>';
       employeesHTML += '<thead><tr><th>Nombre</th><th>Documento</th><th>Cargo</th><th>Acciones</th></tr></thead><tbody>';
@@ -117,20 +207,47 @@ class AdminDashboard extends BaseDashboard {
       employees.forEach(employee => {
         employeesHTML += `
           <tr data-id="${employee._id}">
+=======
+      
+      // Generar HTML de empleados
+      let employeesHTML = '<div class="employees-table"><table>';
+      employeesHTML += '<thead><tr><th>Nombre</th><th>Documento</th><th>Cargo</th><th>Acciones</th></tr></thead><tbody>';
+      
+      employees.forEach(employee => {
+        employeesHTML += `
+          <tr data-id="${employee.id}">
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
             <td>${employee.nombreCompleto}</td>
             <td>${employee.numeroDocumento}</td>
             <td>${employee.cargo || 'No especificado'}</td>
             <td>
+<<<<<<< HEAD
               <button class="view-btn" data-id="${employee._id}">Ver</button>
               <button class="edit-btn" data-id="${employee._id}">Editar</button>
+=======
+              <button class="view-btn" data-id="${employee.id}">Ver</button>
+              <button class="edit-btn" data-id="${employee.id}">Editar</button>
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
             </td>
           </tr>
         `;
       });
+<<<<<<< HEAD
 
       employeesHTML += '</tbody></table></div>';
       this.employeesList.innerHTML = employeesHTML;
       this.setupEmployeeActions();
+=======
+      
+      employeesHTML += '</tbody></table></div>';
+      
+      // Actualizar el contenedor
+      this.employeesList.innerHTML = employeesHTML;
+      
+      // Configurar botones de acción
+      this.setupEmployeeActions();
+      
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     } catch (error) {
       console.error('Error al cargar lista de empleados:', error);
       this.employeesList.innerHTML = '<p>Error al cargar los empleados.</p>';
@@ -138,7 +255,11 @@ class AdminDashboard extends BaseDashboard {
   }
   
   setupEmployeeActions() {
+<<<<<<< HEAD
 
+=======
+    // Botones de ver empleado
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     const viewButtons = document.querySelectorAll('.view-btn');
     viewButtons.forEach(button => {
       button.addEventListener('click', () => {
@@ -146,10 +267,19 @@ class AdminDashboard extends BaseDashboard {
         this.viewEmployeeDetails(employeeId);
       });
     });
+<<<<<<< HEAD
+=======
+    
+    // Botones de editar empleado
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     const editButtons = document.querySelectorAll('.edit-btn');
     editButtons.forEach(button => {
       button.addEventListener('click', () => {
         const employeeId = button.getAttribute('data-id');
+<<<<<<< HEAD
+=======
+        // Usar NotificationManager si está disponible
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         if (typeof NotificationManager !== 'undefined') {
           NotificationManager.showToast(`Funcionalidad de edición en desarrollo para empleado ID: ${employeeId}`, 'info');
         } else {
@@ -159,6 +289,7 @@ class AdminDashboard extends BaseDashboard {
     });
   }
   
+<<<<<<< HEAD
   async viewEmployeeDetails(employeeId) {
     try {
       const [userRes, attRes, statsRes] = await Promise.all([
@@ -174,6 +305,18 @@ class AdminDashboard extends BaseDashboard {
       const employee = userResult.data;
 
       if (!employee) {
+=======
+  viewEmployeeDetails(employeeId) {
+    try {
+      // Obtener todos los usuarios registrados
+      const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+      
+      // Buscar el empleado por ID
+      const employee = users.find(user => user.id === employeeId);
+      
+      if (!employee) {
+        // Usar NotificationManager si está disponible
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         if (typeof NotificationManager !== 'undefined') {
           NotificationManager.showToast('Empleado no encontrado', 'error');
         } else {
@@ -181,6 +324,7 @@ class AdminDashboard extends BaseDashboard {
         }
         return;
       }
+<<<<<<< HEAD
 
       const employeeRecords = attResult.success ? attResult.data.map(r => ({
         userId: r.userId?._id || r.userId,
@@ -191,6 +335,14 @@ class AdminDashboard extends BaseDashboard {
       })) : [];
       const employeeStats = statsResult.success ? statsResult.data : null;
       
+=======
+      
+      // Obtener registros de asistencia del empleado
+      const attendanceRecords = JSON.parse(localStorage.getItem('attendanceRecords') || '[]');
+      const employeeRecords = attendanceRecords.filter(record => record.userId === employeeId);
+      
+      // Crear ventana modal
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
       const modal = document.createElement('div');
       modal.className = 'employee-modal';
       modal.innerHTML = `
@@ -207,11 +359,14 @@ class AdminDashboard extends BaseDashboard {
             <p><strong>Fecha de Ingreso:</strong> ${employee.fechaIngreso || 'No especificado'}</p>
             <p><strong>Teléfono:</strong> ${employee.telefono || 'No especificado'}</p>
           </div>
+<<<<<<< HEAD
 
           <h4>Estadísticas del Empleado</h4>
           <div class="employee-stats">
             ${this.generateEmployeeStatsHTML(employeeStats)}
           </div>
+=======
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
           
           <h4>Registros de Asistencia</h4>
           <div class="employee-attendance">
@@ -220,13 +375,24 @@ class AdminDashboard extends BaseDashboard {
         </div>
       `;
       
+<<<<<<< HEAD
       document.body.appendChild(modal);
       
+=======
+      // Añadir modal al documento
+      document.body.appendChild(modal);
+      
+      // Configurar cierre de modal
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
       const closeModal = modal.querySelector('.close-modal');
       closeModal.addEventListener('click', () => {
         document.body.removeChild(modal);
       });
       
+<<<<<<< HEAD
+=======
+      // Cerrar al hacer clic fuera del contenido
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
       modal.addEventListener('click', event => {
         if (event.target === modal) {
           document.body.removeChild(modal);
@@ -235,6 +401,10 @@ class AdminDashboard extends BaseDashboard {
       
     } catch (error) {
       console.error('Error al mostrar detalles del empleado:', error);
+<<<<<<< HEAD
+=======
+      // Usar NotificationManager si está disponible
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
       if (typeof NotificationManager !== 'undefined') {
         NotificationManager.showToast('Error al cargar los detalles del empleado', 'error');
       } else {
@@ -247,6 +417,11 @@ class AdminDashboard extends BaseDashboard {
     if (records.length === 0) {
       return '<p>No hay registros de asistencia para este empleado.</p>';
     }
+<<<<<<< HEAD
+=======
+    
+    // Ordenar por fecha (más recientes primero)
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     records.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
     
     let html = '<table>';
@@ -269,6 +444,7 @@ class AdminDashboard extends BaseDashboard {
     
     return html;
   }
+<<<<<<< HEAD
 
   generateEmployeeStatsHTML(stats) {
     if (!stats || !stats.hoy || !stats.semana || !stats.mes) {
@@ -304,10 +480,25 @@ class AdminDashboard extends BaseDashboard {
 
       const filteredRecords = result.data;
 
+=======
+  
+  loadAttendanceRecords() {
+    try {
+      if (!this.attendanceRecords) return;
+      
+      // Obtener todos los registros de asistencia
+      const attendanceRecords = JSON.parse(localStorage.getItem('attendanceRecords') || '[]');
+      
+      // Aplicar filtro de fecha
+      const filteredRecords = this.filterAttendanceByDate(attendanceRecords);
+      
+      // Mostrar registros
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
       if (filteredRecords.length === 0) {
         this.attendanceRecords.innerHTML = '<p>No hay registros de asistencia disponibles.</p>';
         return;
       }
+<<<<<<< HEAD
 
       let recordsHTML = '<div class="records-table"><table>';
       recordsHTML += '<thead><tr><th>Empleado</th><th>Fecha</th><th>Hora</th><th>Tipo</th></tr></thead><tbody>';
@@ -318,6 +509,25 @@ class AdminDashboard extends BaseDashboard {
         const typeClass = record.type === 'entrada' ? 'entry-record' : 'exit-record';
         const typeIcon = record.type === 'entrada' ? '⬆️' : '⬇️';
 
+=======
+      
+      // Obtener lista de usuarios para mostrar nombres
+      const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+      
+      // Ordenar por fecha (más recientes primero)
+      filteredRecords.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      
+      // Generar HTML de registros
+      let recordsHTML = '<div class="records-table"><table>';
+      recordsHTML += '<thead><tr><th>Empleado</th><th>Fecha</th><th>Hora</th><th>Tipo</th></tr></thead><tbody>';
+      
+      filteredRecords.forEach(record => {
+        const user = users.find(u => u.id === record.userId);
+        const userName = user ? user.nombreCompleto : 'Usuario desconocido';
+        const typeClass = record.type === 'entrada' ? 'entry-record' : 'exit-record';
+        const typeIcon = record.type === 'entrada' ? '⬆️' : '⬇️';
+        
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         recordsHTML += `
           <tr class="${typeClass}">
             <td>${userName}</td>
@@ -329,13 +539,21 @@ class AdminDashboard extends BaseDashboard {
       });
       
       recordsHTML += '</tbody></table></div>';
+<<<<<<< HEAD
       this.attendanceRecords.innerHTML = recordsHTML;
 
+=======
+      
+      // Actualizar el contenedor
+      this.attendanceRecords.innerHTML = recordsHTML;
+      
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     } catch (error) {
       console.error('Error al cargar registros de asistencia:', error);
       this.attendanceRecords.innerHTML = '<p>Error al cargar los registros.</p>';
     }
   }
+<<<<<<< HEAD
 
   // Construye los parámetros de fecha para la query según el filtro seleccionado
   _buildDateQueryParams() {
@@ -409,10 +627,102 @@ class AdminDashboard extends BaseDashboard {
 
       const searchTerm = this.employeeSearch.value.trim();
 
+=======
+  
+  filterAttendanceByDate(records) {
+    if (!this.dateFilter) return records;
+    
+    const filterValue = this.dateFilter.value;
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    
+    switch (filterValue) {
+      case 'today':
+        return records.filter(record => {
+          const recordDate = new Date(record.timestamp);
+          return recordDate.getDate() === now.getDate() &&
+                 recordDate.getMonth() === now.getMonth() &&
+                 recordDate.getFullYear() === now.getFullYear();
+        });
+        
+      case 'week':
+        const weekStart = new Date(today);
+        weekStart.setDate(today.getDate() - today.getDay());
+        
+        return records.filter(record => {
+          const recordDate = new Date(record.timestamp);
+          return recordDate >= weekStart;
+        });
+        
+      case 'month':
+        const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+        
+        return records.filter(record => {
+          const recordDate = new Date(record.timestamp);
+          return recordDate >= monthStart;
+        });
+        
+      case 'all':
+      default:
+        return records;
+    }
+  }
+  
+  loadDashboardStats() {
+    try {
+      // Obtener todos los usuarios registrados
+      const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+      
+      // Filtrar solo empleados
+      const employees = users.filter(user => user.tipoUsuario === 'empleado');
+      
+      // Actualizar contador de empleados activos
+      if (this.activeEmployees) {
+        this.activeEmployees.textContent = employees.length;
+      }
+      
+      // Calcular porcentaje de asistencia hoy
+      if (this.todayAttendance) {
+        const attendanceRecords = JSON.parse(localStorage.getItem('attendanceRecords') || '[]');
+        const now = new Date();
+        const today = now.toLocaleDateString('es-ES');
+        
+        // Contar empleados que registraron entrada hoy
+        const employeesWithEntryToday = new Set();
+        
+        attendanceRecords.forEach(record => {
+          const recordDate = new Date(record.timestamp).toLocaleDateString('es-ES');
+          if (recordDate === today && record.type === 'entrada') {
+            employeesWithEntryToday.add(record.userId);
+          }
+        });
+        
+        // Calcular porcentaje
+        const attendancePercentage = employees.length > 0 
+          ? Math.round((employeesWithEntryToday.size / employees.length) * 100) 
+          : 0;
+        
+        this.todayAttendance.textContent = `${attendancePercentage}%`;
+      }
+      
+    } catch (error) {
+      console.error('Error al cargar estadísticas:', error);
+    }
+  }
+  
+  searchEmployees() {
+    try {
+      if (!this.employeeSearch || !this.employeesList) return;
+      
+      const searchTerm = this.employeeSearch.value.trim().toLowerCase();
+      
+      // Si no hay término de búsqueda, mostrar todos los empleados
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
       if (!searchTerm) {
         this.loadEmployeesList();
         return;
       }
+<<<<<<< HEAD
 
       this.employeesList.innerHTML = '<p>Buscando...</p>';
 
@@ -433,26 +743,72 @@ class AdminDashboard extends BaseDashboard {
       result.data.forEach(employee => {
         employeesHTML += `
           <tr data-id="${employee._id}">
+=======
+      
+      // Obtener todos los usuarios registrados
+      const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+      
+      // Filtrar empleados que coincidan con la búsqueda
+      const filteredEmployees = users.filter(user => 
+        user.tipoUsuario === 'empleado' && (
+          user.nombreCompleto.toLowerCase().includes(searchTerm) ||
+          user.numeroDocumento.includes(searchTerm) ||
+          (user.cargo && user.cargo.toLowerCase().includes(searchTerm))
+        )
+      );
+      
+      // Mostrar resultados
+      if (filteredEmployees.length === 0) {
+        this.employeesList.innerHTML = '<p>No se encontraron empleados que coincidan con la búsqueda.</p>';
+        return;
+      }
+      
+      // Generar HTML de empleados
+      let employeesHTML = '<div class="employees-table"><table>';
+      employeesHTML += '<thead><tr><th>Nombre</th><th>Documento</th><th>Cargo</th><th>Acciones</th></tr></thead><tbody>';
+      
+      filteredEmployees.forEach(employee => {
+        employeesHTML += `
+          <tr data-id="${employee.id}">
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
             <td>${employee.nombreCompleto}</td>
             <td>${employee.numeroDocumento}</td>
             <td>${employee.cargo || 'No especificado'}</td>
             <td>
+<<<<<<< HEAD
               <button class="view-btn" data-id="${employee._id}">Ver</button>
               <button class="edit-btn" data-id="${employee._id}">Editar</button>
+=======
+              <button class="view-btn" data-id="${employee.id}">Ver</button>
+              <button class="edit-btn" data-id="${employee.id}">Editar</button>
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
             </td>
           </tr>
         `;
       });
+<<<<<<< HEAD
 
       employeesHTML += '</tbody></table></div>';
       this.employeesList.innerHTML = employeesHTML;
       this.setupEmployeeActions();
+=======
+      
+      employeesHTML += '</tbody></table></div>';
+      
+      // Actualizar el contenedor
+      this.employeesList.innerHTML = employeesHTML;
+      
+      // Configurar botones de acción
+      this.setupEmployeeActions();
+      
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     } catch (error) {
       console.error('Error al buscar empleados:', error);
       this.employeesList.innerHTML = '<p>Error al buscar empleados.</p>';
     }
   }
   
+<<<<<<< HEAD
   async exportData() {
     try {
       const dateParams = this._buildDateQueryParams();
@@ -483,13 +839,50 @@ class AdminDashboard extends BaseDashboard {
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
+=======
+  exportData() {
+    try {
+      // Obtener registros de asistencia filtrados
+      const attendanceRecords = JSON.parse(localStorage.getItem('attendanceRecords') || '[]');
+      const filteredRecords = this.filterAttendanceByDate(attendanceRecords);
+      
+      // Obtener lista de usuarios para mostrar nombres
+      const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+      
+      // Crear datos CSV
+      let csv = 'Empleado,Documento,Fecha,Hora,Tipo\n';
+      
+      filteredRecords.forEach(record => {
+        const user = users.find(u => u.id === record.userId);
+        if (user) {
+          csv += `"${user.nombreCompleto}","${user.numeroDocumento}","${record.date}","${record.time}","${record.type}"\n`;
+        }
+      });
+      
+      // Crear blob y descargar
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      
+      // Nombre del archivo
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
       const dateStr = new Date().toLocaleDateString('es-ES').replace(/\//g, '-');
       link.setAttribute('href', url);
       link.setAttribute('download', `registros_asistencia_${dateStr}.csv`);
       link.style.display = 'none';
+<<<<<<< HEAD
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+=======
+      
+      // Descargar
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Usar NotificationManager si está disponible
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
       if (typeof NotificationManager !== 'undefined') {
         NotificationManager.showToast('Datos exportados correctamente', 'success');
       } else {
@@ -498,7 +891,12 @@ class AdminDashboard extends BaseDashboard {
       
     } catch (error) {
       console.error('Error al exportar datos:', error);
+<<<<<<< HEAD
        if (typeof NotificationManager !== 'undefined') {
+=======
+      // Usar NotificationManager si está disponible
+      if (typeof NotificationManager !== 'undefined') {
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         NotificationManager.showToast('Error al exportar datos', 'error');
       } else {
         alert('Error al exportar datos');
@@ -506,8 +904,15 @@ class AdminDashboard extends BaseDashboard {
     }
   }
   
+<<<<<<< HEAD
 }
 
+=======
+  // Los métodos logout() y redirectToLogin() ya están implementados en BaseDashboard
+}
+
+// Inicializar el dashboard cuando se cargue la página
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 document.addEventListener('DOMContentLoaded', () => {
   const dashboard = new AdminDashboard();
 });

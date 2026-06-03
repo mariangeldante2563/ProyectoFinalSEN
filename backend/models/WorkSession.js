@@ -1,8 +1,21 @@
+<<<<<<< HEAD
 // Modelo de sesión de trabajo
 
 const mongoose = require('mongoose');
 
 
+=======
+/**
+ * IN OUT MANAGER - MODELO DE SESIÓN DE TRABAJO
+ * @version 2.0.0
+ * @description Esquema para sesiones de trabajo con cálculo de tiempo laborado
+ * Implementa legislación laboral colombiana 2025
+ */
+
+const mongoose = require('mongoose');
+
+// Definir el esquema de sesión de trabajo
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 const workSessionSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -14,7 +27,11 @@ const workSessionSchema = new mongoose.Schema({
     required: [true, 'La fecha es requerida'],
     match: [/^\d{4}-\d{2}-\d{2}$/, 'Formato de fecha inválido (YYYY-MM-DD)']
   },
+<<<<<<< HEAD
 
+=======
+  // Entrada
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
   horaEntrada: {
     type: String,
     required: [true, 'La hora de entrada es requerida'],
@@ -24,7 +41,11 @@ const workSessionSchema = new mongoose.Schema({
     type: Date,
     required: [true, 'El timestamp de entrada es requerido']
   },
+<<<<<<< HEAD
 
+=======
+  // Salida (opcional - puede estar en curso)
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
   horaSalida: {
     type: String,
     match: [/^\d{2}:\d{2}:\d{2}$/, 'Formato de hora inválido (HH:MM:SS)'],
@@ -34,7 +55,11 @@ const workSessionSchema = new mongoose.Schema({
     type: Date,
     default: null
   },
+<<<<<<< HEAD
 
+=======
+  // Tiempo laborado
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
   tiempoLaboradoMinutos: {
     type: Number,
     default: null,
@@ -44,7 +69,11 @@ const workSessionSchema = new mongoose.Schema({
     type: String,
     default: null
   },
+<<<<<<< HEAD
 
+=======
+  // Estado de la sesión
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
   estado: {
     type: String,
     enum: {
@@ -53,7 +82,11 @@ const workSessionSchema = new mongoose.Schema({
     },
     default: 'activa'
   },
+<<<<<<< HEAD
 
+=======
+  // Cálculos según legislación colombiana
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
   tiempoJornadaOrdinariaDiurna: {
     type: Number,
     default: 0,
@@ -79,7 +112,11 @@ const workSessionSchema = new mongoose.Schema({
     default: 0,
     min: 0
   },
+<<<<<<< HEAD
 
+=======
+  // Recargos calculados
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
   recargos: {
     recargoNocturno: {
       type: Number,
@@ -107,13 +144,21 @@ const workSessionSchema = new mongoose.Schema({
       min: 0
     }
   },
+<<<<<<< HEAD
 
+=======
+  // Observaciones
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
   observaciones: {
     type: String,
     trim: true,
     maxlength: [500, 'Las observaciones no pueden exceder 500 caracteres']
   },
+<<<<<<< HEAD
 
+=======
+  // Metadatos
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
   esFinDeSemana: {
     type: Boolean,
     default: false
@@ -127,11 +172,22 @@ const workSessionSchema = new mongoose.Schema({
   versionKey: false
 });
 
+<<<<<<< HEAD
 workSessionSchema.index({ userId: 1, fecha: 1 });
 workSessionSchema.index({ userId: 1, timestampEntrada: 1 });
 workSessionSchema.index({ estado: 1 });
 workSessionSchema.pre('save', function(next) {
 
+=======
+// Índices para optimizar búsquedas
+workSessionSchema.index({ userId: 1, fecha: 1 });
+workSessionSchema.index({ userId: 1, timestampEntrada: 1 });
+workSessionSchema.index({ estado: 1 });
+
+// Middleware pre-save para calcular tiempos y recargos
+workSessionSchema.pre('save', function(next) {
+  // Solo calcular si hay salida (sesión completada)
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
   if (this.horaSalida && this.timestampSalida) {
     this.calcularTiemposYRecargos();
     this.estado = 'completada';
@@ -139,12 +195,17 @@ workSessionSchema.pre('save', function(next) {
   next();
 });
 
+<<<<<<< HEAD
 
+=======
+// Método para calcular tiempos laborados y recargos según legislación colombiana
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 workSessionSchema.methods.calcularTiemposYRecargos = function() {
   if (!this.timestampEntrada || !this.timestampSalida) {
     return;
   }
 
+<<<<<<< HEAD
   const tiempoTotalMs = this.timestampSalida - this.timestampEntrada;
   this.tiempoLaboradoMinutos = Math.floor(tiempoTotalMs / (1000 * 60));
   // tiempo en HH:MM
@@ -159,10 +220,36 @@ workSessionSchema.methods.calcularTiemposYRecargos = function() {
   // Calcular recargos
   this.calcularRecargos();
 };
+=======
+  // Calcular tiempo total en minutos
+  const tiempoTotalMs = this.timestampSalida - this.timestampEntrada;
+  this.tiempoLaboradoMinutos = Math.floor(tiempoTotalMs / (1000 * 60));
+  
+  // Formatear tiempo en HH:MM
+  const horas = Math.floor(this.tiempoLaboradoMinutos / 60);
+  const minutos = this.tiempoLaboradoMinutos % 60;
+  this.tiempoLaboradoHoras = `${horas}:${minutos.toString().padStart(2, '0')}`;
+
+  // Determinar si es fin de semana o festivo
+  const fecha = new Date(this.timestampEntrada);
+  this.esFinDeSemana = fecha.getDay() === 0; // Domingo
+  
+  // Calcular distribución de tiempo según horarios
+  this.calcularDistribucionTiempo();
+  
+  // Calcular recargos
+  this.calcularRecargos();
+};
+
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 // Método para calcular distribución de tiempo según jornadas
 workSessionSchema.methods.calcularDistribucionTiempo = function() {
   const entrada = new Date(this.timestampEntrada);
   const salida = new Date(this.timestampSalida);
+<<<<<<< HEAD
+=======
+  
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
   // Resetear contadores
   this.tiempoJornadaOrdinariaDiurna = 0;
   this.tiempoJornadaOrdinariaNoturna = 0;
@@ -170,7 +257,11 @@ workSessionSchema.methods.calcularDistribucionTiempo = function() {
   this.tiempoHorasExtrasNocturnas = 0;
   this.tiempoHorasExtrasDominicales = 0;
 
+<<<<<<< HEAD
   // Definir límites horarios
+=======
+  // Definir límites horarios (según legislación colombiana 2025)
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
   const JORNADA_DIURNA_INICIO = 6;  // 6:00 AM
   const JORNADA_DIURNA_FIN = 21;    // 9:00 PM
   const JORNADA_NOCTURNA_INICIO = 21; // 9:00 PM
@@ -217,6 +308,7 @@ workSessionSchema.methods.calcularDistribucionTiempo = function() {
   }
 };
 
+<<<<<<< HEAD
 // Método para calcular recargos 
 workSessionSchema.methods.calcularRecargos = function() {
   // Porcentajes horas extrax
@@ -224,6 +316,15 @@ workSessionSchema.methods.calcularRecargos = function() {
   const RECARGO_EXTRAS_DIURNAS = 0.25;    
   const RECARGO_EXTRAS_NOCTURNAS = 0.75;   
   const RECARGO_DOMINICALES_FESTIVOS = 1.0; 
+=======
+// Método para calcular recargos según legislación colombiana
+workSessionSchema.methods.calcularRecargos = function() {
+  // Porcentajes según legislación colombiana 2025
+  const RECARGO_NOCTURNO = 0.35;           // 35%
+  const RECARGO_EXTRAS_DIURNAS = 0.25;     // 25%
+  const RECARGO_EXTRAS_NOCTURNAS = 0.75;   // 75%
+  const RECARGO_DOMINICALES_FESTIVOS = 1.0; // 100%
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 
   // Calcular recargos en minutos adicionales
   this.recargos.recargoNocturno = Math.round(this.tiempoJornadaOrdinariaNoturna * RECARGO_NOCTURNO);

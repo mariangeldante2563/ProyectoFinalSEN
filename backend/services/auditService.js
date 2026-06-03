@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // Servicio de auditoría
 // Registra actividades
 
@@ -6,6 +7,29 @@ const Audit = require('../models/Audit');
   // Servicio para manejo de registros de auditoría
 class AuditService {
   // Registrar acción
+=======
+/**
+ * IN OUT MANAGER - SERVICIO DE AUDITORÍA
+ * @version 1.0.0
+ * @description Servicio para registrar actividades de auditoría
+ */
+
+const Audit = require('../models/Audit');
+
+/**
+ * Servicio para manejo de registros de auditoría
+ */
+class AuditService {
+  /**
+   * Registra una acción en la auditoría
+   * @param {Object} usuario - Usuario que realiza la acción
+   * @param {string} entidad - Tipo de entidad afectada (usuario, asistencia, etc.)
+   * @param {string|ObjectId} entidadId - ID de la entidad afectada
+   * @param {string} accion - Tipo de acción realizada
+   * @param {Object} detalles - Detalles adicionales
+   * @param {Object} req - Objeto de solicitud Express (opcional)
+   */
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
   static async registrarAccion(usuario, entidad, entidadId, accion, detalles = {}, req = null) {
     try {
       // Datos básicos del registro de auditoría

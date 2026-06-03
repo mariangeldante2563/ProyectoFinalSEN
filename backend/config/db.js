@@ -1,10 +1,17 @@
 /**
+<<<<<<< HEAD
  * @version 1.0.0
  * @description 
+=======
+ * IN OUT MANAGER - CONFIGURACIÓN DE BASE DE DATOS
+ * @version 1.0.0
+ * @description Archivo de configuración y conexión a MongoDB
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
  */
 
 const mongoose = require('mongoose');
 
+<<<<<<< HEAD
 const mongooseOptions = {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -13,6 +20,18 @@ const mongooseOptions = {
 
 /**
  * @returns {Promise} 
+=======
+// Opciones de configuración para Mongoose
+const mongooseOptions = {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  autoIndex: true // Importante para los índices únicos y búsquedas eficientes
+};
+
+/**
+ * Establece la conexión a MongoDB
+ * @returns {Promise} Promesa de conexión a MongoDB
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
  */
 const connectDB = async () => {
   try {
@@ -28,7 +47,13 @@ const connectDB = async () => {
   }
 };
 
+<<<<<<< HEAD
 
+=======
+/**
+ * Cierra la conexión a MongoDB
+ */
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 const closeConnection = async () => {
   try {
     await mongoose.connection.close();
@@ -39,10 +64,18 @@ const closeConnection = async () => {
 };
 
 /**
+<<<<<<< HEAD
  * @returns {Boolean} 
  */
 const isConnected = () => {
   return mongoose.connection.readyState === 1; 
+=======
+ * Verifica el estado de la conexión a MongoDB
+ * @returns {Boolean} Estado de la conexión
+ */
+const isConnected = () => {
+  return mongoose.connection.readyState === 1; // 1 = conectado
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 };
 
 module.exports = {

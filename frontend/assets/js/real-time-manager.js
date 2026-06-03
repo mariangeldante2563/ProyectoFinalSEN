@@ -1,3 +1,12 @@
+<<<<<<< HEAD
+=======
+/**
+ * REAL-TIME MANAGER MODULE
+ * IN OUT MANAGER - Real-time Employee Monitoring System
+ * Version: 2.0.0
+ * Author: IN OUT MANAGER Team
+ */
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 
 class RealTimeManagerModule {
     constructor() {
@@ -12,19 +21,34 @@ class RealTimeManagerModule {
         this.maxFeedItems = 50;
     }
 
+<<<<<<< HEAD
+=======
+    // Initialize real-time monitoring
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     async initialize() {
         try {
             await this.initializeWebSocket();
             this.startPeriodicUpdates();
             this.setupEventListeners();
             
+<<<<<<< HEAD
             console.log(' Real-time Manager initialized successfully');
         } catch (error) {
             console.error('Error initializing real-time manager:', error);
+=======
+            console.log('⚡ Real-time Manager initialized successfully');
+        } catch (error) {
+            console.error('Error initializing real-time manager:', error);
+            // Fallback to polling if WebSocket fails
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
             this.startFallbackPolling();
         }
     }
 
+<<<<<<< HEAD
+=======
+    // Initialize WebSocket connection
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     async initializeWebSocket() {
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
         const wsUrl = `${protocol}//${window.location.host}/ws/admin`;
@@ -33,10 +57,19 @@ class RealTimeManagerModule {
             this.websocket = new WebSocket(wsUrl);
             
             this.websocket.onopen = () => {
+<<<<<<< HEAD
                 console.log(' WebSocket connected');
                 this.isConnected = true;
                 this.reconnectAttempts = 0;
                 this.updateConnectionStatus(true);
+=======
+                console.log('🔗 WebSocket connected');
+                this.isConnected = true;
+                this.reconnectAttempts = 0;
+                this.updateConnectionStatus(true);
+                
+                // Send authentication
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
                 this.websocket.send(JSON.stringify({
                     type: 'auth',
                     token: localStorage.getItem('adminToken')
@@ -64,6 +97,11 @@ class RealTimeManagerModule {
             throw error;
         }
     }
+<<<<<<< HEAD
+=======
+
+    // Handle WebSocket messages
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     handleWebSocketMessage(event) {
         try {
             const data = JSON.parse(event.data);
@@ -91,6 +129,11 @@ class RealTimeManagerModule {
             console.error('Error parsing WebSocket message:', error);
         }
     }
+<<<<<<< HEAD
+=======
+
+    // Handle employee entry
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     handleEmployeeEntry(data) {
         const activity = {
             id: Date.now(),
@@ -106,8 +149,17 @@ class RealTimeManagerModule {
         this.addActivityToFeed(activity);
         this.updateEmployeeStatus(data.employee.id, 'working');
         this.updateRealTimeStats();
+<<<<<<< HEAD
         this.showNotification(`Ingreso: ${data.employee.nombre}`, 'info');
     }
+=======
+        
+        // Show notification
+        this.showNotification(`Ingreso: ${data.employee.nombre}`, 'info');
+    }
+
+    // Handle employee exit
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     handleEmployeeExit(data) {
         const activity = {
             id: Date.now(),
@@ -123,9 +175,18 @@ class RealTimeManagerModule {
         this.addActivityToFeed(activity);
         this.updateEmployeeStatus(data.employee.id, 'inactive');
         this.updateRealTimeStats();
+<<<<<<< HEAD
         this.showNotification(`Salida: ${data.employee.nombre}`, 'warning');
     }
 
+=======
+        
+        // Show notification
+        this.showNotification(`Salida: ${data.employee.nombre}`, 'warning');
+    }
+
+    // Handle status updates
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     handleStatusUpdate(data) {
         this.updateEmployeeStatus(data.employeeId, data.status);
         
@@ -142,6 +203,11 @@ class RealTimeManagerModule {
             this.addActivityToFeed(activity);
         }
     }
+<<<<<<< HEAD
+=======
+
+    // Handle alerts
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     handleAlert(data) {
         const activity = {
             id: Date.now(),
@@ -154,15 +220,32 @@ class RealTimeManagerModule {
 
         this.addActivityToFeed(activity);
         this.showNotification(data.message, data.severity);
+<<<<<<< HEAD
         this.updateAlertCounter();
     }
+=======
+        
+        // Update alert counter
+        this.updateAlertCounter();
+    }
+
+    // Handle stats updates
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     handleStatsUpdate(data) {
         this.updateRealTimeStatsDisplay(data.stats);
     }
 
+<<<<<<< HEAD
     addActivityToFeed(activity) {
         this.activityFeed.unshift(activity);
 
+=======
+    // Add activity to feed
+    addActivityToFeed(activity) {
+        this.activityFeed.unshift(activity);
+        
+        // Limit feed size
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         if (this.activityFeed.length > this.maxFeedItems) {
             this.activityFeed = this.activityFeed.slice(0, this.maxFeedItems);
         }
@@ -170,9 +253,17 @@ class RealTimeManagerModule {
         this.renderActivityFeed();
     }
 
+<<<<<<< HEAD
     renderActivityFeed() {
         const feedContainer = document.querySelector('.realtime-feed');
         if (!feedContainer) return;
+=======
+    // Render activity feed
+    renderActivityFeed() {
+        const feedContainer = document.querySelector('.realtime-feed');
+        if (!feedContainer) return;
+
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         feedContainer.innerHTML = this.activityFeed.map(activity => `
             <div class="feed-item animate-slide-up" data-activity-id="${activity.id}">
                 <div class="feed-icon ${activity.type}">
@@ -190,6 +281,11 @@ class RealTimeManagerModule {
                 ` : ''}
             </div>
         `).join('');
+<<<<<<< HEAD
+=======
+
+        // Add click handlers for employee activities
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         feedContainer.querySelectorAll('[data-activity-id]').forEach(item => {
             item.addEventListener('click', (e) => {
                 const activityId = item.dataset.activityId;
@@ -200,10 +296,19 @@ class RealTimeManagerModule {
             });
         });
     }
+<<<<<<< HEAD
     getActivityIcon(type) {
         const icons = {
             'entry': '<i class="fas fa-right-to-bracket"></i>',
             'exit': '<i class="fas fa-right-from-bracket"></i>',
+=======
+
+    // Get activity icon
+    getActivityIcon(type) {
+        const icons = {
+            'entry': '<i class="fas fa-sign-in-alt"></i>',
+            'exit': '<i class="fas fa-sign-out-alt"></i>',
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
             'break': '<i class="fas fa-coffee"></i>',
             'alert': '<i class="fas fa-exclamation-triangle"></i>',
             'update': '<i class="fas fa-sync-alt"></i>'
@@ -211,6 +316,10 @@ class RealTimeManagerModule {
         return icons[type] || '<i class="fas fa-info-circle"></i>';
     }
 
+<<<<<<< HEAD
+=======
+    // Update real-time stats
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     async updateRealTimeStats() {
         try {
             const response = await fetch('/api/admin/realtime/stats', {
@@ -228,6 +337,10 @@ class RealTimeManagerModule {
         }
     }
 
+<<<<<<< HEAD
+=======
+    // Update real-time stats display
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     updateRealTimeStatsDisplay(stats) {
         const elements = {
             present: document.getElementById('presentEmployees'),
@@ -242,9 +355,17 @@ class RealTimeManagerModule {
             }
         });
 
+<<<<<<< HEAD
         this.updateProgressBars(stats);
     }
 
+=======
+        // Update progress bars if they exist
+        this.updateProgressBars(stats);
+    }
+
+    // Animate value changes
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     animateValue(element, targetValue) {
         const startValue = parseInt(element.textContent) || 0;
         const duration = 500;
@@ -253,8 +374,15 @@ class RealTimeManagerModule {
         const animate = (currentTime) => {
             const elapsed = currentTime - startTime;
             const progress = Math.min(elapsed / duration, 1);
+<<<<<<< HEAD
             const currentValue = Math.round(startValue + (targetValue - startValue) * progress);
             element.textContent = currentValue;
+=======
+            
+            const currentValue = Math.round(startValue + (targetValue - startValue) * progress);
+            element.textContent = currentValue;
+            
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
             if (progress < 1) {
                 requestAnimationFrame(animate);
             }
@@ -263,6 +391,10 @@ class RealTimeManagerModule {
         requestAnimationFrame(animate);
     }
 
+<<<<<<< HEAD
+=======
+    // Update progress bars
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     updateProgressBars(stats) {
         const progressBars = document.querySelectorAll('.progress-bar');
         progressBars.forEach(bar => {
@@ -273,6 +405,10 @@ class RealTimeManagerModule {
         });
     }
 
+<<<<<<< HEAD
+=======
+    // Update employee status in UI
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     updateEmployeeStatus(employeeId, status) {
         const employeeRows = document.querySelectorAll(`[data-employee-id="${employeeId}"]`);
         employeeRows.forEach(row => {
@@ -284,6 +420,10 @@ class RealTimeManagerModule {
         });
     }
 
+<<<<<<< HEAD
+=======
+    // Get status text
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     getStatusText(status) {
         const statusMap = {
             'working': 'Trabajando',
@@ -294,6 +434,10 @@ class RealTimeManagerModule {
         return statusMap[status] || status;
     }
 
+<<<<<<< HEAD
+=======
+    // Update connection status
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     updateConnectionStatus(connected) {
         const statusElement = document.querySelector('.connection-status');
         if (statusElement) {
@@ -307,6 +451,10 @@ class RealTimeManagerModule {
         }
     }
 
+<<<<<<< HEAD
+=======
+    // Update alert counter
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     updateAlertCounter() {
         const counter = document.querySelector('.alert-counter');
         if (counter) {
@@ -317,12 +465,20 @@ class RealTimeManagerModule {
         }
     }
 
+<<<<<<< HEAD
+=======
+    // Show notification
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     showNotification(message, type = 'info') {
         if (window.notificationSystem) {
             window.notificationSystem.showToast(message, type);
         }
     }
 
+<<<<<<< HEAD
+=======
+    // Start periodic updates (fallback)
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     startPeriodicUpdates() {
         this.updateInterval = setInterval(() => {
             if (!this.isConnected) {
@@ -331,8 +487,14 @@ class RealTimeManagerModule {
         }, 5000);
     }
 
+<<<<<<< HEAD
     startFallbackPolling() {
         console.log(' Starting fallback polling mode');
+=======
+    // Start fallback polling
+    startFallbackPolling() {
+        console.log('📡 Starting fallback polling mode');
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         
         setInterval(async () => {
             try {
@@ -344,6 +506,10 @@ class RealTimeManagerModule {
         }, 10000);
     }
 
+<<<<<<< HEAD
+=======
+    // Poll recent activity
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     async pollRecentActivity() {
         try {
             const response = await fetch('/api/admin/activity/recent', {
@@ -355,8 +521,13 @@ class RealTimeManagerModule {
             if (response.ok) {
                 const activities = await response.json();
                 activities.forEach(activity => {
+<<<<<<< HEAD
 
                   if (!this.activityFeed.find(a => a.id === activity.id)) {
+=======
+                    // Only add if not already in feed
+                    if (!this.activityFeed.find(a => a.id === activity.id)) {
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
                         this.addActivityToFeed(activity);
                     }
                 });
@@ -366,35 +537,63 @@ class RealTimeManagerModule {
         }
     }
 
+<<<<<<< HEAD
+=======
+    // Attempt WebSocket reconnection
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     attemptReconnect() {
         if (this.reconnectAttempts < this.maxReconnectAttempts) {
             this.reconnectAttempts++;
             const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1);
             
+<<<<<<< HEAD
             console.log(` Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts}) in ${delay}ms`);
+=======
+            console.log(`🔄 Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts}) in ${delay}ms`);
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
             
             setTimeout(() => {
                 this.initializeWebSocket();
             }, delay);
         } else {
+<<<<<<< HEAD
             console.log(' Max reconnection attempts reached, switching to polling mode');
+=======
+            console.log('❌ Max reconnection attempts reached, switching to polling mode');
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
             this.startFallbackPolling();
         }
     }
 
+<<<<<<< HEAD
     setupEventListeners() {
+=======
+    // Setup event listeners
+    setupEventListeners() {
+        // Manual refresh button
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         const refreshBtn = document.querySelector('[data-action="refresh-realtime"]');
         if (refreshBtn) {
             refreshBtn.addEventListener('click', () => {
                 this.updateRealTimeStats();
             });
         }
+<<<<<<< HEAD
+=======
+
+        // Filter controls
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         const feedFilter = document.getElementById('feedFilter');
         if (feedFilter) {
             feedFilter.addEventListener('change', (e) => {
                 this.filterActivityFeed(e.target.value);
             });
         }
+<<<<<<< HEAD
+=======
+
+        // Clear feed button
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         const clearFeedBtn = document.querySelector('[data-action="clear-feed"]');
         if (clearFeedBtn) {
             clearFeedBtn.addEventListener('click', () => {
@@ -403,6 +602,10 @@ class RealTimeManagerModule {
         }
     }
 
+<<<<<<< HEAD
+=======
+    // Filter activity feed
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     filterActivityFeed(filterType) {
         const feedItems = document.querySelectorAll('.feed-item');
         feedItems.forEach(item => {
@@ -415,17 +618,32 @@ class RealTimeManagerModule {
             }
         });
     }
+<<<<<<< HEAD
+=======
+
+    // Clear activity feed
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     clearActivityFeed() {
         if (confirm('¿Está seguro de que desea limpiar el feed de actividad?')) {
             this.activityFeed = [];
             this.renderActivityFeed();
         }
     }
+<<<<<<< HEAD
+=======
+
+    // Show employee details
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     showEmployeeDetails(employeeId) {
         if (window.employeeManager) {
             window.employeeManager.showEmployeeModal(employeeId);
         }
     }
+<<<<<<< HEAD
+=======
+
+    // Format time
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     formatTime(timestamp) {
         return new Date(timestamp).toLocaleTimeString('es-ES', {
             hour: '2-digit',
@@ -433,6 +651,10 @@ class RealTimeManagerModule {
         });
     }
 
+<<<<<<< HEAD
+=======
+    // Export activity feed
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     exportActivityFeed() {
         const data = this.activityFeed.map(activity => ({
             timestamp: activity.timestamp.toISOString(),
@@ -456,6 +678,10 @@ class RealTimeManagerModule {
         URL.revokeObjectURL(url);
     }
 
+<<<<<<< HEAD
+=======
+    // Get real-time statistics
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     getRealTimeStats() {
         return {
             connected: this.isConnected,
@@ -465,6 +691,10 @@ class RealTimeManagerModule {
         };
     }
 
+<<<<<<< HEAD
+=======
+    // Destroy real-time manager
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     destroy() {
         if (this.websocket) {
             this.websocket.close();
@@ -480,6 +710,10 @@ class RealTimeManagerModule {
     }
 }
 
+<<<<<<< HEAD
+=======
+// Export module
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = RealTimeManagerModule;
 } else {

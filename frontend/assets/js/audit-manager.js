@@ -1,3 +1,12 @@
+<<<<<<< HEAD
+=======
+/**
+ * AUDIT MANAGER MODULE
+ * IN OUT MANAGER - Advanced Audit Trail System
+ * Version: 2.0.0
+ * Author: IN OUT MANAGER Team
+ */
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 
 class AuditManagerModule {
     constructor() {
@@ -15,6 +24,11 @@ class AuditManagerModule {
         this.itemsPerPage = 20;
         this.totalPages = 1;
     }
+<<<<<<< HEAD
+=======
+
+    // Initialize audit manager
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     initialize() {
         this.setupEventListeners();
         this.loadAuditLogs();
@@ -23,6 +37,10 @@ class AuditManagerModule {
         console.log('🔍 Audit Manager initialized successfully');
     }
 
+<<<<<<< HEAD
+=======
+    // Setup event listeners
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     setupEventListeners() {
         // Filter controls
         const levelFilter = document.getElementById('auditLevelFilter');
@@ -40,6 +58,10 @@ class AuditManagerModule {
                 this.applyFilters();
             });
         }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         const userFilter = document.getElementById('auditUserFilter');
         if (userFilter) {
             userFilter.addEventListener('change', (e) => {
@@ -47,6 +69,10 @@ class AuditManagerModule {
                 this.applyFilters();
             });
         }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         const dateRangeFilter = document.getElementById('auditDateRange');
         if (dateRangeFilter) {
             dateRangeFilter.addEventListener('change', (e) => {
@@ -54,33 +80,62 @@ class AuditManagerModule {
                 this.applyFilters();
             });
         }
+<<<<<<< HEAD
+=======
+
+        // Search functionality
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         const searchInput = document.getElementById('auditSearch');
         if (searchInput) {
             searchInput.addEventListener('input', (e) => {
                 this.searchLogs(e.target.value);
             });
         }
+<<<<<<< HEAD
+=======
+
+        // Export buttons
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         const exportBtn = document.getElementById('exportAuditLogs');
         if (exportBtn) {
             exportBtn.addEventListener('click', () => this.exportAuditLogs());
         }
+<<<<<<< HEAD
+=======
+
+        // Clear logs button
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         const clearBtn = document.getElementById('clearAuditLogs');
         if (clearBtn) {
             clearBtn.addEventListener('click', () => this.showClearLogsModal());
         }
 
+<<<<<<< HEAD
+=======
+        // Pagination
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         document.addEventListener('click', (e) => {
             if (e.target.classList.contains('audit-page-btn')) {
                 const page = parseInt(e.target.dataset.page);
                 this.goToPage(page);
             }
         });
+<<<<<<< HEAD
+=======
+
+        // Log detail modal
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         document.addEventListener('click', (e) => {
             if (e.target.classList.contains('view-log-detail')) {
                 const logId = e.target.dataset.logId;
                 this.showLogDetail(logId);
             }
         });
+<<<<<<< HEAD
+=======
+
+        // Auto-refresh toggle
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         const autoRefreshToggle = document.getElementById('autoRefreshAudit');
         if (autoRefreshToggle) {
             autoRefreshToggle.addEventListener('change', (e) => {
@@ -88,6 +143,11 @@ class AuditManagerModule {
             });
         }
     }
+<<<<<<< HEAD
+=======
+
+    // Load audit logs
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     async loadAuditLogs(page = 1) {
         try {
             const params = new URLSearchParams({
@@ -122,6 +182,10 @@ class AuditManagerModule {
         }
     }
 
+<<<<<<< HEAD
+=======
+    // Apply filters
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     applyFilters() {
         this.filteredLogs = this.auditLogs.filter(log => {
             let matchesFilters = true;
@@ -168,6 +232,10 @@ class AuditManagerModule {
         this.renderAuditLogs();
     }
 
+<<<<<<< HEAD
+=======
+    // Search logs
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     searchLogs(searchTerm) {
         if (!searchTerm.trim()) {
             this.applyFilters();
@@ -186,6 +254,10 @@ class AuditManagerModule {
         this.renderAuditLogs();
     }
 
+<<<<<<< HEAD
+=======
+    // Render audit logs
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     renderAuditLogs() {
         const timeline = document.querySelector('.audit-timeline');
         if (!timeline) return;
@@ -254,11 +326,20 @@ class AuditManagerModule {
         `).join('');
     }
 
+<<<<<<< HEAD
+=======
+    // Render pagination
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     renderPagination() {
         const paginationContainer = document.querySelector('.audit-pagination');
         if (!paginationContainer || this.totalPages <= 1) return;
 
         let paginationHTML = '';
+<<<<<<< HEAD
+=======
+
+        // Previous button
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         if (this.currentPage > 1) {
             paginationHTML += `
                 <button class="audit-page-btn" data-page="${this.currentPage - 1}">
@@ -267,6 +348,10 @@ class AuditManagerModule {
             `;
         }
 
+<<<<<<< HEAD
+=======
+        // Page numbers
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         const startPage = Math.max(1, this.currentPage - 2);
         const endPage = Math.min(this.totalPages, this.currentPage + 2);
 
@@ -292,6 +377,10 @@ class AuditManagerModule {
             paginationHTML += `<button class="audit-page-btn" data-page="${this.totalPages}">${this.totalPages}</button>`;
         }
 
+<<<<<<< HEAD
+=======
+        // Next button
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         if (this.currentPage < this.totalPages) {
             paginationHTML += `
                 <button class="audit-page-btn" data-page="${this.currentPage + 1}">
@@ -303,6 +392,10 @@ class AuditManagerModule {
         paginationContainer.innerHTML = paginationHTML;
     }
 
+<<<<<<< HEAD
+=======
+    // Update audit stats
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     updateAuditStats(stats) {
         const statsContainer = document.querySelector('.audit-stats');
         if (!statsContainer || !stats) return;
@@ -310,7 +403,11 @@ class AuditManagerModule {
         statsContainer.innerHTML = `
             <div class="audit-stat">
                 <div class="stat-icon success">
+<<<<<<< HEAD
                     <i class="fas fa-circle-check"></i>
+=======
+                    <i class="fas fa-check-circle"></i>
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
                 </div>
                 <div class="stat-content">
                     <div class="stat-value">${stats.success || 0}</div>
@@ -328,7 +425,11 @@ class AuditManagerModule {
             </div>
             <div class="audit-stat">
                 <div class="stat-icon danger">
+<<<<<<< HEAD
                     <i class="fas fa-circle-xmark"></i>
+=======
+                    <i class="fas fa-times-circle"></i>
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
                 </div>
                 <div class="stat-content">
                     <div class="stat-value">${stats.error || 0}</div>
@@ -347,12 +448,20 @@ class AuditManagerModule {
         `;
     }
 
+<<<<<<< HEAD
+=======
+    // Go to page
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     goToPage(page) {
         if (page >= 1 && page <= this.totalPages && page !== this.currentPage) {
             this.loadAuditLogs(page);
         }
     }
 
+<<<<<<< HEAD
+=======
+    // Show log detail
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     showLogDetail(logId) {
         const log = this.auditLogs.find(l => l.id === logId);
         if (!log) return;
@@ -360,6 +469,11 @@ class AuditManagerModule {
         const modal = this.createLogDetailModal(log);
         modal.classList.add('active');
     }
+<<<<<<< HEAD
+=======
+
+    // Create log detail modal
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     createLogDetailModal(log) {
         const modalId = 'logDetailModal';
         let modal = document.getElementById(modalId);
@@ -482,12 +596,22 @@ class AuditManagerModule {
 
         document.body.insertAdjacentHTML('beforeend', modalHTML);
         modal = document.getElementById(modalId);
+<<<<<<< HEAD
+=======
+
+        // Add close event listener
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         modal.querySelector('.modal-close').addEventListener('click', () => {
             modal.classList.remove('active');
         });
 
         return modal;
     }
+<<<<<<< HEAD
+=======
+
+    // Export audit logs
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     async exportAuditLogs() {
         try {
             this.showNotification('Exportando logs de auditoría...', 'info');
@@ -517,6 +641,11 @@ class AuditManagerModule {
             this.showNotification('Error al exportar los logs', 'error');
         }
     }
+<<<<<<< HEAD
+=======
+
+    // Export log detail
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     async exportLogDetail(logId) {
         const log = this.auditLogs.find(l => l.id === logId);
         if (!log) return;
@@ -533,6 +662,11 @@ class AuditManagerModule {
 
         this.downloadBlob(blob, `log-detail-${logId}.json`);
     }
+<<<<<<< HEAD
+=======
+
+    // Download blob
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     downloadBlob(blob, fileName) {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -544,6 +678,10 @@ class AuditManagerModule {
         URL.revokeObjectURL(url);
     }
 
+<<<<<<< HEAD
+=======
+    // Show clear logs modal
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     showClearLogsModal() {
         const modalHTML = `
             <div id="clearLogsModal" class="modal-overlay">
@@ -586,6 +724,11 @@ class AuditManagerModule {
 
         document.body.insertAdjacentHTML('beforeend', modalHTML);
         const modal = document.getElementById('clearLogsModal');
+<<<<<<< HEAD
+=======
+
+        // Event listeners
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         modal.querySelector('.modal-close').addEventListener('click', () => {
             modal.remove();
         });
@@ -609,6 +752,10 @@ class AuditManagerModule {
         modal.classList.add('active');
     }
 
+<<<<<<< HEAD
+=======
+    // Clear audit logs
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     async clearAuditLogs(daysRange) {
         try {
             const response = await fetch('/api/admin/audit/clear', {
@@ -630,7 +777,13 @@ class AuditManagerModule {
         }
     }
 
+<<<<<<< HEAD
     setupRealTimeUpdates() {
+=======
+    // Setup real-time updates
+    setupRealTimeUpdates() {
+        // Listen for new audit logs via WebSocket
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         if (window.realTimeManager && window.realTimeManager.websocket) {
             const ws = window.realTimeManager.websocket;
             
@@ -643,18 +796,35 @@ class AuditManagerModule {
         }
     }
 
+<<<<<<< HEAD
     addNewLog(log) {
         this.auditLogs.unshift(log);
+=======
+    // Add new log in real-time
+    addNewLog(log) {
+        this.auditLogs.unshift(log);
+        
+        // Limit the number of logs in memory
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         if (this.auditLogs.length > 1000) {
             this.auditLogs = this.auditLogs.slice(0, 1000);
         }
 
         this.applyFilters();
         
+<<<<<<< HEAD
+=======
+        // Show notification for high-priority logs
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         if (log.level === 'error' || log.level === 'warning') {
             this.showNotification(`Nuevo log de auditoría: ${log.action}`, log.level);
         }
     }
+<<<<<<< HEAD
+=======
+
+    // Toggle auto-refresh
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     toggleAutoRefresh(enabled) {
         if (enabled) {
             this.autoRefreshInterval = setInterval(() => {
@@ -667,6 +837,10 @@ class AuditManagerModule {
         }
     }
 
+<<<<<<< HEAD
+=======
+    // Utility functions
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     getLogLevels() {
         return {
             info: 'Información',
@@ -694,8 +868,13 @@ class AuditManagerModule {
 
     getLogIcon(type) {
         const icons = {
+<<<<<<< HEAD
             login: '<i class="fas fa-right-to-bracket"></i>',
             logout: '<i class="fas fa-right-from-bracket"></i>',
+=======
+            login: '<i class="fas fa-sign-in-alt"></i>',
+            logout: '<i class="fas fa-sign-out-alt"></i>',
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
             create: '<i class="fas fa-plus"></i>',
             update: '<i class="fas fa-edit"></i>',
             delete: '<i class="fas fa-trash"></i>',
@@ -712,22 +891,42 @@ class AuditManagerModule {
     getLogLevelText(level) {
         return this.logLevels[level] || level;
     }
+<<<<<<< HEAD
     getLogTypeText(type) {
         return this.logTypes[type] || type;
     }
     shouldHighlightLog(log) {
+=======
+
+    getLogTypeText(type) {
+        return this.logTypes[type] || type;
+    }
+
+    shouldHighlightLog(log) {
+        // Highlight recent logs (within last hour) or high-priority logs
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         const isRecent = new Date() - new Date(log.timestamp) < 3600000; // 1 hour
         const isHighPriority = log.level === 'error' || log.level === 'warning';
         return isRecent || isHighPriority;
     }
+<<<<<<< HEAD
     parseUserAgent(userAgent) {
         
+=======
+
+    parseUserAgent(userAgent) {
+        // Simple user agent parsing - in production, use a proper library
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         if (userAgent.includes('Chrome')) return 'Chrome';
         if (userAgent.includes('Firefox')) return 'Firefox';
         if (userAgent.includes('Safari')) return 'Safari';
         if (userAgent.includes('Edge')) return 'Edge';
         return 'Desconocido';
     }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     formatDateTime(timestamp) {
         return new Date(timestamp).toLocaleString('es-ES', {
             year: 'numeric',
@@ -738,14 +937,28 @@ class AuditManagerModule {
             second: '2-digit'
         });
     }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     showNotification(message, type) {
         if (window.notificationSystem) {
             window.notificationSystem.showToast(message, type);
         }
     }
+<<<<<<< HEAD
     async refresh() {
         await this.loadAuditLogs(this.currentPage);
     }
+=======
+
+    // Refresh audit logs
+    async refresh() {
+        await this.loadAuditLogs(this.currentPage);
+    }
+
+    // Destroy audit manager
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     destroy() {
         if (this.autoRefreshInterval) {
             clearInterval(this.autoRefreshInterval);
@@ -754,6 +967,10 @@ class AuditManagerModule {
     }
 }
 
+<<<<<<< HEAD
+=======
+// Export module
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = AuditManagerModule;
 } else {

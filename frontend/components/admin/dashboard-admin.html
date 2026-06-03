@@ -45,7 +45,11 @@
     
     // Verificar autenticación al cargar la página
     document.addEventListener('DOMContentLoaded', async () => {
+<<<<<<< HEAD
       console.log(' Dashboard Admin: Iniciando verificación...');
+=======
+      console.log('🚀 Dashboard Admin: Iniciando verificación...');
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
       
       // Debuggear rutas inmediatamente
       PathManager.debugPaths();
@@ -53,18 +57,30 @@
       // Verificar que el usuario esté autenticado
       const userData = SessionManager.getUserData();
       if (!userData) {
+<<<<<<< HEAD
         console.warn(' Dashboard Admin: Usuario no autenticado');
+=======
+        console.warn('⚠️ Dashboard Admin: Usuario no autenticado');
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         PathManager.navigateToLogin('Debe iniciar sesión para acceder al dashboard.');
         return;
       }
       
       if (userData.tipo !== 'administrador') {
+<<<<<<< HEAD
         console.warn(' Dashboard Admin: Usuario sin permisos de administrador');
+=======
+        console.warn('⚠️ Dashboard Admin: Usuario sin permisos de administrador');
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         PathManager.navigateToLogin('Acceso denegado. Debe ser administrador.');
         return;
       }
       
+<<<<<<< HEAD
       console.log(' Dashboard Admin: Usuario autenticado como administrador:', userData.nombre);
+=======
+      console.log('✅ Dashboard Admin: Usuario autenticado como administrador:', userData.nombre);
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
       
       // Actualizar nombre del administrador en la interfaz
       const adminNameElement = document.getElementById('adminName');
@@ -74,7 +90,11 @@
       
       try {
         // Cargar módulos del dashboard dinámicamente con PathManager mejorado
+<<<<<<< HEAD
         console.log(' Dashboard Admin: Cargando módulos...');
+=======
+        console.log('📦 Dashboard Admin: Cargando módulos...');
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         
         const modules = [
           'charts-manager.js',
@@ -88,25 +108,42 @@
         for (const module of modules) {
           try {
             await PathManager.loadModule(module);
+<<<<<<< HEAD
             console.log(` Módulo cargado: ${module}`);
           } catch (error) {
             console.error(` Error cargando ${module}:`, error);
+=======
+            console.log(`✅ Módulo cargado: ${module}`);
+          } catch (error) {
+            console.error(`❌ Error cargando ${module}:`, error);
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
             // Continuar con otros módulos
           }
         }
         
         // Cargar el controlador principal del dashboard
+<<<<<<< HEAD
         console.log(' Dashboard Admin: Cargando controlador principal...');
         await PathManager.loadModule('admin-dashboard-advanced.js');
         
         console.log(' Dashboard Admin: Inicialización completada');
+=======
+        console.log('🎯 Dashboard Admin: Cargando controlador principal...');
+        await PathManager.loadModule('admin-dashboard-advanced.js');
+        
+        console.log('🎉 Dashboard Admin: Inicialización completada');
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         
         // Mostrar mensaje de bienvenida
         const welcomeDiv = document.createElement('div');
         welcomeDiv.className = 'welcome-message';
         welcomeDiv.innerHTML = `
           <div style="background: #28a745; color: white; padding: 10px; border-radius: 5px; margin: 10px; text-align: center;">
+<<<<<<< HEAD
              Dashboard cargado correctamente. Bienvenido/a ${userData.nombre}
+=======
+            ✅ Dashboard cargado correctamente. Bienvenido/a ${userData.nombre}
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
           </div>
         `;
         document.body.insertBefore(welcomeDiv, document.body.firstChild);
@@ -117,13 +154,21 @@
         }, 3000);
         
       } catch (error) {
+<<<<<<< HEAD
         console.error(' Dashboard Admin: Error crítico:', error);
+=======
+        console.error('❌ Dashboard Admin: Error crítico:', error);
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         
         // Mostrar error en la interfaz
         const errorDiv = document.createElement('div');
         errorDiv.innerHTML = `
           <div style="background: #dc3545; color: white; padding: 20px; margin: 20px; border-radius: 5px; text-align: center;">
+<<<<<<< HEAD
             <h3> Error cargando el Dashboard</h3>
+=======
+            <h3>❌ Error cargando el Dashboard</h3>
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
             <p>Error: ${error.message}</p>
             <button onclick="location.reload()" style="background: white; color: #dc3545; border: none; padding: 10px 20px; border-radius: 3px; cursor: pointer;">
               🔄 Recargar Página
@@ -139,7 +184,11 @@
       const logoutBtn = document.getElementById('logoutBtn');
       if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
+<<<<<<< HEAD
           console.log(' Dashboard Admin: Cerrando sesión...');
+=======
+          console.log('🚪 Dashboard Admin: Cerrando sesión...');
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
           SessionManager.logout();
           PathManager.navigateToLogin('Sesión cerrada correctamente.');
         });
@@ -166,10 +215,17 @@
         </li>
         <li class="nav-items-container">
           <ul class="nav-items-group">
+<<<<<<< HEAD
             <li class="nav-item"><a href="../../proyectopages/index.html#tecnologias" data-route="home" data-section="tecnologias" class="nav-btn btn-animated">Tecnologías</a></li>
             <li class="nav-item"><a href="../../proyectopages/index.html#nosotros" data-route="home" data-section="nosotros" class="nav-btn btn-animated">Sobre Nosotros</a></li>
             <li class="nav-item"><a href="../../proyectopages/index.html#portfolio" data-route="home" data-section="portfolio" class="nav-btn btn-animated">Portfolio</a></li>
             <li class="nav-item"><a href="../../proyectopages/index.html#contacto" data-route="home" data-section="contacto" class="nav-btn btn-animated">Contacto</a></li>
+=======
+            <li class="nav-item"><a href="../../proyectopages/index.html#tecnologias" class="nav-btn btn-animated">Tecnologías</a></li>
+            <li class="nav-item"><a href="../../proyectopages/index.html#nosotros" class="nav-btn btn-animated">Sobre Nosotros</a></li>
+            <li class="nav-item"><a href="../../proyectopages/index.html#portfolio" class="nav-btn btn-animated">Portfolio</a></li>
+            <li class="nav-item"><a href="../../proyectopages/index.html#contacto" class="nav-btn btn-animated">Contacto</a></li>
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
           </ul>
         </li>
         <li class="auth-buttons-container">
@@ -319,7 +375,11 @@
         <!-- Gestión de Empleados Avanzada -->
         <div class="dashboard-panel employees-panel" id="employeesPanel">
           <div class="panel-header">
+<<<<<<< HEAD
             <h3><i class="fas fa-users-gear"></i> Gestión de Empleados</h3>
+=======
+            <h3><i class="fas fa-users-cog"></i> Gestión de Empleados</h3>
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
             <div class="panel-controls">
               <button class="panel-control-btn" id="addEmployeeBtn">
                 <i class="fas fa-user-plus"></i> Nuevo
@@ -398,13 +458,21 @@
         <!-- Reportes Avanzados -->
         <div class="dashboard-panel reports-panel" id="reportsPanel">
           <div class="panel-header">
+<<<<<<< HEAD
             <h3><i class="fas fa-file-lines"></i> Reportes Avanzados</h3>
+=======
+            <h3><i class="fas fa-file-chart-line"></i> Reportes Avanzados</h3>
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
             <div class="panel-controls">
               <button class="panel-control-btn" id="generateReportBtn">
                 <i class="fas fa-plus"></i> Generar
               </button>
               <button class="panel-control-btn" id="scheduleReportBtn">
+<<<<<<< HEAD
                 <i class="fas fa-calendar-days"></i> Programar
+=======
+                <i class="fas fa-calendar-alt"></i> Programar
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
               </button>
             </div>
           </div>
@@ -514,7 +582,11 @@
     </div>
   </footer>
 
+<<<<<<< HEAD
   <!-- FIN: FOOTER  -->
+=======
+  <!-- FIN: FOOTER SIMPLE DE REDES SOCIALES     -->
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 
 
 </body>

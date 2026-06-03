@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 // Recuperación de contraseña - TODO: mejorar UX
+=======
+//RECUPERACIÓN DE CONTRASEÑA OJO // 
+
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 class RecoveryManager {
   constructor() {
     this.currentStep = 1;
@@ -13,6 +18,10 @@ class RecoveryManager {
   }
 
   setupEventListeners() {
+<<<<<<< HEAD
+=======
+    // Formulario de identidad
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     const identityForm = document.getElementById('identityForm');
     if (identityForm) {
       identityForm.addEventListener('submit', (e) => {
@@ -20,6 +29,11 @@ class RecoveryManager {
         this.handleIdentityForm();
       });
     }
+<<<<<<< HEAD
+=======
+
+    // Formulario de verificación
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     const verificationForm = document.getElementById('verificationForm');
     if (verificationForm) {
       verificationForm.addEventListener('submit', (e) => {
@@ -27,6 +41,11 @@ class RecoveryManager {
         this.handleVerificationForm();
       });
     }
+<<<<<<< HEAD
+=======
+
+    // Formulario de nueva contraseña
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     const passwordForm = document.getElementById('newPasswordForm');
     if (passwordForm) {
       passwordForm.addEventListener('submit', (e) => {
@@ -34,7 +53,12 @@ class RecoveryManager {
         this.handlePasswordForm();
       });
     }
+<<<<<<< HEAD
 
+=======
+    
+    // Botón para reenviar código
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     const resendCodeBtn = document.getElementById('resendCodeBtn');
     if (resendCodeBtn) {
       resendCodeBtn.addEventListener('click', () => {
@@ -42,6 +66,10 @@ class RecoveryManager {
       });
     }
     
+<<<<<<< HEAD
+=======
+    // Botón para volver atrás
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     const backToIdentityBtn = document.getElementById('backToIdentityBtn');
     if (backToIdentityBtn) {
       backToIdentityBtn.addEventListener('click', () => {
@@ -99,6 +127,11 @@ class RecoveryManager {
   handleIdentityForm() {
     const numeroDocumento = document.getElementById('numeroDocumento').value.trim();
     const correoElectronico = document.getElementById('correoElectronico').value.trim();
+<<<<<<< HEAD
+=======
+
+    // Validar campos
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     const isDocumentoValid = this.validateField('numeroDocumento');
     const isCorreoValid = this.validateField('correoElectronico');
 
@@ -108,6 +141,7 @@ class RecoveryManager {
 
     this.showMessage('identityResult', 'Verificando información...', 'info');
 
+<<<<<<< HEAD
     fetch('/api/auth/recover-password', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -139,11 +173,43 @@ class RecoveryManager {
         console.error('Error en recuperación:', error);
         this.showMessage('identityResult', 'Error al conectar con el servidor', 'error');
       });
+=======
+    // Verificar si el usuario existe en localStorage
+    const users = JSON.parse(localStorage.getItem('users') || '[]');
+    const user = users.find(u => u.numeroDocumento === numeroDocumento && u.correoElectronico === correoElectronico);
+    
+    if (!user) {
+      this.showMessage('identityResult', 'No se encontró ninguna cuenta con esos datos', 'error');
+      return;
+    }
+
+    // Generar y guardar el código de verificación
+    this.userData = { numeroDocumento, correoElectronico };
+    this.verificationCode = this.generateCode();
+    
+    // SIMULACIÓN: Mostrar código al usuario (solo para pruebas)
+    if (typeof NotificationManager !== 'undefined') {
+      NotificationManager.showToast(`CÓDIGO: ${this.verificationCode} (Simulación de envío)`, 'info', 10000);
+    } else {
+      console.log(`Código de verificación: ${this.verificationCode}`);
+      alert(`Para pruebas: Su código es ${this.verificationCode}`);
+    }
+    
+    this.showMessage('identityResult', `Código enviado a ${this.maskEmail(correoElectronico)}`, 'success');
+    
+    setTimeout(() => {
+      this.showStep(2);
+    }, 1500);
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
   }
 
   handleVerificationForm() {
     const codigo = document.getElementById('codigoVerificacion').value.trim().toUpperCase();
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     if (!codigo) {
       this.showMessage('verificationResult', 'Ingrese el código de verificación', 'error');
       return;
@@ -156,6 +222,7 @@ class RecoveryManager {
 
     this.showMessage('verificationResult', 'Verificando código...', 'info');
 
+<<<<<<< HEAD
     fetch('/api/auth/verify-code', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -185,6 +252,30 @@ class RecoveryManager {
         console.error('Error en verificación:', error);
         this.showMessage('verificationResult', 'Error al conectar con el servidor', 'error');
       });
+=======
+    // Comparar el código ingresado con el código generado (sin distinguir mayúsculas y minúsculas)
+    if (codigo.toUpperCase() !== this.verificationCode.toUpperCase()) {
+      this.showMessage('verificationResult', 'Código incorrecto', 'error');
+      
+      // Mostrar mensaje adicional con NotificationManager si está disponible
+      if (typeof NotificationManager !== 'undefined') {
+        NotificationManager.showToast('El código ingresado no coincide con el enviado', 'error');
+      }
+      
+      return;
+    }
+
+    this.showMessage('verificationResult', 'Código verificado correctamente', 'success');
+    
+    // Mostrar mensaje con NotificationManager si está disponible
+    if (typeof NotificationManager !== 'undefined') {
+      NotificationManager.showToast('Código verificado correctamente', 'success');
+    }
+    
+    setTimeout(() => {
+      this.showStep(3);
+    }, 1000);
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
   }
 
   handlePasswordForm() {
@@ -205,6 +296,7 @@ class RecoveryManager {
       this.showMessage('passwordResult', 'Las contraseñas no coinciden', 'error');
       return;
     }
+<<<<<<< HEAD
 
     fetch('/api/auth/reset-password', {
       method: 'POST',
@@ -237,11 +329,56 @@ class RecoveryManager {
         console.error('Error al actualizar contraseña:', error);
         this.showMessage('passwordResult', 'Error al conectar con el servidor', 'error');
       });
+=======
+    
+    // Actualizar la contraseña en el localStorage
+    try {
+      // Obtener usuarios
+      const users = JSON.parse(localStorage.getItem('users') || '[]');
+      const userIndex = users.findIndex(u => 
+        u.numeroDocumento === this.userData.numeroDocumento && 
+        u.correoElectronico === this.userData.correoElectronico
+      );
+      
+      if (userIndex !== -1) {
+        // Encriptar la nueva contraseña si SecurityManager está disponible
+        if (typeof SecurityManager !== 'undefined') {
+          users[userIndex].password = SecurityManager.hashPassword(nuevaPassword);
+        } else {
+          users[userIndex].password = btoa(nuevaPassword); // Fallback a btoa (no seguro)
+        }
+        
+        // Guardar usuarios actualizados
+        localStorage.setItem('users', JSON.stringify(users));
+        
+        this.showMessage('passwordResult', '¡Contraseña actualizada correctamente!', 'success');
+        
+        // Mostrar mensaje con NotificationManager si está disponible
+        if (typeof NotificationManager !== 'undefined') {
+          NotificationManager.showToast('Contraseña actualizada exitosamente', 'success');
+        }
+        
+        setTimeout(() => {
+          window.location.href = 'login.html';
+        }, 2000);
+      } else {
+        this.showMessage('passwordResult', 'Error al actualizar contraseña: usuario no encontrado', 'error');
+      }
+    } catch (error) {
+      console.error('Error al actualizar contraseña:', error);
+      this.showMessage('passwordResult', 'Error al actualizar la contraseña', 'error');
+    }
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
   }
 
   showStep(step) {
     this.currentStep = step;
+<<<<<<< HEAD
 
+=======
+    
+    // Ocultar todos los formularios
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     const forms = ['identityForm', 'verificationForm', 'newPasswordForm'];
     forms.forEach(formId => {
       const form = document.getElementById(formId);
@@ -251,6 +388,10 @@ class RecoveryManager {
       }
     });
 
+<<<<<<< HEAD
+=======
+    // Actualizar indicadores de pasos
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     for (let i = 1; i <= 3; i++) {
       const stepElement = document.getElementById(`step${i}`);
       if (stepElement) {
@@ -263,7 +404,11 @@ class RecoveryManager {
       }
     }
 
+<<<<<<< HEAD
 
+=======
+    // Mostrar formulario actual
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     const formIds = ['', 'identityForm', 'verificationForm', 'newPasswordForm'];
     const currentForm = document.getElementById(formIds[step]);
     if (currentForm) {
@@ -271,6 +416,10 @@ class RecoveryManager {
       currentForm.classList.add('active');
     }
 
+<<<<<<< HEAD
+=======
+    // Limpiar mensajes anteriores
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     this.clearMessages();
   }
 
@@ -301,17 +450,26 @@ class RecoveryManager {
     }
     return code;
   }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
   maskEmail(email) {
     const [username, domain] = email.split('@');
     const maskedUsername = username.charAt(0) + '***' + username.slice(-1);
     return maskedUsername + '@' + domain;
   }
+<<<<<<< HEAD
 
+=======
+  
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
   resendVerificationCode() {
     if (!this.userData || !this.userData.correoElectronico) {
       this.showMessage('verificationResult', 'Error al reenviar el código. Por favor, vuelva a la primera etapa.', 'error');
       return;
     }
+<<<<<<< HEAD
 
     fetch('/api/auth/recover-password', {
       method: 'POST',
@@ -340,6 +498,25 @@ class RecoveryManager {
   }
 }
 
+=======
+    
+    // Generar un nuevo código
+    this.verificationCode = this.generateCode();
+    
+    // SIMULACIÓN: Mostrar código al usuario (solo para pruebas)
+    if (typeof NotificationManager !== 'undefined') {
+      NotificationManager.showToast(`CÓDIGO NUEVO: ${this.verificationCode} (Simulación de reenvío)`, 'info', 10000);
+    } else {
+      console.log(`Nuevo código de verificación: ${this.verificationCode}`);
+      alert(`Para pruebas: Su nuevo código es ${this.verificationCode}`);
+    }
+    
+    this.showMessage('verificationResult', `Nuevo código enviado a ${this.maskEmail(this.userData.correoElectronico)}`, 'success');
+  }
+}
+
+// Inicializar cuando el DOM esté listo
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 document.addEventListener('DOMContentLoaded', function() {
   const recoveryManager = new RecoveryManager();
 });

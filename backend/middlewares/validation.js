@@ -1,15 +1,32 @@
+<<<<<<< HEAD
 // Middleware de validación
+=======
+/**
+ * IN OUT MANAGER - MIDDLEWARES DE VALIDACIÓN
+ * @version 1.0.0
+ * @description Middlewares para validación de datos de entrada
+ */
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 
 const { body, param, validationResult } = require('express-validator');
 
 /**
+<<<<<<< HEAD
 resultados de validación
+=======
+ * Middleware para verificar resultados de validación
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
  */
 exports.validate = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+<<<<<<< HEAD
     console.log('Errores de validación:', JSON.stringify(errors.array(), null, 2));
     console.log(' Datos recibidos:', JSON.stringify(req.body, null, 2));
+=======
+    console.log('❌ Errores de validación:', JSON.stringify(errors.array(), null, 2));
+    console.log('📦 Datos recibidos:', JSON.stringify(req.body, null, 2));
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     return res.status(400).json({
       success: false,
       message: 'Error en los datos de entrada',
@@ -23,7 +40,11 @@ exports.validate = (req, res, next) => {
 };
 
 /**
+<<<<<<< HEAD
 registro de usuario
+=======
+ * Reglas de validación para registro de usuario
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
  */
 exports.registerRules = [
   body('nombreCompleto')
@@ -67,7 +88,15 @@ exports.loginRules = [
     .normalizeEmail(),
   
   body('password')
+<<<<<<< HEAD
     .notEmpty().withMessage('La contraseña es requerida')
+=======
+    .notEmpty().withMessage('La contraseña es requerida'),
+  
+  body('codigoAdmin')
+    .optional()
+    .matches(/^[0-9]{1,4}$/).withMessage('El código de administrador debe ser un número de máximo 4 dígitos')
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 ];
 
 /**

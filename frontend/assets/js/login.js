@@ -1,5 +1,13 @@
+<<<<<<< HEAD
 // Módulo de Login -Proyecto Final SENA 2024
 // TODO: Revisar validaciones al integrar con backend final
+=======
+/**
+ * IN OUT MANAGER - LOGIN ESTE ES EL PROYECTO ESTRELLA*
+ * @version 2.0.0
+ * @copyright 
+ */
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 
 (function() {
     'use strict';
@@ -18,6 +26,7 @@
             this.isLoading = false;
         }
 
+<<<<<<< HEAD
             // Inicializa el módulo
             init() {
                 try {
@@ -89,6 +98,84 @@
                     this.handleRoleChange(defaultTab);
                 }
             }
+=======
+        init() {
+            try {
+                this.cacheElements();
+                this.bindEvents();
+                this.initializeUI();
+                console.log('🔒 Login module initialized successfully');
+            } catch (error) {
+                console.error('❌ Error initializing login module:', error);
+            }
+        }
+
+        cacheElements() {
+            const selectors = {
+                form: '#loginForm',
+                email: '#email',
+                password: '#password',
+                showPassword: '#showPassword',
+                roleTabs: '.role-tab',
+                submitButton: '.login-submit-btn',
+                resultMessage: '#loginResult',
+                adminCodeGroup: '#adminCodeGroup',
+                adminCode: '#adminCode',
+                roleDescription: '#roleDescription'
+            };
+
+            Object.entries(selectors).forEach(([key, selector]) => {
+                const element = selector.startsWith('.') ? 
+                    document.querySelectorAll(selector) : 
+                    document.querySelector(selector);
+                this.elements[key] = element;
+            });
+
+            
+            if (!this.elements.form || !this.elements.email || !this.elements.password) {
+                throw new Error('Critical form elements not found');
+            }
+        }
+
+       
+        bindEvents() {
+            
+            if (this.elements.showPassword) {
+                this.elements.showPassword.addEventListener('change', (e) => {
+                    this.togglePasswordVisibility(e.target.checked);
+                });
+            }
+
+          
+            if (this.elements.roleTabs) {
+                this.elements.roleTabs.forEach(tab => {
+                    tab.addEventListener('click', () => this.handleRoleChange(tab));
+                    tab.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            this.handleRoleChange(tab);
+                        }
+                    });
+                });
+            }
+
+           
+            this.elements.form.addEventListener('submit', (e) => this.handleSubmit(e));
+
+           
+            this.elements.email.addEventListener('blur', () => this.validateField(this.elements.email, 'email'));
+            this.elements.password.addEventListener('blur', () => this.validateField(this.elements.password, 'password'));
+        }
+
+        
+        initializeUI() {
+            
+            const defaultTab = document.querySelector(`[data-role="${this.selectedRole}"]`);
+            if (defaultTab) {
+                this.handleRoleChange(defaultTab);
+            }
+        }
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 
       
         handleRoleChange(tab) {
@@ -144,14 +231,22 @@
 
         async handleSubmit(e) {
             e.preventDefault();
+<<<<<<< HEAD
             console.log(' === SUBMIT DEL FORMULARIO ===');
 
             if (this.isLoading) {
                 console.log(' Ya hay un login en proceso');
+=======
+            console.log('🔵 === SUBMIT DEL FORMULARIO ===');
+
+            if (this.isLoading) {
+                console.log('⚠️ Ya hay un login en proceso');
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
                 return;
             }
 
             try {
+<<<<<<< HEAD
                 console.log(' Validando formulario...');
                 if (!this.validateForm()) {
                     console.log(' Validación de formulario fallida');
@@ -163,6 +258,19 @@
 
                 const formData = this.getFormData();
                 console.log(' Datos del formulario:', { ...formData, password: '***' });
+=======
+                console.log('✅ Validando formulario...');
+                if (!this.validateForm()) {
+                    console.log('❌ Validación de formulario fallida');
+                    return;
+                }
+
+                console.log('✅ Formulario válido, iniciando login...');
+                this.setLoadingState(true);
+
+                const formData = this.getFormData();
+                console.log('📋 Datos del formulario:', { ...formData, password: '***' });
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 
                 await this.processLogin(formData);
 
@@ -176,10 +284,17 @@
 
         async processLogin(formData) {
             try {
+<<<<<<< HEAD
                 console.log(' Iniciando proceso de login:', formData);
                 
                 // Construir URL del backend
                 const backendUrl = '/api/auth/login';
+=======
+                console.log('🔄 Iniciando proceso de login:', formData);
+                
+                // Construir URL del backend
+                const backendUrl = 'http://localhost:5000/api/auth/login';
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
                 
                 // Preparar datos para enviar
                 const loginData = {
@@ -192,8 +307,13 @@
                     loginData.codigoAdmin = formData.adminCode;
                 }
 
+<<<<<<< HEAD
                 console.log(' Enviando credenciales al backend:', backendUrl);
                 console.log(' Datos a enviar:', { ...loginData, password: '***' });
+=======
+                console.log('📡 Enviando credenciales al backend:', backendUrl);
+                console.log('📦 Datos a enviar:', { ...loginData, password: '***' });
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
                 
                 // Realizar petición al backend
                 const response = await fetch(backendUrl, {
@@ -205,25 +325,42 @@
                     body: JSON.stringify(loginData)
                 });
 
+<<<<<<< HEAD
                 console.log(' Respuesta HTTP status:', response.status);
                 
                 const data = await response.json();
                 console.log(' Datos recibidos:', data);
+=======
+                console.log('📨 Respuesta HTTP status:', response.status);
+                
+                const data = await response.json();
+                console.log('📦 Datos recibidos:', data);
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 
                 if (response.ok && data.success) {
                     const user = data.user;
                     const token = data.token;
 
+<<<<<<< HEAD
                     console.log(' Login exitoso');
                     console.log(' Usuario:', user.nombreCompleto);
                     console.log(' Token:', token ? 'Recibido' : 'No recibido');
 
                     // Guardar token y sesión
                     console.log(' Guardando sesión...');
+=======
+                    console.log('✅ Login exitoso');
+                    console.log('👤 Usuario:', user.nombreCompleto);
+                    console.log('🔑 Token:', token ? 'Recibido' : 'No recibido');
+
+                    // Guardar token y sesión
+                    console.log('💾 Guardando sesión...');
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
                     localStorage.setItem('authToken', token);
                     localStorage.setItem('token', token);
                     this.saveSession(user);
                     
+<<<<<<< HEAD
                     console.log(' Mostrando mensaje de éxito...');
                     this.showSuccessMessage('¡Login exitoso! Redirigiendo...');
                     
@@ -239,14 +376,39 @@
                 }
             } catch (error) {
                 console.error(' Error en login:', error);
+=======
+                    console.log('✅ Mostrando mensaje de éxito...');
+                    this.showSuccessMessage('¡Login exitoso! Redirigiendo...');
+                    
+                    console.log('⏱️ Programando redirección...');
+                    setTimeout(() => {
+                        console.log('🚀 Redirigiendo al dashboard...');
+                        this.redirectToDashboard();
+                    }, CONFIG.redirectDelay);
+                } else {
+                    console.log('❌ Login fallido');
+                    console.log('📄 Mensaje:', data.message);
+                    this.showErrorMessage(data.message || 'Credenciales incorrectas');
+                }
+            } catch (error) {
+                console.error('💥 Error en login:', error);
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
                 this.showErrorMessage('Error: ' + error.message);
             }
         }
         
         saveSession(user) {
+<<<<<<< HEAD
             if (typeof SessionManager !== 'undefined') {
                 SessionManager.createSession(user);
             } else {
+=======
+            // Usar SessionManager para guardar la sesión
+            if (typeof SessionManager !== 'undefined') {
+                SessionManager.createSession(user);
+            } else {
+                // Fallback si SessionManager no está disponible
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
                 const sessionData = {
                     id: user.id,
                     nombreCompleto: user.nombreCompleto,
@@ -293,6 +455,10 @@
             return isValid;
         }
 
+<<<<<<< HEAD
+=======
+    
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         validateField(element, type) {
             if (!element) return false;
 
@@ -343,12 +509,20 @@
         }
 
         showFieldError(element, message) {
+<<<<<<< HEAD
 
+=======
+            // Usar NotificationManager si está disponible
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
             if (typeof NotificationManager !== 'undefined') {
                 NotificationManager.showFieldError(element, message);
                 return;
             }
             
+<<<<<<< HEAD
+=======
+            // Fallback al método antiguo
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
             this.clearFieldError(element);
 
             const errorDiv = document.createElement('div');
@@ -362,12 +536,21 @@
         }
 
         clearFieldError(element) {
+<<<<<<< HEAD
 
+=======
+            // Usar NotificationManager si está disponible
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
             if (typeof NotificationManager !== 'undefined') {
                 NotificationManager.clearFieldError(element);
                 return;
             }
+<<<<<<< HEAD
 
+=======
+            
+            // Fallback al método antiguo
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
             const errorDiv = element.parentElement.querySelector('.error-message');
             if (errorDiv) {
                 errorDiv.remove();
@@ -382,10 +565,19 @@
             if (!this.elements.submitButton) return;
 
             this.elements.submitButton.disabled = isLoading;
+<<<<<<< HEAD
 
             if (!this._loader) this._loader = null;
             
             if (isLoading) {
+=======
+            
+            // Variable para almacenar el loader
+            if (!this._loader) this._loader = null;
+            
+            if (isLoading) {
+                // Usar NotificationManager si está disponible
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
                 if (typeof NotificationManager !== 'undefined') {
                     this._loader = NotificationManager.showLoader(CONFIG.loadingText);
                 }
@@ -395,41 +587,76 @@
                     <span>${CONFIG.loadingText}</span>
                 `;
             } else {
+<<<<<<< HEAD
+=======
+                // Ocultar loader si existe
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
                 if (this._loader && typeof this._loader.hide === 'function') {
                     this._loader.hide();
                     this._loader = null;
                 }
                 
                 this.elements.submitButton.innerHTML = `
+<<<<<<< HEAD
                     <span class="btn-icon"><i class="fas fa-right-to-bracket"></i></span>
+=======
+                    <span class="btn-icon"><i class="fas fa-sign-in-alt"></i></span>
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
                     <span class="btn-text">Iniciar Sesión</span>
                 `;
             }
         }
 
         showSuccessMessage(message) {
+<<<<<<< HEAD
+=======
+            // Usar NotificationManager si está disponible
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
             if (typeof NotificationManager !== 'undefined') {
                 NotificationManager.showToast(message, 'success');
                 return;
             }
+<<<<<<< HEAD
+=======
+            
+            // Fallback al método antiguo
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
             this.showMessage(message, 'success');
         }
 
         showErrorMessage(message) {
+<<<<<<< HEAD
+=======
+            // Usar NotificationManager si está disponible
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
             if (typeof NotificationManager !== 'undefined') {
                 NotificationManager.showToast(message, 'error');
                 return;
             }
+<<<<<<< HEAD
 
+=======
+            
+            // Fallback al método antiguo
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
             this.showMessage(message, 'error');
         }
 
         showMessage(message, type) {
+<<<<<<< HEAD
+=======
+            // Usar NotificationManager si está disponible
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
             if (typeof NotificationManager !== 'undefined') {
                 NotificationManager.showToast(message, type);
                 return;
             }
+<<<<<<< HEAD
 
+=======
+            
+            // Fallback al método antiguo
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
             if (!this.elements.resultMessage) return;
 
             this.elements.resultMessage.className = `result-message ${type}`;
@@ -443,6 +670,7 @@
         }
 
         redirectToDashboard() {
+<<<<<<< HEAD
             console.log(' Login: Redirigiendo al dashboard...', this.selectedRole);
 
             if (typeof PathManager !== 'undefined' && PathManager.navigateToDashboard) {
@@ -458,13 +686,31 @@
                     return;
                 }
 
+=======
+            console.log('🚀 Login: Redirigiendo al dashboard...', this.selectedRole);
+            
+            // Usar PathManager para redirección con rutas absolutas
+            if (typeof PathManager !== 'undefined' && PathManager.navigateToDashboard) {
+                console.log('✅ Login: Usando PathManager para redirección');
+                PathManager.navigateToDashboard(this.selectedRole);
+            } else if (typeof SessionManager !== 'undefined' && SessionManager.redirectToDashboard) {
+                console.log('⚠️ Login: PathManager no disponible, usando SessionManager');
+                SessionManager.redirectToDashboard(this.selectedRole);
+            } else {
+                // Fallback con rutas relativas
+                console.log('⚠️ Login: Usando fallback con rutas relativas');
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
                 const dashboardUrls = {
                     empleado: '../empleado/dashboard-empleado.html',
                     administrador: '../admin/dashboard-admin.html'
                 };
 
                 const url = dashboardUrls[this.selectedRole] || dashboardUrls.empleado;
+<<<<<<< HEAD
                 console.log(' Login: Redirigiendo a:', url);
+=======
+                console.log('🎯 Login: Redirigiendo a:', url);
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
                 window.location.href = url;
             }
         }

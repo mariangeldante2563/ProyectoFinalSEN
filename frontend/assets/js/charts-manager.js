@@ -1,4 +1,13 @@
+<<<<<<< HEAD
 
+=======
+/**
+ * CHARTS MANAGER MODULE
+ * IN OUT MANAGER - Advanced Charts Management System
+ * Version: 2.0.0
+ * Author: IN OUT MANAGER Team
+ */
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 
 class ChartsManagerModule {
     constructor() {
@@ -9,6 +18,10 @@ class ChartsManagerModule {
         this.initialized = false;
     }
 
+<<<<<<< HEAD
+=======
+    // Initialize all charts
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     async initialize() {
         if (this.initialized) return;
 
@@ -26,6 +39,10 @@ class ChartsManagerModule {
         }
     }
 
+<<<<<<< HEAD
+=======
+    // Initialize attendance chart
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     async initializeAttendanceChart() {
         const canvas = document.getElementById('attendanceChart');
         if (!canvas) return;
@@ -85,6 +102,10 @@ class ChartsManagerModule {
         }
     }
 
+<<<<<<< HEAD
+=======
+    // Initialize productivity chart
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     async initializeProductivityChart() {
         const canvas = document.getElementById('productivityChart');
         if (!canvas) return;
@@ -142,6 +163,11 @@ class ChartsManagerModule {
             console.error('Error initializing productivity chart:', error);
         }
     }
+<<<<<<< HEAD
+=======
+
+    // Initialize department distribution chart
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     async initializeDepartmentChart() {
         const canvas = document.getElementById('departmentChart');
         if (!canvas) return;
@@ -188,6 +214,11 @@ class ChartsManagerModule {
             console.error('Error initializing department chart:', error);
         }
     }
+<<<<<<< HEAD
+=======
+
+    // Initialize time analysis chart
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     async initializeTimeAnalysisChart() {
         const canvas = document.getElementById('timeAnalysisChart');
         if (!canvas) return;
@@ -249,6 +280,11 @@ class ChartsManagerModule {
             console.error('Error initializing time analysis chart:', error);
         }
     }
+<<<<<<< HEAD
+=======
+
+    // Fetch chart data from API
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     async fetchChartData(chartType) {
         try {
             const response = await fetch(`/api/admin/charts/${chartType}`, {
@@ -265,15 +301,29 @@ class ChartsManagerModule {
             return data;
         } catch (error) {
             console.error(`Error fetching ${chartType} data:`, error);
+<<<<<<< HEAD
             return this.getMockData(chartType);
         }
     }
+=======
+            // Return mock data for development
+            return this.getMockData(chartType);
+        }
+    }
+
+    // Update chart data
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     async updateChart(chartType) {
         const chart = this.chartInstances.get(chartType);
         if (!chart) return;
 
         try {
             const newData = await this.fetchChartData(chartType);
+<<<<<<< HEAD
+=======
+            
+            // Update chart data
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
             if (chartType === 'timeAnalysis') {
                 chart.data.datasets[0].data = newData.thisWeek;
                 chart.data.datasets[1].data = newData.lastWeek;
@@ -281,12 +331,22 @@ class ChartsManagerModule {
                 chart.data.labels = newData.labels;
                 chart.data.datasets[0].data = newData.values;
             }
+<<<<<<< HEAD
+=======
+
+            // Animate update
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
             chart.update('active');
             
         } catch (error) {
             console.error(`Error updating ${chartType} chart:`, error);
         }
     }
+<<<<<<< HEAD
+=======
+
+    // Update all charts
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     async updateAllCharts() {
         const updatePromises = Array.from(this.chartInstances.keys()).map(chartType => 
             this.updateChart(chartType)
@@ -299,11 +359,21 @@ class ChartsManagerModule {
             console.error('Error updating charts:', error);
         }
     }
+<<<<<<< HEAD
+=======
+
+    // Resize charts
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     resizeCharts() {
         this.chartInstances.forEach(chart => {
             chart.resize();
         });
     }
+<<<<<<< HEAD
+=======
+
+    // Destroy all charts
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     destroyCharts() {
         this.chartInstances.forEach(chart => {
             chart.destroy();
@@ -311,6 +381,11 @@ class ChartsManagerModule {
         this.chartInstances.clear();
         this.initialized = false;
     }
+<<<<<<< HEAD
+=======
+
+    // Get default chart options
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     getDefaultChartOptions() {
         return {
             responsive: true,
@@ -342,6 +417,10 @@ class ChartsManagerModule {
         };
     }
 
+<<<<<<< HEAD
+=======
+    // Get color palette
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     getColorPalette() {
         return {
             primary: '#2563eb',
@@ -381,6 +460,10 @@ class ChartsManagerModule {
         };
     }
 
+<<<<<<< HEAD
+=======
+    // Get mock data for development
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     getMockData(chartType) {
         const mockData = {
             attendance: {
@@ -403,7 +486,13 @@ class ChartsManagerModule {
         };
 
         return mockData[chartType] || {};
+<<<<<<< HEAD
     }e
+=======
+    }
+
+    // Export chart as image
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     exportChart(chartType, format = 'png') {
         const chart = this.chartInstances.get(chartType);
         if (!chart) return;
@@ -418,6 +507,11 @@ class ChartsManagerModule {
         link.click();
         document.body.removeChild(link);
     }
+<<<<<<< HEAD
+=======
+
+    // Get chart statistics
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     getChartStats(chartType) {
         const chart = this.chartInstances.get(chartType);
         if (!chart) return null;
@@ -437,12 +531,21 @@ class ChartsManagerModule {
         };
     }
 }
+<<<<<<< HEAD
+=======
+
+// Handle window resize
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 window.addEventListener('resize', () => {
     if (window.chartsManager) {
         window.chartsManager.resizeCharts();
     }
 });
 
+<<<<<<< HEAD
+=======
+// Export module
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = ChartsManagerModule;
 } else {

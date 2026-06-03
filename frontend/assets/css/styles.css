@@ -1434,7 +1434,11 @@ section h2::after {
 
 /* Ajuste del espaciado entre elementos del menú de navegación */
 .main-nav ul {
+<<<<<<< HEAD
   gap: var(--spacing-lg);
+=======
+  gap: var(--spacing-lg); /
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 }
 
 /* Espaciado específico para ítems de navegación */

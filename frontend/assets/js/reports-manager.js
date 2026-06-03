@@ -1,3 +1,12 @@
+<<<<<<< HEAD
+=======
+/**
+ * REPORTS MANAGER MODULE
+ * IN OUT MANAGER - Advanced Reports Generation System
+ * Version: 2.0.0
+ * Author: IN OUT MANAGER Team
+ */
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 
 class ReportsManagerModule {
     constructor() {
@@ -9,28 +18,49 @@ class ReportsManagerModule {
         this.scheduledReports = [];
     }
 
+<<<<<<< HEAD
+=======
+    // Initialize reports manager
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     initialize() {
         this.setupEventListeners();
         this.loadRecentReports();
         this.loadReportTemplates();
         this.loadScheduledReports();
         
+<<<<<<< HEAD
         console.log(' Reports Manager initialized successfully');
     }
 
     setupEventListeners() {
 
+=======
+        console.log('📊 Reports Manager initialized successfully');
+    }
+
+    // Setup event listeners
+    setupEventListeners() {
+        // Generate report button
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         const generateBtn = document.getElementById('generateReport');
         if (generateBtn) {
             generateBtn.addEventListener('click', () => this.generateReport());
         }
 
+<<<<<<< HEAD
 
+=======
+        // Apply filters button
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         const applyFiltersBtn = document.getElementById('applyFilters');
         if (applyFiltersBtn) {
             applyFiltersBtn.addEventListener('click', () => this.applyFilters());
         }
 
+<<<<<<< HEAD
+=======
+        // Report type selector
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         const reportTypeSelect = document.getElementById('reportType');
         if (reportTypeSelect) {
             reportTypeSelect.addEventListener('change', (e) => {
@@ -38,6 +68,10 @@ class ReportsManagerModule {
             });
         }
 
+<<<<<<< HEAD
+=======
+        // Export format selector
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         const exportFormatSelect = document.getElementById('exportFormat');
         if (exportFormatSelect) {
             exportFormatSelect.addEventListener('change', (e) => {
@@ -45,11 +79,19 @@ class ReportsManagerModule {
             });
         }
 
+<<<<<<< HEAD
+=======
+        // Schedule report button
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         const scheduleBtn = document.getElementById('scheduleReport');
         if (scheduleBtn) {
             scheduleBtn.addEventListener('click', () => this.showScheduleModal());
         }
 
+<<<<<<< HEAD
+=======
+        // Quick report buttons
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         document.querySelectorAll('.quick-report-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const reportType = btn.dataset.reportType;
@@ -58,6 +100,10 @@ class ReportsManagerModule {
         });
     }
 
+<<<<<<< HEAD
+=======
+    // Load recent reports
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     async loadRecentReports() {
         try {
             const response = await fetch('/api/admin/reports/recent', {
@@ -75,6 +121,10 @@ class ReportsManagerModule {
         }
     }
 
+<<<<<<< HEAD
+=======
+    // Load report templates
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     async loadReportTemplates() {
         try {
             const response = await fetch('/api/admin/reports/templates', {
@@ -95,6 +145,10 @@ class ReportsManagerModule {
         }
     }
 
+<<<<<<< HEAD
+=======
+    // Load scheduled reports
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     async loadScheduledReports() {
         try {
             const response = await fetch('/api/admin/reports/scheduled', {
@@ -112,6 +166,10 @@ class ReportsManagerModule {
         }
     }
 
+<<<<<<< HEAD
+=======
+    // Generate report
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     async generateReport() {
         const formData = this.getReportFormData();
         
@@ -161,6 +219,10 @@ class ReportsManagerModule {
         }
     }
 
+<<<<<<< HEAD
+=======
+    // Generate quick report
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     async generateQuickReport(reportType) {
         const config = this.getQuickReportConfig(reportType);
         
@@ -187,6 +249,10 @@ class ReportsManagerModule {
         }
     }
 
+<<<<<<< HEAD
+=======
+    // Get report form data
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     getReportFormData() {
         return {
             type: document.getElementById('reportType')?.value || '',
@@ -202,6 +268,10 @@ class ReportsManagerModule {
         };
     }
 
+<<<<<<< HEAD
+=======
+    // Validate report form
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     validateReportForm(formData) {
         const errors = [];
 
@@ -239,14 +309,28 @@ class ReportsManagerModule {
         return true;
     }
 
+<<<<<<< HEAD
+=======
+    // Get selected departments
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     getSelectedDepartments() {
         const checkboxes = document.querySelectorAll('.department-checkbox:checked');
         return Array.from(checkboxes).map(cb => cb.value);
     }
+<<<<<<< HEAD
+=======
+
+    // Get selected employees
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     getSelectedEmployees() {
         const checkboxes = document.querySelectorAll('.employee-checkbox:checked');
         return Array.from(checkboxes).map(cb => cb.value);
     }
+<<<<<<< HEAD
+=======
+
+    // Generate file name
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     generateFileName() {
         const reportType = document.getElementById('reportType')?.value || 'reporte';
         const startDate = document.getElementById('startDate')?.value || '';
@@ -261,6 +345,11 @@ class ReportsManagerModule {
         
         return fileName;
     }
+<<<<<<< HEAD
+=======
+
+    // Download report
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     downloadReport(url, fileName) {
         const link = document.createElement('a');
         link.href = url;
@@ -270,11 +359,20 @@ class ReportsManagerModule {
         document.body.removeChild(link);
     }
 
+<<<<<<< HEAD
+=======
+    // Download blob
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     downloadBlob(blob, fileName) {
         const url = URL.createObjectURL(blob);
         this.downloadReport(url, fileName);
         URL.revokeObjectURL(url);
     }
+<<<<<<< HEAD
+=======
+
+    // Render reports list
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     renderReportsList() {
         const container = document.querySelector('.reports-list');
         if (!container) return;
@@ -310,6 +408,10 @@ class ReportsManagerModule {
         `).join('');
     }
 
+<<<<<<< HEAD
+=======
+    // Render template selector
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     renderTemplateSelector() {
         const selector = document.getElementById('reportTemplate');
         if (!selector) return;
@@ -320,6 +422,10 @@ class ReportsManagerModule {
             `).join('');
     }
 
+<<<<<<< HEAD
+=======
+    // Render scheduled reports
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     renderScheduledReports() {
         const container = document.querySelector('.scheduled-reports-list');
         if (!container) return;
@@ -343,29 +449,56 @@ class ReportsManagerModule {
         `).join('');
     }
 
+<<<<<<< HEAD
+=======
+    // On report type change
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     onReportTypeChange(reportType) {
         this.updateAvailableFilters(reportType);
         this.updateFieldRequirements(reportType);
     }
+<<<<<<< HEAD
     onExportFormatChange(format) {
         this.updateFormatOptions(format);
     }
+=======
+
+    // On export format change
+    onExportFormatChange(format) {
+        this.updateFormatOptions(format);
+    }
+
+    // Update available filters
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     updateAvailableFilters(reportType) {
         const filtersContainer = document.querySelector('.advanced-filters');
         if (!filtersContainer) return;
 
         const reportConfig = this.reportTypes[reportType];
         if (!reportConfig) return;
+<<<<<<< HEAD
+=======
+
+        // Show/hide relevant filter sections
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         filtersContainer.querySelectorAll('.filter-section').forEach(section => {
             const sectionType = section.dataset.filterType;
             section.style.display = reportConfig.filters.includes(sectionType) ? 'block' : 'none';
         });
     }
 
+<<<<<<< HEAD
+=======
+    // Update field requirements
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     updateFieldRequirements(reportType) {
         const reportConfig = this.reportTypes[reportType];
         if (!reportConfig) return;
 
+<<<<<<< HEAD
+=======
+        // Update required fields
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         document.querySelectorAll('.form-field').forEach(field => {
             const fieldName = field.dataset.field;
             const isRequired = reportConfig.requiredFields.includes(fieldName);
@@ -378,21 +511,37 @@ class ReportsManagerModule {
         });
     }
 
+<<<<<<< HEAD
+=======
+    // Update format options
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     updateFormatOptions(format) {
         const optionsContainer = document.querySelector('.format-options');
         if (!optionsContainer) return;
 
+<<<<<<< HEAD
+=======
+        // Show format-specific options
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         optionsContainer.querySelectorAll('.format-option').forEach(option => {
             const optionFormat = option.dataset.format;
             option.style.display = optionFormat === format ? 'block' : 'none';
         });
     }
 
+<<<<<<< HEAD
+=======
+    // Apply filters
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     applyFilters() {
         this.filters = this.getReportFormData();
         this.updatePreview();
     }
 
+<<<<<<< HEAD
+=======
+    // Update preview
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     async updatePreview() {
         const previewContainer = document.querySelector('.report-preview');
         if (!previewContainer) return;
@@ -416,6 +565,10 @@ class ReportsManagerModule {
         }
     }
 
+<<<<<<< HEAD
+=======
+    // Render preview
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     renderPreview(preview) {
         const container = document.querySelector('.report-preview');
         if (!container) return;
@@ -444,6 +597,10 @@ class ReportsManagerModule {
         `;
     }
 
+<<<<<<< HEAD
+=======
+    // Render sample data
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     renderSampleData(sampleData) {
         if (!sampleData || sampleData.length === 0) return '';
 
@@ -468,6 +625,10 @@ class ReportsManagerModule {
         `;
     }
 
+<<<<<<< HEAD
+=======
+    // Show generating status
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     showGeneratingStatus(generating) {
         const button = document.getElementById('generateReport');
         if (!button) return;
@@ -477,16 +638,28 @@ class ReportsManagerModule {
             button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando...';
         } else {
             button.disabled = false;
+<<<<<<< HEAD
             button.innerHTML = '<i class="fas fa-file-arrow-down"></i> Generar Reporte';
         }
     }
 
 
+=======
+            button.innerHTML = '<i class="fas fa-file-download"></i> Generar Reporte';
+        }
+    }
+
+    // Show schedule modal
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     showScheduleModal() {
         const modal = document.getElementById('scheduleReportModal') || this.createScheduleModal();
         modal.classList.add('active');
     }
 
+<<<<<<< HEAD
+=======
+    // Create schedule modal
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     createScheduleModal() {
         const modalHTML = `
             <div id="scheduleReportModal" class="modal-overlay">
@@ -542,7 +715,12 @@ class ReportsManagerModule {
         
         document.body.insertAdjacentHTML('beforeend', modalHTML);
         const modal = document.getElementById('scheduleReportModal');
+<<<<<<< HEAD
 
+=======
+        
+        // Add event listeners
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         modal.querySelector('.modal-close').addEventListener('click', () => {
             modal.classList.remove('active');
         });
@@ -558,6 +736,10 @@ class ReportsManagerModule {
         return modal;
     }
 
+<<<<<<< HEAD
+=======
+    // Save scheduled report
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     async saveScheduledReport() {
         const formData = {
             name: document.getElementById('scheduleName').value,
@@ -589,6 +771,10 @@ class ReportsManagerModule {
         }
     }
 
+<<<<<<< HEAD
+=======
+    // Download report by ID
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     async downloadReportById(reportId) {
         try {
             const response = await fetch(`/api/admin/reports/${reportId}/download`, {
@@ -608,6 +794,10 @@ class ReportsManagerModule {
         }
     }
 
+<<<<<<< HEAD
+=======
+    // View report
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     viewReport(reportId) {
         const report = this.reports.find(r => r.id === reportId);
         if (report && report.viewUrl) {
@@ -615,6 +805,10 @@ class ReportsManagerModule {
         }
     }
 
+<<<<<<< HEAD
+=======
+    // Share report
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     async shareReport(reportId) {
         try {
             const response = await fetch(`/api/admin/reports/${reportId}/share`, {
@@ -634,6 +828,10 @@ class ReportsManagerModule {
         }
     }
 
+<<<<<<< HEAD
+=======
+    // Delete report
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     async deleteReport(reportId) {
         if (!confirm('¿Está seguro de que desea eliminar este reporte?')) {
             return;
@@ -657,6 +855,10 @@ class ReportsManagerModule {
         }
     }
 
+<<<<<<< HEAD
+=======
+    // Get report types
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     getReportTypes() {
         return {
             attendance: {
@@ -682,6 +884,10 @@ class ReportsManagerModule {
         };
     }
 
+<<<<<<< HEAD
+=======
+    // Get quick report config
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     getQuickReportConfig(reportType) {
         const configs = {
             daily: {
@@ -707,6 +913,10 @@ class ReportsManagerModule {
         return configs[reportType] || configs.daily;
     }
 
+<<<<<<< HEAD
+=======
+    // Utility functions
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     getWeekStart() {
         const date = new Date();
         const day = date.getDay();
@@ -755,12 +965,20 @@ class ReportsManagerModule {
         }
     }
 
+<<<<<<< HEAD
+=======
+    // Refresh reports
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     async refresh() {
         await this.loadRecentReports();
         await this.loadScheduledReports();
     }
 }
 
+<<<<<<< HEAD
+=======
+// Export module
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = ReportsManagerModule;
 } else {

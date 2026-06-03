@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // Servicio API - Cliente HTTP para backend
 // FIXME: Revisar URLs en producción
 
@@ -6,6 +7,22 @@ class EnhancedApiClient {
   constructor(baseUrl = null) {
     // URL base de la API - usa rutas relativas para que el proxy de Vite las enrute al backend
     this.apiUrl = baseUrl || '/api';
+=======
+/**
+ * IN OUT MANAGER - ENHANCED API CLIENT SERVICE
+ * @version 1.1.0
+ * @description Servicio mejorado para comunicación entre frontend y backend
+ */
+
+class EnhancedApiClient {
+  /**
+   * Constructor del servicio API mejorado
+   * @param {string} baseUrl - URL base del API (opcional)
+   */
+  constructor(baseUrl = null) {
+    // URL base de la API - usar puerto 5000 para el backend
+    this.apiUrl = baseUrl || 'http://localhost:5000/api';
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     
     // Estado de conexión
     this.isOnline = navigator.onLine;

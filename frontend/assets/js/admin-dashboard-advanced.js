@@ -1,20 +1,40 @@
+<<<<<<< HEAD
 /************************
  * IN OUT MANAGER - Advanced Administrative Dashboard Controller
+=======
+/**
+ * ADVANCED ADMIN DASHBOARD
+ * IN OUT MANAGER - Advanced Administrative Dashboard Controller
+ * Version: 2.0.0
+ * Author: IN OUT MANAGER Team
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
  */
 
 // Importar PathManager
 import PathManager from './path-manager.js';
 
+<<<<<<< HEAD
 // Dashboard Main Controller OK
 class AdvancedDashboardController {
     constructor() {
         console.log(' Advanced Dashboard: Inicializando controlador...');
         
         this.verifyAuthentication();
+=======
+// Dashboard Main Controller
+class AdvancedDashboardController {
+    constructor() {
+        console.log('🚀 Advanced Dashboard: Inicializando controlador...');
+        
+        // Verificar autenticación antes de inicializar
+        this.verifyAuthentication();
+        
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         this.initializeComponents();
         this.setupEventListeners();
         this.loadInitialData();
         this.startRealTimeUpdates();
+<<<<<<< HEAD
         console.log('Advanced Dashboard: Controlador inicializado correctamente');
     }
 
@@ -24,13 +44,33 @@ class AdvancedDashboardController {
         const userData = SessionManager.getUserData();
         if (!userData || userData.tipo !== 'administrador') {
             console.warn(' Advanced Dashboard: Usuario no autenticado o sin permisos');
+=======
+        
+        console.log('✅ Advanced Dashboard: Controlador inicializado correctamente');
+    }
+
+    // Verificar autenticación del usuario
+    verifyAuthentication() {
+        console.log('🔐 Advanced Dashboard: Verificando autenticación...');
+        
+        const userData = SessionManager.getUserData();
+        if (!userData || userData.tipo !== 'administrador') {
+            console.warn('⚠️ Advanced Dashboard: Usuario no autenticado o sin permisos');
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
             PathManager.navigateToLogin('Acceso denegado. Debe ser administrador.');
             return;
         }
         
+<<<<<<< HEAD
         console.log('Advanced Dashboard: Usuario autenticado:', userData.nombre);
     }
 
+=======
+        console.log('✅ Advanced Dashboard: Usuario autenticado:', userData.nombre);
+    }
+
+    // Initialize all dashboard components
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     initializeComponents() {
         this.chartsManager = new ChartsManager();
         this.realTimeManager = new RealTimeManager();
@@ -40,6 +80,7 @@ class AdvancedDashboardController {
         this.backupManager = new BackupManager();
         this.notificationSystem = new NotificationSystem();
         
+<<<<<<< HEAD
         console.log('Advanced Dashboard Initialized');
     }
 
@@ -57,12 +98,41 @@ class AdvancedDashboardController {
         document.getElementById('quick-notifications')?.addEventListener('click', () => {
             this.notificationSystem.showNotificationCenter();
         });
+=======
+        console.log('📊 Advanced Dashboard Initialized');
+    }
+
+    // Setup event listeners
+    setupEventListeners() {
+        // Quick actions in header
+        document.getElementById('quick-backup')?.addEventListener('click', () => {
+            this.backupManager.performQuickBackup();
+        });
+
+        document.getElementById('quick-reports')?.addEventListener('click', () => {
+            this.reportsManager.openReportsModal();
+        });
+
+        document.getElementById('quick-settings')?.addEventListener('click', () => {
+            this.openSettingsModal();
+        });
+
+        document.getElementById('quick-notifications')?.addEventListener('click', () => {
+            this.notificationSystem.showNotificationCenter();
+        });
+
+        // Panel controls
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         document.querySelectorAll('.panel-control-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 this.handlePanelControl(e.target);
             });
         });
 
+<<<<<<< HEAD
+=======
+        // Refresh controls
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         document.querySelectorAll('[data-action="refresh"]').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const panel = btn.closest('.dashboard-panel');
@@ -71,6 +141,7 @@ class AdvancedDashboardController {
         });
     }
 
+<<<<<<< HEAD
     async loadInitialData() {
         try {
             this.showLoadingState();
@@ -78,6 +149,26 @@ class AdvancedDashboardController {
             await this.employeeManager.loadEmployees();
             await this.chartsManager.initializeCharts();
             await this.reportsManager.loadRecentReports();
+=======
+    // Load initial dashboard data
+    async loadInitialData() {
+        try {
+            this.showLoadingState();
+            
+            // Load KPIs
+            await this.loadKPIs();
+            
+            // Load employees data
+            await this.employeeManager.loadEmployees();
+            
+            // Initialize charts
+            await this.chartsManager.initializeCharts();
+            
+            // Load reports
+            await this.reportsManager.loadRecentReports();
+            
+            // Load audit logs
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
             await this.auditManager.loadAuditLogs();
             
             this.hideLoadingState();
@@ -89,6 +180,10 @@ class AdvancedDashboardController {
         }
     }
 
+<<<<<<< HEAD
+=======
+    // Load KPIs data
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     async loadKPIs() {
         try {
             const response = await fetch('/api/admin/kpis');
@@ -104,6 +199,10 @@ class AdvancedDashboardController {
         }
     }
 
+<<<<<<< HEAD
+=======
+    // Update KPI display
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     updateKPI(type, value, trend) {
         const card = document.querySelector(`[data-kpi="${type}"]`);
         if (!card) return;
@@ -124,6 +223,10 @@ class AdvancedDashboardController {
         }
     }
 
+<<<<<<< HEAD
+=======
+    // Animate number changes
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     animateNumber(element, targetValue) {
         const startValue = parseInt(element.textContent) || 0;
         const duration = 1000;
@@ -132,8 +235,16 @@ class AdvancedDashboardController {
         const animate = (currentTime) => {
             const elapsed = currentTime - startTime;
             const progress = Math.min(elapsed / duration, 1);
+<<<<<<< HEAD
             const easeOutQuart = 1 - Math.pow(1 - progress, 4);
             const currentValue = Math.round(startValue + (targetValue - startValue) * easeOutQuart);
+=======
+            
+            // Easing function
+            const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+            const currentValue = Math.round(startValue + (targetValue - startValue) * easeOutQuart);
+            
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
             element.textContent = currentValue.toLocaleString();
             
             if (progress < 1) {
@@ -144,6 +255,7 @@ class AdvancedDashboardController {
         requestAnimationFrame(animate);
     }
 
+<<<<<<< HEAD
     startRealTimeUpdates() {
         setInterval(() => {
             this.loadKPIs();
@@ -151,10 +263,30 @@ class AdvancedDashboardController {
         setInterval(() => {
             this.realTimeManager.updateRealTimeData();
         }, 5000);
+=======
+    // Start real-time updates
+    startRealTimeUpdates() {
+        // Update KPIs every 30 seconds
+        setInterval(() => {
+            this.loadKPIs();
+        }, 30000);
+
+        // Update real-time panel every 5 seconds
+        setInterval(() => {
+            this.realTimeManager.updateRealTimeData();
+        }, 5000);
+
+        // Update employee status every 15 seconds
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         setInterval(() => {
             this.employeeManager.updateEmployeeStatuses();
         }, 15000);
     }
+<<<<<<< HEAD
+=======
+
+    // Handle panel controls
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     handlePanelControl(button) {
         const action = button.dataset.action;
         const panel = button.closest('.dashboard-panel');
@@ -175,8 +307,14 @@ class AdvancedDashboardController {
         }
     }
 
+<<<<<<< HEAD
     async refreshPanel(panel) {
         const panelType = panel.classList[1]; 
+=======
+    // Refresh panel data
+    async refreshPanel(panel) {
+        const panelType = panel.classList[1]; // Get second class which should be panel type
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         
         panel.classList.add('loading');
         
@@ -207,10 +345,18 @@ class AdvancedDashboardController {
         }
     }
 
+<<<<<<< HEAD
+=======
+    // Toggle fullscreen for panel
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     toggleFullscreen(panel) {
         panel.classList.toggle('fullscreen');
         
         if (panel.classList.contains('fullscreen')) {
+<<<<<<< HEAD
+=======
+            // Add fullscreen styles
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
             panel.style.position = 'fixed';
             panel.style.top = '0';
             panel.style.left = '0';
@@ -218,6 +364,11 @@ class AdvancedDashboardController {
             panel.style.height = '100vh';
             panel.style.zIndex = '9999';
             panel.style.margin = '0';
+<<<<<<< HEAD
+=======
+            
+            // Add escape key listener
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
             const escapeHandler = (e) => {
                 if (e.key === 'Escape') {
                     this.toggleFullscreen(panel);
@@ -227,6 +378,10 @@ class AdvancedDashboardController {
             document.addEventListener('keydown', escapeHandler);
             
         } else {
+<<<<<<< HEAD
+=======
+            // Remove fullscreen styles
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
             panel.style.position = '';
             panel.style.top = '';
             panel.style.left = '';
@@ -236,6 +391,11 @@ class AdvancedDashboardController {
             panel.style.margin = '';
         }
     }
+<<<<<<< HEAD
+=======
+
+    // Export panel data
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     async exportPanel(panel) {
         const panelType = panel.classList[1];
         
@@ -266,6 +426,11 @@ class AdvancedDashboardController {
             this.notificationSystem.showToast('Error al exportar datos', 'error');
         }
     }
+<<<<<<< HEAD
+=======
+
+    // Show/hide loading state
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     showLoadingState() {
         document.querySelector('main').classList.add('loading');
     }
@@ -274,11 +439,19 @@ class AdvancedDashboardController {
         document.querySelector('main').classList.remove('loading');
     }
 
+<<<<<<< HEAD
+=======
+    // Open settings modal
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     openSettingsModal() {
         const modal = document.getElementById('settingsModal') || this.createSettingsModal();
         modal.classList.add('active');
     }
 
+<<<<<<< HEAD
+=======
+    // Create settings modal
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     createSettingsModal() {
         const modalHTML = `
             <div id="settingsModal" class="modal-overlay">
@@ -336,6 +509,10 @@ class AdvancedDashboardController {
         document.body.insertAdjacentHTML('beforeend', modalHTML);
         const modal = document.getElementById('settingsModal');
         
+<<<<<<< HEAD
+=======
+        // Add event listeners
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         modal.querySelector('.modal-close').addEventListener('click', () => {
             modal.classList.remove('active');
         });
@@ -343,13 +520,25 @@ class AdvancedDashboardController {
         modal.querySelector('#cancelSettings').addEventListener('click', () => {
             modal.classList.remove('active');
         });
+<<<<<<< HEAD
+=======
+        
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         modal.querySelector('#saveSettings').addEventListener('click', () => {
             this.saveSettings();
             modal.classList.remove('active');
         });
+<<<<<<< HEAD
         return modal;
     }
 
+=======
+        
+        return modal;
+    }
+
+    // Save settings
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     saveSettings() {
         const settings = {
             darkMode: document.getElementById('darkMode').checked,
@@ -363,18 +552,31 @@ class AdvancedDashboardController {
         this.notificationSystem.showToast('Configuración guardada', 'success');
     }
 
+<<<<<<< HEAD
+=======
+    // Apply settings
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     applySettings(settings) {
         if (settings.darkMode) {
             document.body.classList.add('dark-mode');
         } else {
             document.body.classList.remove('dark-mode');
         }
+<<<<<<< HEAD
+=======
+        
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         if (!settings.animations) {
             document.body.classList.add('no-animations');
         } else {
             document.body.classList.remove('no-animations');
         }
     }
+<<<<<<< HEAD
+=======
+
+    // Load saved settings
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     loadSettings() {
         const savedSettings = localStorage.getItem('dashboardSettings');
         if (savedSettings) {
@@ -384,6 +586,10 @@ class AdvancedDashboardController {
     }
 }
 
+<<<<<<< HEAD
+=======
+// Charts Manager
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 class ChartsManager {
     constructor() {
         this.charts = {};
@@ -419,9 +625,19 @@ class ChartsManager {
 
     async initializeCharts() {
         try {
+<<<<<<< HEAD
             await this.createChart('attendance');
             await this.createChart('productivity');
             console.log('Charts initialized successfully');
+=======
+            // Initialize attendance chart
+            await this.createChart('attendance');
+            
+            // Initialize productivity chart
+            await this.createChart('productivity');
+            
+            console.log('📈 Charts initialized successfully');
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         } catch (error) {
             console.error('Error initializing charts:', error);
         }
@@ -429,7 +645,12 @@ class ChartsManager {
 
     async createChart(type) {
         const canvas = document.getElementById(`${type}Chart`);
+<<<<<<< HEAD
         if (!canvas) return
+=======
+        if (!canvas) return;
+
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         const response = await fetch(`/api/admin/charts/${type}`);
         const data = await response.json();
 
@@ -440,6 +661,10 @@ class ChartsManager {
             options: this.chartConfigs[type].options
         });
     }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     async refresh() {
         for (const [type, chart] of Object.entries(this.charts)) {
             try {
@@ -453,17 +678,30 @@ class ChartsManager {
             }
         }
     }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     destroy() {
         Object.values(this.charts).forEach(chart => chart.destroy());
         this.charts = {};
     }
 }
 
+<<<<<<< HEAD
+=======
+// Real-Time Manager
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 class RealTimeManager {
     constructor() {
         this.updateInterval = null;
     }
+<<<<<<< HEAD
 async updateRealTimeData() {
+=======
+
+    async updateRealTimeData() {
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         try {
             const response = await fetch('/api/admin/realtime');
             const data = await response.json();
@@ -493,7 +731,11 @@ async updateRealTimeData() {
         feedContainer.innerHTML = feedData.map(item => `
             <div class="feed-item">
                 <div class="feed-icon ${item.type}">
+<<<<<<< HEAD
                     <i class="fas fa-${item.type === 'entry' ? 'right-to-bracket' : 'right-from-bracket'}"></i>
+=======
+                    <i class="fas fa-${item.type === 'entry' ? 'sign-in-alt' : 'sign-out-alt'}"></i>
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
                 </div>
                 <div class="feed-content">
                     <div class="feed-text">${item.message}</div>
@@ -515,6 +757,10 @@ async updateRealTimeData() {
     }
 }
 
+<<<<<<< HEAD
+=======
+// Employee Manager
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 class EmployeeManager {
     constructor() {
         this.employees = [];
@@ -526,12 +772,24 @@ class EmployeeManager {
         const searchInput = document.getElementById('employeeSearch');
         const statusFilter = document.getElementById('statusFilter');
         const departmentFilter = document.getElementById('departmentFilter');
+<<<<<<< HEAD
         if (searchInput) {
             searchInput.addEventListener('input', () => this.applyFilters());
         }
         if (statusFilter) {
             statusFilter.addEventListener('change', () => this.applyFilters());
         }
+=======
+
+        if (searchInput) {
+            searchInput.addEventListener('input', () => this.applyFilters());
+        }
+        
+        if (statusFilter) {
+            statusFilter.addEventListener('change', () => this.applyFilters());
+        }
+        
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         if (departmentFilter) {
             departmentFilter.addEventListener('change', () => this.applyFilters());
         }
@@ -547,6 +805,10 @@ class EmployeeManager {
             console.error('Error loading employees:', error);
         }
     }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     applyFilters() {
         const searchTerm = document.getElementById('employeeSearch')?.value.toLowerCase() || '';
         const statusFilter = document.getElementById('statusFilter')?.value || '';
@@ -560,8 +822,15 @@ class EmployeeManager {
 
             return matchesSearch && matchesStatus && matchesDepartment;
         });
+<<<<<<< HEAD
         this.renderEmployees();
     }
+=======
+
+        this.renderEmployees();
+    }
+
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     renderEmployees() {
         const tbody = document.querySelector('.employees-table tbody');
         if (!tbody) return;
@@ -597,6 +866,10 @@ class EmployeeManager {
             </tr>
         `).join('');
     }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     getStatusText(status) {
         const statusMap = {
             'active': 'Activo',
@@ -605,14 +878,26 @@ class EmployeeManager {
         };
         return statusMap[status] || status;
     }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     formatTime(timestamp) {
         if (!timestamp) return 'N/A';
         return new Date(timestamp).toLocaleString('es-ES');
     }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     async updateEmployeeStatuses() {
         try {
             const response = await fetch('/api/admin/employees/status');
             const statusUpdates = await response.json();
+<<<<<<< HEAD
+=======
+            
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
             statusUpdates.forEach(update => {
                 const employee = this.employees.find(emp => emp.id === update.id);
                 if (employee) {
@@ -620,20 +905,37 @@ class EmployeeManager {
                     employee.ultimaActividad = update.ultimaActividad;
                 }
             });
+<<<<<<< HEAD
+=======
+            
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
             this.applyFilters(); // Re-render with updated data
         } catch (error) {
             console.error('Error updating employee statuses:', error);
         }
     }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     async refresh() {
         await this.loadEmployees();
     }
 }
+<<<<<<< HEAD
+=======
+
+// Reports Manager
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 class ReportsManager {
     constructor() {
         this.reports = [];
         this.setupReportFilters();
     }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     setupReportFilters() {
         const applyBtn = document.getElementById('applyFilters');
         if (applyBtn) {
@@ -650,6 +952,10 @@ class ReportsManager {
             console.error('Error loading reports:', error);
         }
     }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     renderReports() {
         const container = document.querySelector('.reports-list');
         if (!container) return;
@@ -671,6 +977,10 @@ class ReportsManager {
             </div>
         `).join('');
     }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     async generateReport() {
         const reportType = document.getElementById('reportType')?.value;
         const startDate = document.getElementById('startDate')?.value;
@@ -680,6 +990,10 @@ class ReportsManager {
             window.notificationSystem.showToast('Complete todos los campos', 'warning');
             return;
         }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         try {
             const response = await fetch('/api/admin/reports/generate', {
                 method: 'POST',
@@ -704,6 +1018,10 @@ class ReportsManager {
             window.notificationSystem.showToast('Error al generar reporte', 'error');
         }
     }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     formatDate(timestamp) {
         return new Date(timestamp).toLocaleDateString('es-ES');
     }
@@ -711,10 +1029,21 @@ class ReportsManager {
     async refresh() {
         await this.loadRecentReports();
     }
+<<<<<<< HEAD
     openReportsModal() {
         console.log('Opening reports modal...');
     }
 }
+=======
+
+    openReportsModal() {
+        // Implementation for reports modal
+        console.log('Opening reports modal...');
+    }
+}
+
+// Audit Manager
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 class AuditManager {
     constructor() {
         this.auditLogs = [];
@@ -729,6 +1058,10 @@ class AuditManager {
             console.error('Error loading audit logs:', error);
         }
     }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     renderAuditTimeline() {
         const timeline = document.querySelector('.audit-timeline');
         if (!timeline) return;
@@ -746,6 +1079,10 @@ class AuditManager {
             </div>
         `).join('');
     }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     getAuditIcon(type) {
         const iconMap = {
             'login': 'sign-in-alt',
@@ -762,10 +1099,19 @@ class AuditManager {
     formatTime(timestamp) {
         return new Date(timestamp).toLocaleString('es-ES');
     }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     async refresh() {
         await this.loadAuditLogs();
     }
 }
+<<<<<<< HEAD
+=======
+
+// Backup Manager
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 class BackupManager {
     constructor() {
         this.backupStatus = null;
@@ -792,6 +1138,10 @@ class BackupManager {
             window.notificationSystem.showToast('Error al realizar respaldo', 'error');
         }
     }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     updateBackupStatus(status) {
         const statusElement = document.querySelector('.backup-status');
         if (statusElement) {
@@ -804,6 +1154,10 @@ class BackupManager {
     }
 }
 
+<<<<<<< HEAD
+=======
+// Notification System
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 class NotificationSystem {
     constructor() {
         this.createToastContainer();
@@ -828,14 +1182,32 @@ class NotificationSystem {
             </div>
             <div class="toast-body">${message}</div>
         `;
+<<<<<<< HEAD
         const container = document.querySelector('.toast-container');
         container.appendChild(toast);
         setTimeout(() => toast.classList.add('show'), 100);
         setTimeout(() => this.removeToast(toast), duration);
+=======
+
+        const container = document.querySelector('.toast-container');
+        container.appendChild(toast);
+
+        // Show toast
+        setTimeout(() => toast.classList.add('show'), 100);
+
+        // Auto remove
+        setTimeout(() => this.removeToast(toast), duration);
+
+        // Manual close
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         toast.querySelector('.toast-close').addEventListener('click', () => {
             this.removeToast(toast);
         });
     }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     getToastTitle(type) {
         const titles = {
             'success': 'Éxito',
@@ -845,6 +1217,10 @@ class NotificationSystem {
         };
         return titles[type] || 'Notificación';
     }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     removeToast(toast) {
         toast.classList.remove('show');
         setTimeout(() => {
@@ -853,34 +1229,65 @@ class NotificationSystem {
             }
         }, 300);
     }
+<<<<<<< HEAD
     showNotificationCenter() {
+=======
+
+    showNotificationCenter() {
+        // Implementation for notification center
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         console.log('Opening notification center...');
     }
 }
 
+<<<<<<< HEAD
 window.editEmployee = function(employeeId) {
     console.log('Editing employee:', employeeId);
+=======
+// Global functions for employee actions
+window.editEmployee = function(employeeId) {
+    console.log('Editing employee:', employeeId);
+    // Implementation for edit employee modal
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 };
 
 window.deleteEmployee = function(employeeId) {
     if (confirm('¿Está seguro de que desea eliminar este empleado?')) {
         console.log('Deleting employee:', employeeId);
+<<<<<<< HEAD
+=======
+        // Implementation for delete employee
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     }
 };
 
 window.downloadReport = function(reportId) {
     console.log('Downloading report:', reportId);
+<<<<<<< HEAD
+=======
+    // Implementation for download report
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 };
 
 window.viewReport = function(reportId) {
     console.log('Viewing report:', reportId);
+<<<<<<< HEAD
 };
 
 document.addEventListener('DOMContentLoaded', function() {
+=======
+    // Implementation for view report
+};
+
+// Initialize dashboard when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Check authentication
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     const authToken = localStorage.getItem('authToken');
     const currentSession = JSON.parse(localStorage.getItem('currentSession') || '{}');
     
     if (!authToken && !currentSession.tipoUsuario) {
+<<<<<<< HEAD
         PathManager.navigateToLogin();
         return;
     }
@@ -896,6 +1303,27 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('Advanced Admin Dashboard Loaded Successfully');
 });
 
+=======
+        window.location.href = '/frontend/components/auth/login.html';
+        return;
+    }
+    
+    // Verify admin role
+    if (currentSession.tipoUsuario !== 'administrador') {
+        alert('Acceso denegado. Solo administradores pueden acceder a este panel.');
+        window.location.href = '/frontend/components/auth/login.html';
+        return;
+    }
+
+    // Initialize advanced dashboard
+    window.dashboardController = new AdvancedDashboardController();
+    window.notificationSystem = window.dashboardController.notificationSystem;
+    
+    console.log('🚀 Advanced Admin Dashboard Loaded Successfully');
+});
+
+// Export for module use if needed
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
         AdvancedDashboardController,

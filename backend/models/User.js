@@ -1,10 +1,22 @@
+<<<<<<< HEAD
 // Modelo de usuario para el sistema
+=======
+/**
+ * IN OUT MANAGER - MODELO DE USUARIO
+ * @version 1.0.0
+ * @description Esquema y modelo para usuarios de la aplicación
+ */
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const config = require('../config/config');
 
+<<<<<<< HEAD
+=======
+// Definir el esquema de usuario
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 const userSchema = new mongoose.Schema({
   nombreCompleto: {
     type: String,
@@ -32,7 +44,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, 'La contraseña es requerida'],
     minlength: [6, 'La contraseña debe tener al menos 6 caracteres'],
+<<<<<<< HEAD
     select: false 
+=======
+    select: false // No incluir en consultas por defecto
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
   },
   tipoUsuario: {
     type: String,
@@ -63,6 +79,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+<<<<<<< HEAD
+=======
+  // Campos adicionales capturados del formulario
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
   telefono: {
     type: String,
     trim: true,
@@ -105,6 +125,7 @@ const userSchema = new mongoose.Schema({
     default: null
   }
 }, {
+<<<<<<< HEAD
   timestamps: true, 
   versionKey: false 
 });
@@ -113,14 +134,33 @@ userSchema.index({ numeroDocumento: 1 });
 userSchema.index({ correoElectronico: 1 });
 
 userSchema.pre('save', async function(next) {
+=======
+  timestamps: true, // Crear automáticamente createdAt y updatedAt
+  versionKey: false // No incluir __v
+});
+
+// Índices para mejorar búsquedas
+userSchema.index({ numeroDocumento: 1 });
+userSchema.index({ correoElectronico: 1 });
+
+// Middleware para hashear contraseña antes de guardar
+userSchema.pre('save', async function(next) {
+  // Solo hash si la contraseña ha sido modificada
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
   if (!this.isModified('password')) {
     next();
   }
   
   try {
+<<<<<<< HEAD
 
     const salt = await bcrypt.genSalt(10);
 
+=======
+    // Generar salt
+    const salt = await bcrypt.genSalt(10);
+    // Hash de contraseña
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     this.password = await bcrypt.hash(this.password, salt);
     next();
   } catch (error) {
@@ -128,11 +168,19 @@ userSchema.pre('save', async function(next) {
   }
 });
 
+<<<<<<< HEAD
 
+=======
+// Método para comparar contraseña
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 userSchema.methods.matchPassword = async function(enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
+<<<<<<< HEAD
+=======
+// Método para verificar si una contraseña está en formato antiguo (btoa)
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 userSchema.methods.isLegacyPassword = function(hash, password) {
   try {
     return atob(hash) === password;
@@ -141,6 +189,10 @@ userSchema.methods.isLegacyPassword = function(hash, password) {
   }
 };
 
+<<<<<<< HEAD
+=======
+// Método para generar token JWT
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 userSchema.methods.getSignedJwtToken = function() {
   return jwt.sign(
     { 
@@ -154,18 +206,35 @@ userSchema.methods.getSignedJwtToken = function() {
   );
 };
 
+<<<<<<< HEAD
 userSchema.methods.getResetPasswordToken = function() {
   const resetToken = crypto.randomBytes(20).toString('hex');
 
+=======
+// Método para generar token de recuperación de contraseña
+userSchema.methods.getResetPasswordToken = function() {
+  // Generar token
+  const resetToken = crypto.randomBytes(20).toString('hex');
+
+  // Hash token y almacenar
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
   this.resetPasswordToken = crypto
     .createHash('sha256')
     .update(resetToken)
     .digest('hex');
 
+<<<<<<< HEAD
+=======
+  // Establecer expiración (10 minutos)
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
   this.resetPasswordExpire = Date.now() + 10 * 60 * 1000;
 
   return resetToken;
 };
 
+<<<<<<< HEAD
+=======
+// Crear y exportar el modelo
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
 const User = mongoose.model('User', userSchema);
 module.exports = User;

@@ -1,34 +1,87 @@
 const mongoose = require('mongoose');
 
+<<<<<<< HEAD
 // Modelo de estadísticas diarias
 
 const dailyStatsSchema = new mongoose.Schema({
+=======
+/**
+ * DailyStats Model - Estadísticas Diarias de Trabajo
+ * 
+ * Este modelo almacena estadísticas agregadas por día para cada empleado,
+ * facilitando consultas rápidas en el dashboard y reportes.
+ * 
+ * Características:
+ * - Estadísticas diarias agregadas por empleado
+ * - Cálculos de horas trabajadas según legislación colombiana
+ * - Recargos por horas extras, nocturnas y dominicales
+ * - Soporte para múltiples tipos de sesiones de trabajo
+ * 
+ * Legislación Colombiana 2025:
+ * - Jornada máxima: 8 horas diarias, 44 horas semanales
+ * - Recargo nocturno: 35% (22:00 - 06:00)
+ * - Recargo diurno extra: 25% (después de 8 horas diarias)
+ * - Recargo nocturno extra: 75% (después de 8 horas diarias + nocturno)
+ * - Recargo dominical/festivo: 75% (día completo)
+ * - Recargo nocturno dominical/festivo: 100%
+ */
+
+const dailyStatsSchema = new mongoose.Schema({
+    // Referencia al empleado
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true,
         index: true
     },
+<<<<<<< HEAD
+=======
+
+    // Fecha del día (sin hora, solo fecha)
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     fecha: {
         type: Date,
         required: true,
         index: true
     },
+<<<<<<< HEAD
+=======
+
+    // Información básica del día
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     esDomingoOFestivo: {
         type: Boolean,
         default: false
     },
+<<<<<<< HEAD
     tiempoTotal: {
+=======
+
+    // === TIEMPOS TOTALES ===
+    tiempoTotal: {
+        // Tiempo total trabajado en minutos
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         minutos: {
             type: Number,
             default: 0,
             min: 0
         },
+<<<<<<< HEAD
+=======
+        
+        // Tiempo formateado (HH:MM)
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
         formato: {
             type: String,
             default: "00:00"
         }
     },
+<<<<<<< HEAD
+=======
+
+    // === DISTRIBUCIÓN DE HORAS ORDINARIAS ===
+>>>>>>> 83d3fee8987e2a325c60d0c2557fb0e9974b613c
     horasOrdinarias: {
         // Horas diurnas ordinarias (06:00 - 22:00)
         diurnas: {
