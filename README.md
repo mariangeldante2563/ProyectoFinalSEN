@@ -38,7 +38,7 @@ InOutManager es un sistema completo de gestión de asistencia y control de jorna
 
 ## Características Implementadas
 
-### 🔐 Autenticación y Autorización
+###  Autenticación y Autorización
 - **Registro de usuarios**: Empleados y administradores con validación completa
 - **Inicio de sesión seguro**: Autenticación JWT con roles diferenciados
 - **Código de administrador**: Verificación adicional para acceso administrativo
@@ -46,14 +46,14 @@ InOutManager es un sistema completo de gestión de asistencia y control de jorna
 - **Gestión de sesiones**: Control de sesiones activas y logout seguro
 - **Middleware de protección**: Rutas protegidas por autenticación y roles
 
-### 👥 Gestión de Usuarios
+###  Gestión de Usuarios
 - **CRUD completo**: Crear, leer, actualizar y eliminar usuarios
 - **Roles y permisos**: Sistema de roles empleado/administrador
 - **Validación de datos**: Validaciones exhaustivas en frontend y backend
 - **Subida de fotos de perfil**: Gestión de avatares de usuario
 - **Perfiles detallados**: Información completa de empleados (documento, cargo, horario, etc.)
 
-### ⏰ Registro de Asistencia y Control de Jornada
+###  Registro de Asistencia y Control de Jornada
 - **Registro de entrada/salida**: Marcación precisa con timestamp
 - **Sesiones de trabajo**: Creación automática de sesiones laborales
 - **Cálculo de tiempos**: Algoritmos avanzados para cálculo de tiempo laborado
@@ -61,7 +61,7 @@ InOutManager es un sistema completo de gestión de asistencia y control de jorna
 - **Recargos automáticos**: Cálculo de recargos nocturnos, extras y dominicales
 - **Validación de integridad**: Verificación de consistencia de datos
 
-### 📊 Estadísticas y Reportes
+### Estadísticas y Reportes
 - **Estadísticas diarias**: Resumen completo del día laboral
 - **Estadísticas semanales/mensuales**: Análisis de productividad por períodos
 - **Gráficos interactivos**: Visualización con Chart.js y D3.js
@@ -69,7 +69,7 @@ InOutManager es un sistema completo de gestión de asistencia y control de jorna
 - **Dashboard en tiempo real**: Actualización automática de métricas
 - **KPIs avanzados**: Indicadores clave de rendimiento
 
-### 🏢 Panel de Administración Avanzado
+###  Panel de Administración Avanzado
 - **Dashboard administrativo**: Panel completo con métricas y gráficos
 - **Vista en tiempo real**: Monitoreo continuo de asistencia
 - **Gestión de empleados**: Administración completa del personal
@@ -83,3 +83,7 @@ InOutManager es un sistema completo de gestión de asistencia y control de jorna
 - **GitHub**: [mariangeldante2563](https://github.com/mariangeldante2563)
 - **Repositorio**: [ProyectoFinalSEN](https://github.com/mariangeldante2563/ProyectoFinalSEN)
 
+
+
+
+- **npm run start:both**: para arrancar el backend y el fornted y conectarse mongo db compass- localhost:27017/inoutmanager?

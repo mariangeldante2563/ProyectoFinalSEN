@@ -21,7 +21,7 @@ class StatsController {
             const { type, timestamp, location } = req.body;
             const userId = req.user.id;
 
-            console.log(`📋 Nueva asistencia - Usuario: ${userId}, Tipo: ${type}`);
+            console.log(` Nueva asistencia - Usuario: ${userId}, Tipo: ${type}`);
 
             // Validar datos de entrada
             if (!type || !['entrada', 'salida'].includes(type)) {
@@ -51,7 +51,7 @@ class StatsController {
             });
 
         } catch (error) {
-            console.error('❌ Error en registrarAsistencia:', error);
+            console.error(' Error en registrarAsistencia:', error);
             res.status(500).json({
                 success: false,
                 message: 'Error al registrar asistencia',
@@ -67,7 +67,7 @@ class StatsController {
     static async obtenerDashboard(req, res) {
         try {
             const userId = req.user.id;
-            console.log(`📊 Generando dashboard para usuario: ${userId}`);
+            console.log(` Generando dashboard para usuario: ${userId}`);
 
             const resumen = await TimeCalculationService.obtenerResumenDashboard(userId);
 
@@ -77,7 +77,7 @@ class StatsController {
             });
 
         } catch (error) {
-            console.error('❌ Error en obtenerDashboard:', error);
+            console.error(' Error en obtenerDashboard:', error);
             res.status(500).json({
                 success: false,
                 message: 'Error al obtener datos del dashboard',
@@ -101,7 +101,7 @@ class StatsController {
             });
 
         } catch (error) {
-            console.error('❌ Error en obtenerEstadisticasHoy:', error);
+            console.error(' Error en obtenerEstadisticasHoy:', error);
             res.status(500).json({
                 success: false,
                 message: 'Error al obtener estadísticas de hoy',
@@ -125,7 +125,7 @@ class StatsController {
             });
 
         } catch (error) {
-            console.error('❌ Error en obtenerEstadisticasSemanales:', error);
+            console.error(' Error en obtenerEstadisticasSemanales:', error);
             res.status(500).json({
                 success: false,
                 message: 'Error al obtener estadísticas semanales',
@@ -149,7 +149,7 @@ class StatsController {
             });
 
         } catch (error) {
-            console.error('❌ Error en obtenerEstadisticasMensuales:', error);
+            console.error(' Error en obtenerEstadisticasMensuales:', error);
             res.status(500).json({
                 success: false,
                 message: 'Error al obtener estadísticas mensuales',
@@ -178,7 +178,7 @@ class StatsController {
             });
 
         } catch (error) {
-            console.error('❌ Error en obtenerDatosGraficas:', error);
+            console.error(' Error en obtenerDatosGraficas:', error);
             res.status(500).json({
                 success: false,
                 message: 'Error al obtener datos para gráficas',
@@ -202,7 +202,7 @@ class StatsController {
             });
 
         } catch (error) {
-            console.error('❌ Error en obtenerSesionActiva:', error);
+            console.error(' Error en obtenerSesionActiva:', error);
             res.status(500).json({
                 success: false,
                 message: 'Error al obtener sesión activa',
@@ -262,7 +262,7 @@ class StatsController {
             });
 
         } catch (error) {
-            console.error('❌ Error en obtenerHistoricoSesiones:', error);
+            console.error(' Error en obtenerHistoricoSesiones:', error);
             res.status(500).json({
                 success: false,
                 message: 'Error al obtener histórico de sesiones',
@@ -311,7 +311,7 @@ class StatsController {
             });
 
         } catch (error) {
-            console.error('❌ Error en obtenerDetalleSesion:', error);
+            console.error(' Error en obtenerDetalleSesion:', error);
             res.status(500).json({
                 success: false,
                 message: 'Error al obtener detalle de sesión',
@@ -336,7 +336,7 @@ class StatsController {
                 });
             }
 
-            console.log(`🔄 Iniciando migración para usuario ${userId}`);
+            console.log(` Iniciando migración para usuario ${userId}`);
 
             const resultado = await TimeCalculationService.migrarRegistrosExistentes(
                 userId,
@@ -351,7 +351,7 @@ class StatsController {
             });
 
         } catch (error) {
-            console.error('❌ Error en migrarRegistros:', error);
+            console.error(' Error en migrarRegistros:', error);
             res.status(500).json({
                 success: false,
                 message: 'Error al migrar registros',
@@ -376,7 +376,7 @@ class StatsController {
             });
 
         } catch (error) {
-            console.error('❌ Error en validarIntegridad:', error);
+            console.error(' Error en validarIntegridad:', error);
             res.status(500).json({
                 success: false,
                 message: 'Error al validar integridad de datos',
@@ -411,7 +411,7 @@ class StatsController {
             });
 
         } catch (error) {
-            console.error('❌ Error en obtenerInfoLegislacion:', error);
+            console.error(' Error en obtenerInfoLegislacion:', error);
             res.status(500).json({
                 success: false,
                 message: 'Error al obtener información de legislación',
@@ -471,7 +471,7 @@ class StatsController {
             });
 
         } catch (error) {
-            console.error('❌ Error en calcularRecargos:', error);
+            console.error(' Error en calcularRecargos:', error);
             res.status(500).json({
                 success: false,
                 message: 'Error al calcular recargos',
@@ -545,7 +545,7 @@ class StatsController {
             });
 
         } catch (error) {
-            console.error('❌ Error en obtenerRendimientoSistema:', error);
+            console.error(' Error en obtenerRendimientoSistema:', error);
             res.status(500).json({
                 success: false,
                 message: 'Error al obtener rendimiento del sistema',
