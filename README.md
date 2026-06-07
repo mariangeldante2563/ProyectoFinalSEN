@@ -81,7 +81,7 @@ InOutManager es un sistema completo de gestión de asistencia y control de jorna
 - **Desarrollador**: Mariangel Dante
 - **Email**: mariangeldante2563@ejemplo.com
 - **GitHub**: [mariangeldante2563](https://github.com/mariangeldante2563)
-- **Repositorio**: [ProyectoFinalSEN](https://github.com/mariangeldante2563/ProyectoFinalSEN)
+- **Repositorio**: [sena2](https://github.com/dinocarvajalcuellar-sys/sena2)
 
 
 
