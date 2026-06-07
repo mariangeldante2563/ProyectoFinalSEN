@@ -11,6 +11,8 @@ class AdminDashboard extends BaseDashboard {
     this.attendanceRecords = document.getElementById('attendanceRecords');
     this.adminDepartment = document.getElementById('adminDepartment');
     this.activeEmployees = document.getElementById('activeEmployees');
+    this.allEmployees = [];
+    this.allAttendanceRecords = [];
     this.todayAttendance = document.getElementById('todayAttendance');
     this.employeeSearch = document.getElementById('employeeSearch');
     this.searchBtn = document.getElementById('searchBtn');
@@ -105,17 +107,30 @@ class AdminDashboard extends BaseDashboard {
     }
   }
   
-  loadEmployeesList() {
+  async loadEmployeesList() {
     try {
       if (!this.employeesList) return;
       
-      // Obtener todos los usuarios registrados
-      const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+      let employees = [];
       
-      // Filtrar solo empleados (excluir administradores)
-      const employees = users.filter(user => user.tipoUsuario === 'empleado');
+      if (typeof window.apiService !== 'undefined' && typeof window.apiService.get === 'function') {
+        try {
+          const response = await window.apiService.get('/users?limit=1000&tipoUsuario=empleado');
+          if (response && response.success && Array.isArray(response.data)) {
+            employees = response.data;
+          }
+        } catch (apiError) {
+          console.warn('Error al cargar empleados desde la API, usando localStorage como fallback:', apiError);
+        }
+      }
+
+      if (!employees.length) {
+        const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+        employees = users.filter(user => user.tipoUsuario === 'empleado');
+      }
       
-      // Mostrar empleados
+      this.allEmployees = employees;
+      
       if (employees.length === 0) {
         this.employeesList.innerHTML = '<p>No hay empleados registrados.</p>';
         return;
@@ -126,14 +141,15 @@ class AdminDashboard extends BaseDashboard {
       employeesHTML += '<thead><tr><th>Nombre</th><th>Documento</th><th>Cargo</th><th>Acciones</th></tr></thead><tbody>';
       
       employees.forEach(employee => {
+        const employeeId = employee.id || employee._id;
         employeesHTML += `
-          <tr data-id="${employee.id}">
+          <tr data-id="${employeeId}">
             <td>${employee.nombreCompleto}</td>
             <td>${employee.numeroDocumento}</td>
             <td>${employee.cargo || 'No especificado'}</td>
             <td>
-              <button class="view-btn" data-id="${employee.id}">Ver</button>
-              <button class="edit-btn" data-id="${employee.id}">Editar</button>
+              <button class="view-btn" data-id="${employeeId}">Ver</button>
+              <button class="edit-btn" data-id="${employeeId}">Editar</button>
             </td>
           </tr>
         `;
@@ -184,7 +200,7 @@ class AdminDashboard extends BaseDashboard {
       const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
       
       // Buscar el empleado por ID
-      const employee = users.find(user => user.id === employeeId);
+      const employee = this.allEmployees.find(user => (user.id || user._id) === employeeId) || users.find(user => (user.id || user._id) === employeeId);
       
       if (!employee) {
         // Usar NotificationManager si está disponible
@@ -197,8 +213,16 @@ class AdminDashboard extends BaseDashboard {
       }
       
       // Obtener registros de asistencia del empleado
-      const attendanceRecords = JSON.parse(localStorage.getItem('attendanceRecords') || '[]');
-      const employeeRecords = attendanceRecords.filter(record => record.userId === employeeId);
+      let attendanceRecords = [];
+      if (this.allAttendanceRecords && this.allAttendanceRecords.length) {
+        attendanceRecords = this.allAttendanceRecords.filter(record => {
+          const recordUserId = record.userId && typeof record.userId === 'object' ? (record.userId._id || record.userId.id) : record.userId;
+          return recordUserId === employeeId;
+        });
+      } else {
+        attendanceRecords = JSON.parse(localStorage.getItem('attendanceRecords') || '[]')
+          .filter(record => record.userId === employeeId);
+      }
       
       // Crear ventana modal
       const modal = document.createElement('div');
@@ -281,17 +305,31 @@ class AdminDashboard extends BaseDashboard {
     return html;
   }
   
-  loadAttendanceRecords() {
+  async loadAttendanceRecords() {
     try {
       if (!this.attendanceRecords) return;
       
-      // Obtener todos los registros de asistencia
-      const attendanceRecords = JSON.parse(localStorage.getItem('attendanceRecords') || '[]');
+      let attendanceRecords = [];
       
-      // Aplicar filtro de fecha
+      if (typeof window.apiService !== 'undefined' && typeof window.apiService.get === 'function') {
+        try {
+          const response = await window.apiService.get('/attendance/all?limit=1000');
+          if (response && response.success && Array.isArray(response.data)) {
+            attendanceRecords = response.data;
+          }
+        } catch (apiError) {
+          console.warn('Error al cargar registros de asistencia desde la API, usando localStorage como fallback:', apiError);
+        }
+      }
+
+      if (!attendanceRecords.length) {
+        attendanceRecords = JSON.parse(localStorage.getItem('attendanceRecords') || '[]');
+      }
+
+      this.allAttendanceRecords = attendanceRecords;
+      
       const filteredRecords = this.filterAttendanceByDate(attendanceRecords);
       
-      // Mostrar registros
       if (filteredRecords.length === 0) {
         this.attendanceRecords.innerHTML = '<p>No hay registros de asistencia disponibles.</p>';
         return;
@@ -308,8 +346,9 @@ class AdminDashboard extends BaseDashboard {
       recordsHTML += '<thead><tr><th>Empleado</th><th>Fecha</th><th>Hora</th><th>Tipo</th></tr></thead><tbody>';
       
       filteredRecords.forEach(record => {
-        const user = users.find(u => u.id === record.userId);
-        const userName = user ? user.nombreCompleto : 'Usuario desconocido';
+        const recordUserId = record.userId && typeof record.userId === 'object' ? (record.userId._id || record.userId.id) : record.userId;
+        const user = users.find(u => (u.id || u._id) === recordUserId);
+        const userName = record.userId && typeof record.userId === 'object' ? record.userId.nombreCompleto : (user ? user.nombreCompleto : 'Usuario desconocido');
         const typeClass = record.type === 'entrada' ? 'entry-record' : 'exit-record';
         const typeIcon = record.type === 'entrada' ? '⬆️' : '⬇️';
         
@@ -373,40 +412,66 @@ class AdminDashboard extends BaseDashboard {
     }
   }
   
-  loadDashboardStats() {
+  async loadDashboardStats() {
     try {
-      // Obtener todos los usuarios registrados
-      const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
-      
-      // Filtrar solo empleados
-      const employees = users.filter(user => user.tipoUsuario === 'empleado');
-      
-      // Actualizar contador de empleados activos
+      let employees = [];
+      let attendanceRecords = [];
+
+      if (typeof window.apiService !== 'undefined' && typeof window.apiService.get === 'function') {
+        try {
+          const usersResponse = await window.apiService.get('/users?limit=1000&tipoUsuario=empleado');
+          if (usersResponse && usersResponse.success && Array.isArray(usersResponse.data)) {
+            employees = usersResponse.data;
+          }
+        } catch (apiError) {
+          console.warn('Error al obtener empleados desde la API:', apiError);
+        }
+
+        try {
+          const attendanceResponse = await window.apiService.get('/attendance/all?limit=1000');
+          if (attendanceResponse && attendanceResponse.success && Array.isArray(attendanceResponse.data)) {
+            attendanceRecords = attendanceResponse.data;
+          }
+        } catch (apiError) {
+          console.warn('Error al obtener registros de asistencia desde la API:', apiError);
+        }
+      }
+
+      if (!employees.length) {
+        const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+        employees = users.filter(user => user.tipoUsuario === 'empleado');
+      }
+
+      if (!attendanceRecords.length) {
+        attendanceRecords = JSON.parse(localStorage.getItem('attendanceRecords') || '[]');
+      }
+
+      this.allEmployees = employees;
+      this.allAttendanceRecords = attendanceRecords;
+
       if (this.activeEmployees) {
         this.activeEmployees.textContent = employees.length;
       }
-      
-      // Calcular porcentaje de asistencia hoy
+
       if (this.todayAttendance) {
-        const attendanceRecords = JSON.parse(localStorage.getItem('attendanceRecords') || '[]');
         const now = new Date();
         const today = now.toLocaleDateString('es-ES');
-        
-        // Contar empleados que registraron entrada hoy
         const employeesWithEntryToday = new Set();
-        
+
         attendanceRecords.forEach(record => {
           const recordDate = new Date(record.timestamp).toLocaleDateString('es-ES');
           if (recordDate === today && record.type === 'entrada') {
-            employeesWithEntryToday.add(record.userId);
+            const recordUserId = record.userId && typeof record.userId === 'object'
+              ? (record.userId._id || record.userId.id)
+              : record.userId;
+            employeesWithEntryToday.add(recordUserId);
           }
         });
-        
-        // Calcular porcentaje
-        const attendancePercentage = employees.length > 0 
-          ? Math.round((employeesWithEntryToday.size / employees.length) * 100) 
+
+        const attendancePercentage = employees.length > 0
+          ? Math.round((employeesWithEntryToday.size / employees.length) * 100)
           : 0;
-        
+
         this.todayAttendance.textContent = `${attendancePercentage}%`;
       }
       

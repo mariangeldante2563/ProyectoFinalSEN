@@ -33,119 +33,11 @@
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/date-fns@2.30.0/index.min.js"></script>
   
-  <!-- Core Scripts como módulos ES6 -->
-  <script type="module" src="../../assets/js/api-service.js"></script>
-  <script type="module" src="../../assets/js/session-manager.js"></script>
-  <script type="module" src="../../assets/js/path-manager.js"></script>
-  
-  <!-- Script de inicialización del dashboard -->
-  <script type="module">
-    import PathManager from '../../assets/js/path-manager.js';
-    import SessionManager from '../../assets/js/session-manager.js';
-    
-    // Verificar autenticación al cargar la página
-    document.addEventListener('DOMContentLoaded', async () => {
-      console.log('🚀 Dashboard Admin: Iniciando verificación...');
-      
-      // Debuggear rutas inmediatamente
-      PathManager.debugPaths();
-      
-      // Verificar que el usuario esté autenticado
-      const userData = SessionManager.getUserData();
-      if (!userData) {
-        console.warn('⚠️ Dashboard Admin: Usuario no autenticado');
-        PathManager.navigateToLogin('Debe iniciar sesión para acceder al dashboard.');
-        return;
-      }
-      
-      if (userData.tipo !== 'administrador') {
-        console.warn('⚠️ Dashboard Admin: Usuario sin permisos de administrador');
-        PathManager.navigateToLogin('Acceso denegado. Debe ser administrador.');
-        return;
-      }
-      
-      console.log('✅ Dashboard Admin: Usuario autenticado como administrador:', userData.nombre);
-      
-      // Actualizar nombre del administrador en la interfaz
-      const adminNameElement = document.getElementById('adminName');
-      if (adminNameElement) {
-        adminNameElement.textContent = userData.nombre;
-      }
-      
-      try {
-        // Cargar módulos del dashboard dinámicamente con PathManager mejorado
-        console.log('📦 Dashboard Admin: Cargando módulos...');
-        
-        const modules = [
-          'charts-manager.js',
-          'real-time-manager.js', 
-          'reports-manager.js',
-          'audit-manager.js',
-          'backup-manager.js'
-        ];
-        
-        // Cargar módulos uno por uno para mejor control de errores
-        for (const module of modules) {
-          try {
-            await PathManager.loadModule(module);
-            console.log(`✅ Módulo cargado: ${module}`);
-          } catch (error) {
-            console.error(`❌ Error cargando ${module}:`, error);
-            // Continuar con otros módulos
-          }
-        }
-        
-        // Cargar el controlador principal del dashboard
-        console.log('🎯 Dashboard Admin: Cargando controlador principal...');
-        await PathManager.loadModule('admin-dashboard-advanced.js');
-        
-        console.log('🎉 Dashboard Admin: Inicialización completada');
-        
-        // Mostrar mensaje de bienvenida
-        const welcomeDiv = document.createElement('div');
-        welcomeDiv.className = 'welcome-message';
-        welcomeDiv.innerHTML = `
-          <div style="background: #28a745; color: white; padding: 10px; border-radius: 5px; margin: 10px; text-align: center;">
-            ✅ Dashboard cargado correctamente. Bienvenido/a ${userData.nombre}
-          </div>
-        `;
-        document.body.insertBefore(welcomeDiv, document.body.firstChild);
-        
-        // Quitar mensaje después de 3 segundos
-        setTimeout(() => {
-          welcomeDiv.remove();
-        }, 3000);
-        
-      } catch (error) {
-        console.error('❌ Dashboard Admin: Error crítico:', error);
-        
-        // Mostrar error en la interfaz
-        const errorDiv = document.createElement('div');
-        errorDiv.innerHTML = `
-          <div style="background: #dc3545; color: white; padding: 20px; margin: 20px; border-radius: 5px; text-align: center;">
-            <h3>❌ Error cargando el Dashboard</h3>
-            <p>Error: ${error.message}</p>
-            <button onclick="location.reload()" style="background: white; color: #dc3545; border: none; padding: 10px 20px; border-radius: 3px; cursor: pointer;">
-              🔄 Recargar Página
-            </button>
-          </div>
-        `;
-        document.body.appendChild(errorDiv);
-      }
-    });
-    
-    // Configurar logout
-    document.addEventListener('DOMContentLoaded', () => {
-      const logoutBtn = document.getElementById('logoutBtn');
-      if (logoutBtn) {
-        logoutBtn.addEventListener('click', () => {
-          console.log('🚪 Dashboard Admin: Cerrando sesión...');
-          SessionManager.logout();
-          PathManager.navigateToLogin('Sesión cerrada correctamente.');
-        });
-      }
-    });
-  </script>
+  <!-- Scripts principales del dashboard -->
+  <script src="../../assets/js/session-manager.js"></script>
+  <script src="../../assets/js/path-manager.js"></script>
+  <script src="../../assets/js/notification-manager.js"></script>
+  <script src="../../assets/js/admin-dashboard-advanced.js"></script>
 </head>
 
 <body>
@@ -425,6 +317,21 @@
             </div>
             <div class="reports-list" id="reportsList">
               <!-- Lista de reportes se llenará dinámicamente -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel de Clasificación de Horas (Ley Colombiana) -->
+        <div class="dashboard-panel hours-classification-panel" id="hoursPanel" style="grid-column: span 12;">
+          <div class="panel-header">
+            <h3><i class="fas fa-gavel"></i> Registro Horas - Ley Colombiana</h3>
+            <div class="panel-controls">
+              <span class="status-text">Actualizado en vivo</span>
+            </div>
+          </div>
+          <div class="panel-content">
+            <div id="hoursClassificationContent" class="hours-classification-content">
+              <p style="text-align:center;color:#6b7280;padding:20px;">Cargando clasificación de horas...</p>
             </div>
           </div>
         </div>

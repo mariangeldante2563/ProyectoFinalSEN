@@ -25,36 +25,21 @@ exports.registerAttendance = async (req, res) => {
       });
     }
 
-    // Verificar si ya existe un registro del mismo tipo para hoy
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-
-    const existingRecord = await Attendance.findOne({
-      userId,
-      type,
-      timestamp: {
-        $gte: today,
-        $lt: tomorrow
-      }
-    });
-
-    if (existingRecord) {
-      return res.status(400).json({
-        success: false,
-        message: `Ya ha registrado su ${type} de hoy`
-      });
-    }
-
-    // Crear registro de asistencia
+    // Crear registro de asistencia (se permiten múltiples entradas/salidas por día)
     const attendance = new Attendance({
       userId,
       type,
       timestamp: new Date(),
-      date: today.toLocaleDateString('es-ES'),
-      time: new Date().toLocaleTimeString('es-ES')
+      date: new Date().toLocaleDateString('es-ES', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      }),
+      time: new Date().toLocaleTimeString('es-ES', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      })
     });
 
     // Guardar registro

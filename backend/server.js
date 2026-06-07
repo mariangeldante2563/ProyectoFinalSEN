@@ -4,8 +4,10 @@
  * @description Archivo principal del servidor backend
  */
 
-// Cargar variables de entorno desde .env
-require('dotenv').config();
+// Cargar variables de entorno desde .env (ruta absoluta)
+const dotenv = require('dotenv');
+const path = require('path');
+dotenv.config({ path: path.join(__dirname, '.env') });
 
 // Importaciones
 const express = require('express');
@@ -13,7 +15,6 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
-const path = require('path');
 
 // Importar rutas
 const authRoutes = require('./routes/auth');
@@ -54,6 +55,16 @@ app.get('/', (req, res) => {
   res.json({
     message: 'API de IN OUT MANAGER',
     status: 'online',
+    environment: NODE_ENV,
+    timestamp: new Date()
+  });
+});
+
+// Ruta de health check usada por el frontend
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'Servicio disponible',
     environment: NODE_ENV,
     timestamp: new Date()
   });

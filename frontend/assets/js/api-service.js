@@ -276,13 +276,13 @@ class EnhancedApiClient {
       
       if (serverAvailable) {
         // Obtener datos del servidor
-        return await this.get('/auth/me');
+        return await this.get('/users/me');
       } else {
         // Modo offline: obtener de localStorage usando el token decodificado
         try {
           // Decodificar el token para obtener el ID del usuario
           const payload = JSON.parse(atob(token.split('.')[1]));
-          const userId = payload.userId;
+          const userId = payload.id;
           
           // Buscar el usuario en localStorage
           const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');

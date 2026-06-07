@@ -1383,6 +1383,79 @@ textarea:focus {
   }
 }
 
+/* ==========================================
+   HOURS CLASSIFICATION PANEL
+   ========================================== */
+.hours-classification-content {
+  width: 100%;
+  overflow-x: auto;
+}
+.hc-empty {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 2rem;
+  font-style: italic;
+}
+.hc-table-wrapper {
+  overflow-x: auto;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-primary);
+}
+.hc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  min-width: 900px;
+}
+.hc-table th {
+  background: var(--surface-secondary);
+  padding: 0.75rem;
+  text-align: center;
+  font-weight: 600;
+  color: var(--text-primary);
+  border-bottom: 2px solid var(--border-primary);
+  white-space: nowrap;
+}
+.hc-table td {
+  padding: 0.65rem 0.5rem;
+  text-align: center;
+  border-bottom: 1px solid var(--border-primary);
+  white-space: nowrap;
+}
+.hc-table tbody tr:hover {
+  background: var(--surface-secondary);
+}
+.hc-empleado { text-align: left; }
+.hc-jornada { text-align: center; font-size: 0.8rem; color: var(--text-secondary); }
+.hc-total { font-weight: 700; color: var(--text-primary); }
+.hc-ok { color: var(--success-green); font-weight: 500; }
+.hc-warn { color: var(--warning-orange); font-weight: 500; }
+.hc-danger { color: var(--danger-red); font-weight: 500; }
+.hc-recargo { color: var(--primary-blue); font-weight: 700; }
+.hc-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 0.75rem;
+  margin-top: 0.75rem;
+  background: var(--surface-secondary);
+  border-radius: var(--radius-md);
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  align-items: center;
+}
+.hc-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 4px;
+}
+.hc-dot.ok { background: var(--success-green); }
+.hc-dot.warn { background: var(--warning-orange); }
+.hc-dot.danger { background: var(--danger-red); }
+.hc-legend i { margin-right: 4px; color: var(--gray-500); }
+
 /* Print Styles */
 @media print {
   .admin-main {

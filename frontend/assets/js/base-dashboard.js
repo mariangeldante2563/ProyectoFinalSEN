@@ -110,7 +110,14 @@ class BaseDashboard {
           const response = await apiClient.getCurrentUser();
           
           if (response.success && response.data) {
-            this.currentUser = response.data;
+            // Extraer el usuario correctamente (puede venir como { user: {...} } o directamente)
+            this.currentUser = response.data.user || response.data;
+            
+            // Asegurar que id esté presente (MongoDB usa _id)
+            if (this.currentUser && !this.currentUser.id && this.currentUser._id) {
+              this.currentUser.id = this.currentUser._id;
+            }
+            
             console.log('Datos de usuario cargados desde backend:', this.currentUser);
             
             // Actualizar la interfaz con los datos del usuario
