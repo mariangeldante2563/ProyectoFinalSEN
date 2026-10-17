@@ -229,9 +229,9 @@ class StatsController {
             const filtros = { userId };
             
             if (fechaInicio || fechaFin) {
-                filtros.entrada = {};
-                if (fechaInicio) filtros.entrada.$gte = new Date(fechaInicio);
-                if (fechaFin) filtros.entrada.$lte = new Date(fechaFin);
+                filtros.timestampEntrada = {};
+                if (fechaInicio) filtros.timestampEntrada.$gte = new Date(fechaInicio);
+                if (fechaFin) filtros.timestampEntrada.$lte = new Date(fechaFin);
             }
 
             // Paginación
@@ -240,10 +240,10 @@ class StatsController {
             // Obtener sesiones
             const [sesiones, total] = await Promise.all([
                 WorkSession.find(filtros)
-                    .sort({ entrada: -1 })
+                    .sort({ timestampEntrada: -1 })
                     .skip(skip)
                     .limit(parseInt(limit))
-                    .populate('userId', 'name email'),
+                    .populate('userId', 'nombreCompleto numeroDocumento correoElectronico'),
                     
                 WorkSession.countDocuments(filtros)
             ]);
@@ -294,12 +294,10 @@ class StatsController {
 
             // Generar reporte legal si la sesión está completa
             let reporteLegal = null;
-            if (sesion.salida) {
-                reporteLegal = ColombianLaborLawService.generarReporteLegal({
-                    metadata: sesion.metadata || {},
-                    recargos: sesion.recargos || {},
-                    horasExtras: sesion.horasExtras || {}
-                });
+            if (sesion.timestampSalida) {
+                reporteLegal = ColombianLaborLawService.generarReporteLegal(
+                    sesion.toLaborSummary()
+                );
             }
 
             res.json({
@@ -397,7 +395,7 @@ class StatsController {
                 festivosFijos: ColombianLaborLawService.FESTIVOS_FIJOS,
                 festivosLunes: ColombianLaborLawService.FESTIVOS_LUNES,
                 descripcion: {
-                    'NOCTURNO_ORDINARIO': 'Trabajo nocturno ordinario (22:00-06:00) - Art. 168 CST',
+                    'NOCTURNO_ORDINARIO': 'Trabajo nocturno ordinario (19:00-06:00) - Art. 160 y 168 CST',
                     'EXTRA_DIURNO': 'Horas extras diurnas (después de 8 horas) - Art. 159 CST',
                     'EXTRA_NOCTURNO': 'Horas extras nocturnas - Art. 168 CST',
                     'DOMINICAL_DIURNO': 'Trabajo dominical y festivo diurno - Art. 179 CST',
@@ -453,8 +451,9 @@ class StatsController {
             );
 
             const validacion = ColombianLaborLawService.validarLimitesLegales(
+                0, // Horas semanales (no disponible en este contexto)
                 tiempoTotalMinutos / 60, // Horas diarias
-                0 // Horas semanales (no disponible en este contexto)
+                fechaEntrada
             );
 
             res.json({
@@ -498,15 +497,15 @@ class StatsController {
                 
                 WorkSession.countDocuments({
                     userId,
-                    entrada: {
+                    timestampEntrada: {
                         $gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1)
                     }
                 }),
                 
-                WorkSession.find({ userId, salida: { $ne: null } })
-                    .sort({ entrada: -1 })
+                WorkSession.find({ userId, timestampSalida: { $ne: null } })
+                    .sort({ timestampEntrada: -1 })
                     .limit(5)
-                    .select('entrada salida tiempoTotal'),
+                    .select('fecha horaEntrada horaSalida timestampEntrada timestampSalida tiempoLaboradoMinutos tiempoLaboradoHoras'),
                     
                 DailyStats.find({ userId })
                     .sort({ fecha: -1 })

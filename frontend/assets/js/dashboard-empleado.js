@@ -10,7 +10,10 @@ class EmployeeDashboard extends BaseDashboard {
     this.apiBaseUrl = 'http://localhost:5000/api';
     this.attendanceChart = null;
     this.currentPeriod = 'week';
+    // Cache compartido de registros para evitar peticiones redundantes
+    this.allRecords = null;
   }
+
 
   /**
    * Inicialización específica para empleados
@@ -23,15 +26,60 @@ class EmployeeDashboard extends BaseDashboard {
       this.setupAttendanceButtons();
       this.setupChartTabs();
       this.setupPhotoUpload();
-      this.loadAttendanceStats();
-      this.loadAttendanceRecords();
-      this.loadAttendanceChart();
+      this.refreshDashboard();
       
       console.log('✅ Dashboard de empleado inicializado correctamente');
     } catch (error) {
       console.error('❌ Error al inicializar dashboard de empleado:', error);
     }
   }
+
+  /**
+   * Obtiene los registros de asistencia del usuario reutilizando un cache
+   * compartido para evitar peticiones redundantes (una sola request por refresco).
+   * @returns {Promise<Array|null>}
+   */
+  async _obtenerRegistros() {
+    if (Array.isArray(this.allRecords)) return this.allRecords;
+
+    const authToken = localStorage.getItem('authToken');
+    if (!authToken || !this.currentUser?.id) return null;
+
+    try {
+      const userId = this.currentUser.id;
+      const response = await fetch(`${this.apiBaseUrl}/attendance/user/${userId}?page=1&limit=500`, {
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+          'Accept': 'application/json'
+        }
+      });
+
+      if (!response.ok) return null;
+
+      const data = await response.json();
+      this.allRecords = data.data || [];
+      return this.allRecords;
+    } catch (error) {
+      console.error('Error al obtener registros:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Refresca todo el dashboard con UNA sola petición de datos, distribuyendo
+   * los registros a estadísticas, historial y gráfica.
+   */
+  async refreshDashboard() {
+    // Invalidar cache para forzar datos frescos del backend
+    this.allRecords = null;
+    const registros = await this._obtenerRegistros();
+    if (!registros) return;
+
+    this.loadAttendanceStats();
+    this.loadAttendanceRecords();
+    this.loadAttendanceChart();
+  }
+
 
   /**
    * Captura referencias a elementos del DOM
@@ -182,15 +230,14 @@ class EmployeeDashboard extends BaseDashboard {
           'success'
         );
 
-        // Guardar en localStorage para que el dashboard admin pueda verlo en vivo
-        this._guardarEnLocalStorage(type, data.data);
+        // Guardar en localStorage - incluye datos de workSession (clasificación de horas)
+        this._guardarEnLocalStorage(type, data.data, data.workSession);
 
-        // Recargar datos después de registrar
+        // Recargar datos después de registrar (una sola petición compartida)
         setTimeout(() => {
-          this.loadAttendanceStats();
-          this.loadAttendanceRecords();
-          this.loadAttendanceChart();
+          this.refreshDashboard();
         }, 300);
+
       } else {
         // Si el backend devuelve error específico
         const errorMsg = data.message || `Error al registrar ${type}`;
@@ -220,25 +267,12 @@ class EmployeeDashboard extends BaseDashboard {
    */
   async loadAttendanceStats() {
     try {
-      const authToken = localStorage.getItem('authToken');
-      if (!authToken || !this.currentUser?.id) return;
+      // Reutiliza el cache compartido (evita una petición redundante)
+      const registros = await this._obtenerRegistros();
+      if (!registros) return;
 
       console.log('📈 Cargando estadísticas de trabajo...');
 
-      const userId = this.currentUser.id;
-      
-      // Obtener registros de asistencia del usuario (suficientes para calcular estadísticas)
-      const response = await fetch(`${this.apiBaseUrl}/attendance/user/${userId}?page=1&limit=200`, {
-        headers: {
-          'Authorization': `Bearer ${authToken}`,
-          'Accept': 'application/json'
-        }
-      });
-
-      if (!response.ok) return;
-
-      const data = await response.json();
-      const registros = data.data || [];
 
       // ---- ESTADÍSTICA 1: Tiempo Trabajado Hoy ----
       const today = new Date();
@@ -310,25 +344,34 @@ class EmployeeDashboard extends BaseDashboard {
    * @param {Array} records - Registros del día
    * @returns {{ formato: string, totalMinutos: number }}
    */
+  _emparejarSesiones(records) {
+    const ordenados = [...records].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+    const sesiones = [];
+    let entradaPendiente = null;
+
+    ordenados.forEach(r => {
+      if (r.type === 'entrada') {
+        entradaPendiente = r;
+      } else if (r.type === 'salida' && entradaPendiente) {
+        const minutos = (new Date(r.timestamp) - new Date(entradaPendiente.timestamp)) / (1000 * 60);
+        if (minutos > 0) {
+          sesiones.push({ entrada: entradaPendiente.timestamp, salida: r.timestamp, minutos });
+        }
+        entradaPendiente = null;
+      }
+    });
+
+    return sesiones;
+  }
+
   calcularTiempoTrabajado(records) {
-    const entries = records.filter(r => r.type === 'entrada').sort((a, b) => 
-      new Date(a.timestamp) - new Date(b.timestamp)
-    );
-    const exits = records.filter(r => r.type === 'salida').sort((a, b) => 
-      new Date(a.timestamp) - new Date(b.timestamp)
-    );
-
-    let totalMinutes = 0;
-    for (let i = 0; i < Math.min(entries.length, exits.length); i++) {
-      const diff = new Date(exits[i].timestamp) - new Date(entries[i].timestamp);
-      totalMinutes += diff / (1000 * 60);
-    }
-
+    const totalMinutes = this._emparejarSesiones(records).reduce((acc, s) => acc + s.minutos, 0);
     return {
       totalMinutos: totalMinutes,
       formato: this.formatearMinutos(totalMinutes)
     };
   }
+
 
   /**
    * Formatea minutos a formato HH:MM
@@ -348,37 +391,32 @@ class EmployeeDashboard extends BaseDashboard {
    * @returns {number}
    */
   calcularPromedioSemanal(records) {
-    const entries = records.filter(r => r.type === 'entrada').sort((a, b) => 
-      new Date(a.timestamp) - new Date(b.timestamp)
-    );
-    const exits = records.filter(r => r.type === 'salida').sort((a, b) => 
-      new Date(a.timestamp) - new Date(b.timestamp)
-    );
+    const sesiones = this._emparejarSesiones(records);
+    if (sesiones.length === 0) return 0;
 
-    let totalMinutes = 0;
-    for (let i = 0; i < Math.min(entries.length, exits.length); i++) {
-      const diff = new Date(exits[i].timestamp) - new Date(entries[i].timestamp);
-      totalMinutes += diff / (1000 * 60);
-    }
+    // Agrupar minutos trabajados por día (solo días con jornada efectiva)
+    const minutosPorDia = {};
+    sesiones.forEach(s => {
+      const dia = new Date(s.entrada).toDateString();
+      minutosPorDia[dia] = (minutosPorDia[dia] || 0) + s.minutos;
+    });
 
-    const daysWithRecords = new Set(records.map(r => 
-      new Date(r.timestamp).toDateString()
-    )).size;
-
-    if (daysWithRecords === 0) return 0;
-    return (totalMinutes / 60) / daysWithRecords;
+    const dias = Object.keys(minutosPorDia).length;
+    if (dias === 0) return 0;
+    const totalMinutes = Object.values(minutosPorDia).reduce((a, b) => a + b, 0);
+    return (totalMinutes / 60) / dias;
   }
 
   /**
-   * Calcula la cantidad de días trabajados
+   * Calcula la cantidad de días trabajados (días con al menos una sesión efectiva)
    * @param {Array} records
    * @returns {number}
    */
   calcularDiasTrabajados(records) {
-    return new Set(records.map(r => 
-      new Date(r.timestamp).toDateString()
-    )).size;
+    const sesiones = this._emparejarSesiones(records);
+    return new Set(sesiones.map(s => new Date(s.entrada).toDateString())).size;
   }
+
 
   /**
    * Actualiza el indicador de sesión activa
@@ -426,25 +464,14 @@ class EmployeeDashboard extends BaseDashboard {
    */
   async loadAttendanceRecords() {
     try {
-      const authToken = localStorage.getItem('authToken');
-      if (!authToken || !this.currentUser?.id) return;
+      // Reutiliza el cache compartido (evita una petición redundante)
+      const records = await this._obtenerRegistros();
+      if (!records) return;
 
       console.log('📝 Cargando historial de registros...');
 
-      const userId = this.currentUser.id;
-      const response = await fetch(`${this.apiBaseUrl}/attendance/user/${userId}?page=1&limit=50`, {
-        headers: {
-          'Authorization': `Bearer ${authToken}`,
-          'Accept': 'application/json'
-        }
-      });
-
-      if (!response.ok) return;
-
-      const data = await response.json();
-      const records = data.data || [];
-
       if (!this.employeeRecords) return;
+
 
       if (records.length === 0) {
         this.employeeRecords.innerHTML = '<p>No hay registros disponibles.</p>';
@@ -486,12 +513,17 @@ class EmployeeDashboard extends BaseDashboard {
                 <tbody>
         `;
 
-        dateRecords.forEach(record => {
+        // Orden cronológico ascendente dentro del día
+        dateRecords
+          .slice()
+          .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
+          .forEach(record => {
           const time = new Date(record.timestamp).toLocaleTimeString('es-ES', {
             hour: '2-digit',
             minute: '2-digit',
             second: '2-digit'
           });
+
           
           const icon = record.type === 'entrada' 
             ? '<i class="fas fa-sign-in-alt" style="color: #28a745;"></i>'
@@ -509,21 +541,12 @@ class EmployeeDashboard extends BaseDashboard {
           `;
         });
 
-        // Calcular tiempo trabajado para este grupo de fecha
-        const dayEntries = dateRecords.filter(r => r.type === 'entrada');
-        const dayExits = dateRecords.filter(r => r.type === 'salida');
-        let dayTime = '00:00';
-        if (dayEntries.length > 0 && dayExits.length > 0) {
-          const sortedEntries = dayEntries.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-          const sortedExits = dayExits.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-          let totalMin = 0;
-          for (let i = 0; i < Math.min(sortedEntries.length, sortedExits.length); i++) {
-            totalMin += (new Date(sortedExits[i].timestamp) - new Date(sortedEntries[i].timestamp)) / (1000 * 60);
-          }
-          const h = Math.floor(totalMin / 60);
-          const m = Math.floor(totalMin % 60);
-          dayTime = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
-        }
+        // Calcular tiempo trabajado para este grupo de fecha (emparejamiento unificado)
+        const totalMin = this._emparejarSesiones(dateRecords).reduce((acc, s) => acc + s.minutos, 0);
+        const h = Math.floor(totalMin / 60);
+        const m = Math.floor(totalMin % 60);
+        const dayTime = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+
 
         html += `
                 </tbody>
@@ -552,41 +575,85 @@ class EmployeeDashboard extends BaseDashboard {
    */
   async loadAttendanceChart() {
     try {
-      const authToken = localStorage.getItem('authToken');
-      if (!authToken || !this.currentUser?.id) return;
-
       console.log(`📊 Cargando gráfica de ${this.currentPeriod === 'week' ? 'semana' : 'mes'}...`);
 
-      const userId = this.currentUser.id;
-      const endpoint = this.currentPeriod === 'week'
-        ? `/attendance/stats/weekly/${userId}`
-        : `/attendance/stats/monthly/${userId}`;
-
-      const response = await fetch(`${this.apiBaseUrl}${endpoint}`, {
-        headers: {
-          'Authorization': `Bearer ${authToken}`,
-          'Accept': 'application/json'
-        }
-      });
-
-      if (!response.ok) {
+      // La gráfica se construye desde los MISMOS registros reales que las
+      // estadísticas, garantizando consistencia y sin peticiones adicionales.
+      const records = await this._obtenerRegistros();
+      if (!records) {
         this.renderEmptyChart();
         return;
       }
 
-      const data = await response.json();
-      
-      if (data.success && data.data) {
-        this.renderChart(data.data);
-        console.log('✅ Gráfica cargada correctamente');
-      } else {
+      const chartData = this._buildChartData(records, this.currentPeriod);
+      const tieneDatos = chartData.datasets.entries.some(v => v > 0) ||
+                         chartData.datasets.exits.some(v => v > 0) ||
+                         chartData.datasets.workHours.some(v => v > 0);
+
+      if (!tieneDatos) {
         this.renderEmptyChart();
+        return;
       }
+
+      this.renderChart(chartData);
+      console.log('✅ Gráfica cargada correctamente');
     } catch (error) {
       console.error('❌ Error al cargar gráfica:', error);
       this.renderEmptyChart();
     }
   }
+
+  /**
+   * Construye los datasets de la gráfica (entradas, salidas y horas trabajadas)
+   * agregando los registros reales por día para el período indicado.
+   * @param {Array} records
+   * @param {string} period - 'week' o 'month'
+   * @returns {{labels:string[], datasets:{entries:number[], exits:number[], workHours:number[]}}}
+   */
+  _buildChartData(records, period) {
+    const hoy = new Date();
+    const dias = [];
+
+    if (period === 'week') {
+      const inicio = new Date(hoy);
+      inicio.setDate(hoy.getDate() - hoy.getDay());
+      inicio.setHours(0, 0, 0, 0);
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(inicio);
+        d.setDate(inicio.getDate() + i);
+        dias.push(d);
+      }
+    } else {
+      const ultimoDia = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0).getDate();
+      for (let i = 1; i <= ultimoDia; i++) {
+        dias.push(new Date(hoy.getFullYear(), hoy.getMonth(), i));
+      }
+    }
+
+    const sesiones = this._emparejarSesiones(records);
+    const labels = [];
+    const entries = [];
+    const exits = [];
+    const workHours = [];
+
+    dias.forEach(d => {
+      const key = d.toDateString();
+      labels.push(d.toLocaleDateString('es-ES', period === 'week'
+        ? { weekday: 'short' }
+        : { day: 'numeric' }));
+
+      entries.push(records.filter(r => r.type === 'entrada' && new Date(r.timestamp).toDateString() === key).length);
+      exits.push(records.filter(r => r.type === 'salida' && new Date(r.timestamp).toDateString() === key).length);
+
+      const minutos = sesiones
+        .filter(s => new Date(s.entrada).toDateString() === key)
+        .reduce((acc, s) => acc + s.minutos, 0);
+      workHours.push(Math.round((minutos / 60) * 100) / 100);
+    });
+
+    return { labels, datasets: { entries, exits, workHours } };
+  }
+
 
   /**
    * Renderiza la gráfica de asistencia
@@ -756,12 +823,7 @@ class EmployeeDashboard extends BaseDashboard {
     }
   }
 
-  /**
-   * Guarda el registro de asistencia en localStorage para compartirlo con el dashboard admin
-   * @param {string} type - 'entrada' o 'salida'
-   * @param {Object} record - Datos del registro (opcional, desde la respuesta del backend)
-   */
-  _guardarEnLocalStorage(type, record) {
+  _guardarEnLocalStorage(type, record, workSession) {
     try {
       const attendanceRecords = JSON.parse(localStorage.getItem('attendanceRecords') || '[]');
       const userId = this.currentUser?.id || 'unknown';
@@ -771,7 +833,8 @@ class EmployeeDashboard extends BaseDashboard {
       
       // Clasificar la hora según legislación colombiana
       const hora = new Date(recordTimestamp).getHours();
-      const esDiurno = hora >= 6 && hora < 21; // 6:00 - 21:00
+      const esDiurno = hora >= 6 && hora < 19; // Diurno 06:00-19:00 (fuente: backend ColombianLaborLawService)
+
       const clasificacion = esDiurno ? 'Ordinaria Diurna' : 'Ordinaria Nocturna';
       const porcentajeRecargo = esDiurno ? 0 : 35; // Nocturno = 35% recargo
 
@@ -788,8 +851,11 @@ class EmployeeDashboard extends BaseDashboard {
         id: record?._id || `local_${Date.now()}`
       });
 
-      // Si es una SALIDA, buscar la entrada más cercana previa y calcular la sesión completa
-      if (type === 'salida') {
+      // Si el backend devolvió workSession con clasificación, guardarla directamente
+      if (type === 'salida' && workSession && workSession._id) {
+        this._guardarWorkSessionDesdeBackend(userId, workSession);
+      } else if (type === 'salida') {
+        // Fallback: calcular desde registros locales
         this._calcularSesionYCargos(userId, attendanceRecords);
       }
 
@@ -801,6 +867,57 @@ class EmployeeDashboard extends BaseDashboard {
       console.log(`💾 Registro guardado en localStorage (${attendanceRecords.length} totales)`);
     } catch (error) {
       console.error('Error al guardar en localStorage:', error);
+    }
+  }
+
+  /**
+   * Guarda la sesión de trabajo calculada por el backend (con clasificación según ley colombiana)
+   * @param {string} userId - ID del usuario
+   * @param {Object} workSession - Objeto workSession devuelto por el backend
+   */
+  _guardarWorkSessionDesdeBackend(userId, workSession) {
+    try {
+      const hoy = new Date().toLocaleDateString('es-ES');
+      const sesionesStorage = JSON.parse(localStorage.getItem('workSessions') || '[]');
+      
+      const sesion = {
+        userId: userId,
+        userName: this.currentUser?.nombreCompleto || 'Desconocido',
+        fecha: hoy,
+        entrada: workSession.horaEntrada || workSession.horaEntrada || '--',
+        salida: workSession.horaSalida || '--',
+        totalMinutos: workSession.tiempoLaboradoMinutos || 0,
+        totalHoras: workSession.tiempoLaboradoHoras || '0h',
+        clasificacion: {
+          ordinariaDiurna: Math.round((workSession.tiempoJornadaOrdinariaDiurna || 0) / 60 * 100) / 100,
+          ordinariaNocturna: Math.round((workSession.tiempoJornadaOrdinariaNocturna || 0) / 60 * 100) / 100,
+          extrasDiurnas: Math.round((workSession.tiempoHorasExtrasDiurnas || 0) / 60 * 100) / 100,
+          extrasNocturnas: Math.round((workSession.tiempoHorasExtrasNocturnas || 0) / 60 * 100) / 100,
+          dominicales: Math.round((workSession.tiempoHorasExtrasDominicales || 0) / 60 * 100) / 100
+        },
+        recargos: {
+          nocturno: Math.round((workSession.recargos?.recargoNocturno || 0) / 60 * 100) / 100,
+          extraDiurno: Math.round((workSession.recargos?.recargoHorasExtrasDiurnas || 0) / 60 * 100) / 100,
+          extraNocturno: Math.round((workSession.recargos?.recargoHorasExtrasNocturnas || 0) / 60 * 100) / 100,
+          dominical: Math.round((workSession.recargos?.recargoDominicalesFestivos || 0) / 60 * 100) / 100
+        },
+        timestamp: new Date().toISOString()
+      };
+
+      const idx = sesionesStorage.findIndex(s => s.userId === userId && s.fecha === hoy);
+      if (idx >= 0) {
+        sesionesStorage[idx] = sesion;
+      } else {
+        sesionesStorage.push(sesion);
+      }
+
+      if (sesionesStorage.length > 100) {
+        sesionesStorage.splice(0, sesionesStorage.length - 100);
+      }
+      localStorage.setItem('workSessions', JSON.stringify(sesionesStorage));
+      console.log('📋 Sesión guardada desde backend (con ley colombiana):', sesion);
+    } catch (error) {
+      console.error('Error al guardar workSession del backend:', error);
     }
   }
 
@@ -834,9 +951,11 @@ class EmployeeDashboard extends BaseDashboard {
       const horaEntrada = new Date(ultimaEntrada.timestamp).getHours();
       const horaSalida = new Date(ultimaSalida.timestamp).getHours();
 
-      // Límites legales Colombia 2025
+      // Limites legales Colombia. Fuente unica de verdad: backend ColombianLaborLawService.
+      // Este calculo local es solo un respaldo offline cuando el backend no responde.
       const JORNADA_DIURNA_INICIO = 6;
-      const JORNADA_DIURNA_FIN = 21; // 9 PM
+      const JORNADA_DIURNA_FIN = 19; // Jornada diurna 06:00-19:00
+
       const MAX_HORAS_NORMALES = 8;
 
       let minutosDiurnos = 0;

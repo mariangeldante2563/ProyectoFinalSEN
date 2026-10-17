@@ -14,7 +14,8 @@ const {
   getWeeklyStats,
   getMonthlyStats,
   deleteAttendance,
-  getAllAttendance
+  getAllAttendance,
+  getLaborHoursSummary
 } = require('../controllers/attendanceController');
 
 // Importar middlewares
@@ -41,6 +42,7 @@ router.get('/stats/weekly/:userId', checkUserOwnership, getWeeklyStats);
 router.get('/stats/monthly/:userId', checkUserOwnership, getMonthlyStats);
 
 // Rutas exclusivas para administradores
+router.get('/labor-hours', authorize('administrador'), getLaborHoursSummary);
 router.get('/all', authorize('administrador'), getAllAttendance);
 router.delete('/:id', authorize('administrador'), deleteAttendance);
 

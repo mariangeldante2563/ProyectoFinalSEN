@@ -1,54 +1,48 @@
-/**
- * IN OUT MANAGER - CONTROLADOR DE ASISTENCIAS
- * @version 1.0.0
- * @description Controlador para gestión de registros de asistencia
- */
-
 const Attendance = require('../models/Attendance');
-const User = require('../models/User');
+const DailyStats = require('../models/DailyStats');
+const TimeCalculationService = require('../services/TimeCalculationService');
+const AuditService = require('../services/auditService');
 
-/**
- * @desc    Registrar nueva asistencia (entrada o salida)
- * @route   POST /api/attendance
- * @access  Privado
- */
 exports.registerAttendance = async (req, res) => {
   try {
-    const { type } = req.body;
+    const { type, timestamp, location } = req.body;
     const userId = req.user._id;
 
-    // Verificar tipo de registro
     if (!['entrada', 'salida'].includes(type)) {
       return res.status(400).json({
         success: false,
-        message: 'Tipo de registro inválido. Debe ser "entrada" o "salida"'
+        message: 'Tipo de registro invalido. Debe ser "entrada" o "salida"'
       });
     }
 
-    // Crear registro de asistencia (se permiten múltiples entradas/salidas por día)
-    const attendance = new Attendance({
+    const resultado = await TimeCalculationService.procesarRegistroAsistencia(
       userId,
       type,
-      timestamp: new Date(),
-      date: new Date().toLocaleDateString('es-ES', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-      }),
-      time: new Date().toLocaleTimeString('es-ES', {
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
-      })
-    });
+      timestamp ? new Date(timestamp) : new Date(),
+      location || null
+    );
 
-    // Guardar registro
-    await attendance.save();
+    await AuditService.registrarAccion(
+      req.user,
+      'asistencia',
+      resultado.registro._id,
+      type,
+      {
+        accion: resultado.accion,
+        mensaje: resultado.mensaje,
+        sesionId: resultado.sesion?._id,
+        estadisticasActualizadas: !!resultado.estadisticas
+      },
+      req
+    );
 
     res.status(201).json({
       success: true,
-      message: `Registro de ${type} exitoso`,
-      data: attendance
+      message: resultado.mensaje,
+      data: resultado.registro,
+      workSession: resultado.sesion,
+      estadisticas: resultado.estadisticas,
+      accion: resultado.accion
     });
   } catch (error) {
     console.error('Error al registrar asistencia:', error);
@@ -60,84 +54,28 @@ exports.registerAttendance = async (req, res) => {
   }
 };
 
-/**
- * @desc    Obtener registros de asistencia de un usuario
- * @route   GET /api/attendance/user/:userId
- * @access  Privado (mismo usuario o admin)
- */
 exports.getUserAttendance = async (req, res) => {
   try {
-    // Opciones de filtrado
     const userId = req.params.userId;
-    
-    // Opciones de paginación
     const page = parseInt(req.query.page, 10) || 1;
-    const limit = parseInt(req.query.limit, 10) || 30; // Por defecto 30 registros
-    const startIndex = (page - 1) * limit;
-    
-    // Filtros por fecha
-    let dateFilter = {};
-    
-    if (req.query.startDate && req.query.endDate) {
-      const startDate = new Date(req.query.startDate);
-      const endDate = new Date(req.query.endDate);
-      endDate.setHours(23, 59, 59, 999); // Fin del día
-      
-      dateFilter = {
-        timestamp: {
-          $gte: startDate,
-          $lte: endDate
-        }
-      };
-    } else if (req.query.startDate) {
-      const startDate = new Date(req.query.startDate);
-      dateFilter = {
-        timestamp: {
-          $gte: startDate
-        }
-      };
-    } else if (req.query.endDate) {
-      const endDate = new Date(req.query.endDate);
-      endDate.setHours(23, 59, 59, 999); // Fin del día
-      
-      dateFilter = {
-        timestamp: {
-          $lte: endDate
-        }
-      };
-    }
-    
-    // Filtro por tipo
-    const typeFilter = req.query.type ? { type: req.query.type } : {};
-    
-    // Combinar filtros
-    const filter = {
-      userId,
-      ...dateFilter,
-      ...typeFilter
-    };
+    const limit = parseInt(req.query.limit, 10) || 30;
+    const skip = (page - 1) * limit;
+    const filter = { userId, ...buildDateFilter(req.query), ...buildTypeFilter(req.query) };
 
-    // Ejecutar consulta
-    const attendanceRecords = await Attendance.find(filter)
-      .sort({ timestamp: -1 }) // Más recientes primero
-      .limit(limit)
-      .skip(startIndex);
-    
-    // Contar total de registros
-    const total = await Attendance.countDocuments(filter);
-
-    // Información de paginación
-    const pagination = {
-      total,
-      limit,
-      page,
-      pages: Math.ceil(total / limit)
-    };
+    const [attendanceRecords, total] = await Promise.all([
+      Attendance.find(filter).sort({ timestamp: -1 }).limit(limit).skip(skip),
+      Attendance.countDocuments(filter)
+    ]);
 
     res.status(200).json({
       success: true,
       count: attendanceRecords.length,
-      pagination,
+      pagination: {
+        total,
+        limit,
+        page,
+        pages: Math.ceil(total / limit)
+      },
       data: attendanceRecords
     });
   } catch (error) {
@@ -150,115 +88,37 @@ exports.getUserAttendance = async (req, res) => {
   }
 };
 
-/**
- * @desc    Obtener estadísticas semanales de asistencia
- * @route   GET /api/attendance/stats/weekly/:userId
- * @access  Privado (mismo usuario o admin)
- */
 exports.getWeeklyStats = async (req, res) => {
   try {
-    const userId = req.params.userId;
-    
-    // Obtener fecha de inicio de la semana actual (domingo)
-    const today = new Date();
-    const startOfWeek = new Date(today);
-    startOfWeek.setDate(today.getDate() - today.getDay());
-    startOfWeek.setHours(0, 0, 0, 0);
-    
-    // Fecha de fin de semana (sábado)
-    const endOfWeek = new Date(startOfWeek);
-    endOfWeek.setDate(startOfWeek.getDate() + 6);
-    endOfWeek.setHours(23, 59, 59, 999);
-    
-    // Buscar registros de la semana
-    const attendanceRecords = await Attendance.find({
-      userId,
-      timestamp: {
-        $gte: startOfWeek,
-        $lte: endOfWeek
-      }
-    }).sort({ timestamp: 1 });
-    
-    // Procesar datos para la gráfica
-    const stats = processWeeklyStats(attendanceRecords);
-    
-    res.status(200).json({
-      success: true,
-      data: stats,
-      meta: {
-        startOfWeek: startOfWeek.toISOString(),
-        endOfWeek: endOfWeek.toISOString()
-      }
-    });
+    const data = await DailyStats.obtenerEstadisticasSemanales(req.params.userId);
+    res.status(200).json({ success: true, data });
   } catch (error) {
-    console.error('Error al obtener estadísticas semanales:', error);
+    console.error('Error al obtener estadisticas semanales:', error);
     res.status(500).json({
       success: false,
-      message: 'Error al obtener estadísticas semanales',
+      message: 'Error al obtener estadisticas semanales',
       error: error.message
     });
   }
 };
 
-/**
- * @desc    Obtener estadísticas mensuales de asistencia
- * @route   GET /api/attendance/stats/monthly/:userId
- * @access  Privado (mismo usuario o admin)
- */
 exports.getMonthlyStats = async (req, res) => {
   try {
-    const userId = req.params.userId;
-    
-    // Obtener el primer día del mes actual
-    const today = new Date();
-    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-    startOfMonth.setHours(0, 0, 0, 0);
-    
-    // Obtener el último día del mes actual
-    const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-    endOfMonth.setHours(23, 59, 59, 999);
-    
-    // Buscar registros del mes
-    const attendanceRecords = await Attendance.find({
-      userId,
-      timestamp: {
-        $gte: startOfMonth,
-        $lte: endOfMonth
-      }
-    }).sort({ timestamp: 1 });
-    
-    // Procesar datos para la gráfica
-    const stats = processMonthlyStats(attendanceRecords, today.getMonth(), today.getFullYear());
-    
-    res.status(200).json({
-      success: true,
-      data: stats,
-      meta: {
-        startOfMonth: startOfMonth.toISOString(),
-        endOfMonth: endOfMonth.toISOString(),
-        month: today.getMonth() + 1,
-        year: today.getFullYear()
-      }
-    });
+    const data = await DailyStats.obtenerEstadisticasMensuales(req.params.userId);
+    res.status(200).json({ success: true, data });
   } catch (error) {
-    console.error('Error al obtener estadísticas mensuales:', error);
+    console.error('Error al obtener estadisticas mensuales:', error);
     res.status(500).json({
       success: false,
-      message: 'Error al obtener estadísticas mensuales',
+      message: 'Error al obtener estadisticas mensuales',
       error: error.message
     });
   }
 };
 
-/**
- * @desc    Eliminar un registro de asistencia
- * @route   DELETE /api/attendance/:id
- * @access  Privado (admin)
- */
 exports.deleteAttendance = async (req, res) => {
   try {
     const attendance = await Attendance.findById(req.params.id);
-    
     if (!attendance) {
       return res.status(404).json({
         success: false,
@@ -266,8 +126,7 @@ exports.deleteAttendance = async (req, res) => {
       });
     }
 
-    await attendance.remove();
-
+    await attendance.deleteOne();
     res.status(200).json({
       success: true,
       message: 'Registro de asistencia eliminado correctamente'
@@ -282,72 +141,33 @@ exports.deleteAttendance = async (req, res) => {
   }
 };
 
-/**
- * @desc    Obtener todos los registros de asistencia (para administradores)
- * @route   GET /api/attendance/all
- * @access  Privado (admin)
- */
 exports.getAllAttendance = async (req, res) => {
   try {
-    // Opciones de paginación
     const page = parseInt(req.query.page, 10) || 1;
     const limit = parseInt(req.query.limit, 10) || 30;
-    const startIndex = (page - 1) * limit;
-    
-    // Filtros
-    let filter = {};
-    
-    // Filtro por usuario
-    if (req.query.userId) {
-      filter.userId = req.query.userId;
-    }
-    
-    // Filtro por tipo
-    if (req.query.type) {
-      filter.type = req.query.type;
-    }
-    
-    // Filtro por fecha
-    if (req.query.startDate && req.query.endDate) {
-      const startDate = new Date(req.query.startDate);
-      const endDate = new Date(req.query.endDate);
-      endDate.setHours(23, 59, 59, 999);
-      
-      filter.timestamp = {
-        $gte: startDate,
-        $lte: endDate
-      };
-    } else if (req.query.startDate) {
-      const startDate = new Date(req.query.startDate);
-      filter.timestamp = { $gte: startDate };
-    } else if (req.query.endDate) {
-      const endDate = new Date(req.query.endDate);
-      endDate.setHours(23, 59, 59, 999);
-      filter.timestamp = { $lte: endDate };
-    }
+    const skip = (page - 1) * limit;
+    const filter = { ...buildDateFilter(req.query), ...buildTypeFilter(req.query) };
 
-    // Ejecutar consulta
-    const attendanceRecords = await Attendance.find(filter)
-      .sort({ timestamp: -1 })
-      .limit(limit)
-      .skip(startIndex)
-      .populate('userId', 'nombreCompleto numeroDocumento'); // Traer datos del usuario
-    
-    // Contar total de registros
-    const total = await Attendance.countDocuments(filter);
+    if (req.query.userId) filter.userId = req.query.userId;
 
-    // Información de paginación
-    const pagination = {
-      total,
-      limit,
-      page,
-      pages: Math.ceil(total / limit)
-    };
+    const [attendanceRecords, total] = await Promise.all([
+      Attendance.find(filter)
+        .sort({ timestamp: -1 })
+        .limit(limit)
+        .skip(skip)
+        .populate('userId', 'nombreCompleto numeroDocumento'),
+      Attendance.countDocuments(filter)
+    ]);
 
     res.status(200).json({
       success: true,
       count: attendanceRecords.length,
-      pagination,
+      pagination: {
+        total,
+        limit,
+        page,
+        pages: Math.ceil(total / limit)
+      },
       data: attendanceRecords
     });
   } catch (error) {
@@ -360,112 +180,46 @@ exports.getAllAttendance = async (req, res) => {
   }
 };
 
-// Funciones auxiliares para procesar estadísticas
+exports.getLaborHoursSummary = async (req, res) => {
+  try {
+    const resumen = await TimeCalculationService.obtenerTablaHorasLaborales({
+      startDate: req.query.startDate,
+      endDate: req.query.endDate,
+      page: req.query.page,
+      limit: req.query.limit
+    });
 
-/**
- * Procesar datos para estadísticas semanales
- * @param {Array} records - Registros de asistencia
- */
-function processWeeklyStats(records) {
-  // Nombres de los días de la semana
-  const dayNames = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
-  
-  // Inicializar datos
-  const entriesData = Array(7).fill(0);
-  const exitsData = Array(7).fill(0);
-  const workHoursData = Array(7).fill(0);
-  
-  // Agrupar registros por día de la semana
-  const recordsByDay = {};
-  
-  records.forEach(record => {
-    const date = new Date(record.timestamp);
-    const dayOfWeek = date.getDay(); // 0 = Domingo, 1 = Lunes, etc.
-    
-    if (!recordsByDay[dayOfWeek]) {
-      recordsByDay[dayOfWeek] = { entries: [], exits: [] };
-    }
-    
-    if (record.type === 'entrada') {
-      recordsByDay[dayOfWeek].entries.push(record);
-    } else {
-      recordsByDay[dayOfWeek].exits.push(record);
-    }
-  });
-  
-  // Procesar datos para cada día de la semana
-  for (let i = 0; i < 7; i++) {
-    if (recordsByDay[i]) {
-      entriesData[i] = recordsByDay[i].entries.length;
-      exitsData[i] = recordsByDay[i].exits.length;
-      
-      // Calcular horas trabajadas
-      // Simplificación: consideramos 8 horas por cada par entrada/salida
-      workHoursData[i] = Math.min(entriesData[i], exitsData[i]) * 8;
-    }
+    res.status(200).json({
+      success: true,
+      data: resumen.rows,
+      pagination: resumen.pagination,
+      leyAplicada: resumen.leyAplicada
+    });
+  } catch (error) {
+    console.error('Error al obtener tabla laboral:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al obtener tabla laboral',
+      error: error.message
+    });
   }
-  
-  return {
-    labels: dayNames,
-    datasets: {
-      entries: entriesData,
-      exits: exitsData,
-      workHours: workHoursData
-    }
-  };
+};
+
+function buildDateFilter(query) {
+  if (!query.startDate && !query.endDate) return {};
+
+  const timestamp = {};
+  if (query.startDate) timestamp.$gte = new Date(query.startDate);
+  if (query.endDate) {
+    const endDate = new Date(query.endDate);
+    endDate.setHours(23, 59, 59, 999);
+    timestamp.$lte = endDate;
+  }
+
+  return { timestamp };
 }
 
-/**
- * Procesar datos para estadísticas mensuales
- * @param {Array} records - Registros de asistencia
- * @param {Number} month - Mes (0-11)
- * @param {Number} year - Año
- */
-function processMonthlyStats(records, month, year) {
-  // Determinar el número de días en el mes
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  
-  // Inicializar datos
-  const labels = Array.from({ length: daysInMonth }, (_, i) => i + 1); // [1, 2, ..., 30/31]
-  const entriesData = Array(daysInMonth).fill(0);
-  const exitsData = Array(daysInMonth).fill(0);
-  const workHoursData = Array(daysInMonth).fill(0);
-  
-  // Agrupar registros por día del mes
-  const recordsByDay = {};
-  
-  records.forEach(record => {
-    const date = new Date(record.timestamp);
-    const dayOfMonth = date.getDate(); // 1-31
-    
-    if (!recordsByDay[dayOfMonth]) {
-      recordsByDay[dayOfMonth] = { entries: [], exits: [] };
-    }
-    
-    if (record.type === 'entrada') {
-      recordsByDay[dayOfMonth].entries.push(record);
-    } else {
-      recordsByDay[dayOfMonth].exits.push(record);
-    }
-  });
-  
-  // Procesar datos para cada día del mes
-  for (let i = 1; i <= daysInMonth; i++) {
-    if (recordsByDay[i]) {
-      entriesData[i - 1] = recordsByDay[i].entries.length;
-      exitsData[i - 1] = recordsByDay[i].exits.length;
-      
-      // Calcular horas trabajadas
-      workHoursData[i - 1] = Math.min(entriesData[i - 1], exitsData[i - 1]) * 8;
-    }
-  }
-  
-  return {
-    labels,
-    datasets: {
-      entries: entriesData,
-      exits: exitsData,
-      workHours: workHoursData
-    }
-  };
+function buildTypeFilter(query) {
+  const type = query.type || query.tipo;
+  return type ? { type } : {};
 }

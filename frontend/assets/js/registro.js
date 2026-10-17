@@ -43,7 +43,6 @@ class RegistroManager {
     const tipoUsuarioInput = document.getElementById('tipoUsuario');
     const roleDescription = document.getElementById('roleDescription');
     const codigoAdmin = document.getElementById('codigoAdmin');
-    const departamento = document.getElementById('departamento');
 
     roleTabs.forEach(tab => {
       tab.addEventListener('click', function () {
@@ -60,15 +59,12 @@ class RegistroManager {
         if (role === 'administrador') {
           adminFields.style.display = 'block';
           roleDescription.innerHTML = '<span>Complete los campos adicionales para administradores.</span>';
-          // Hacer requeridos los campos de admin
+          // Hacer requerido solo el código de administrador
           codigoAdmin.setAttribute('required', 'required');
-          departamento.setAttribute('required', 'required');
         } else {
           adminFields.style.display = 'none';
           roleDescription.innerHTML = '<span>Complete los campos para registro de empleado.</span>';
-          // Quitar requeridos
           codigoAdmin.removeAttribute('required');
-          departamento.removeAttribute('required');
         }
       });
       // Accesibilidad: activar con Enter/Espacio
@@ -452,9 +448,12 @@ class RegistroManager {
       direccion: userData.direccion || ''
     };
 
+    // Guardar departamento/dependencia para todos los usuarios (empleados y admins)
+    userToSave.departamento = userData.departamento || '';
+    userToSave.fechaIngreso = userData.fechaIngreso || '';
+
     // Añadir campos específicos para administradores
     if (userData.tipoUsuario === 'administrador') {
-      userToSave.departamento = userData.departamento || '';
       userToSave.codigoAdmin = userData.codigoAdmin;
     }
 

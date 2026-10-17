@@ -48,10 +48,14 @@ const attendanceSchema = new mongoose.Schema({
 attendanceSchema.index({ userId: 1, timestamp: 1 });
 attendanceSchema.index({ userId: 1, type: 1, date: 1 });
 
-// Middleware para formatear fecha y hora antes de guardar
-attendanceSchema.pre('save', function(next) {
+// Middleware para formatear fecha y hora ANTES de la validación.
+// Debe ser pre('validate') (no pre('save')) porque Mongoose ejecuta la
+// validación antes de los hooks pre('save'); de lo contrario los campos
+// requeridos 'date' y 'time' aún estarían vacíos y la validación fallaría.
+attendanceSchema.pre('validate', function(next) {
   // Solo actualizar si timestamp ha sido modificado
   if (this.isModified('timestamp') || !this.date || !this.time) {
+
     const datetime = new Date(this.timestamp);
     
     // Formatear fecha en formato español
