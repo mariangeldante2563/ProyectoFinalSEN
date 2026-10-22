@@ -19,8 +19,7 @@ class AuditService {
    * @param {Object} detalles - Detalles adicionales
    * @param {Object} req - Objeto de solicitud Express (opcional)
    */
-  static async registrarAccion(usuario, entidad, entidadId, accion, detalles = {}, req = null) {
-    try {
+  static async registrarAccion(usuario, entidad, entidadId, accion, detalles = {}, req = null, session = null) {
       // Datos básicos del registro de auditoría
       const registroAuditoria = {
         usuarioId: usuario._id,
@@ -39,11 +38,9 @@ class AuditService {
       }
 
       // Crear y guardar el registro de auditoría
-      await Audit.create(registroAuditoria);
-    } catch (error) {
-      // No detener la ejecución en caso de error, solo registrar
-      console.error('Error al registrar auditoría:', error);
-    }
+      const options = session ? { session } : {};
+      const [createdRecord] = await Audit.create([registroAuditoria], options);
+      return createdRecord;
   }
 
   /**
@@ -68,7 +65,7 @@ class AuditService {
    * @param {Object} objNuevo - Nuevo estado del objeto
    * @param {Object} req - Objeto de solicitud Express (opcional)
    */
-  static async registrarCambios(usuario, entidad, entidadId, objAnterior, objNuevo, req = null) {
+  static async registrarCambios(usuario, entidad, entidadId, objAnterior, objNuevo, req = null, session = null) {
     // Detectar campos modificados
     const cambios = this.detectarCambios(objAnterior, objNuevo);
     
@@ -80,7 +77,8 @@ class AuditService {
         entidadId, 
         'actualizar', 
         { cambios }, 
-        req
+        req,
+        session
       );
     }
   }

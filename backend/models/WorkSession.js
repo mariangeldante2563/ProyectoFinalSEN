@@ -4,7 +4,6 @@
  */
 
 const mongoose = require('mongoose');
-const ColombianLaborLawService = require('../services/ColombianLaborLawService');
 
 const workSessionSchema = new mongoose.Schema({
   userId: {
@@ -51,6 +50,16 @@ const workSessionSchema = new mongoose.Schema({
   tiempoLaboradoHoras: {
     type: String,
     default: null
+  },
+  horasOrdinarias: {
+    diurnas: { type: Number, default: null },
+    nocturnas: { type: Number, default: null },
+    total: { type: Number, default: null }
+  },
+  horasExtras: {
+    diurnas: { type: Number, default: null },
+    nocturnas: { type: Number, default: null },
+    total: { type: Number, default: null }
   },
   estado: {
     type: String,
@@ -126,81 +135,10 @@ const workSessionSchema = new mongoose.Schema({
 workSessionSchema.index({ userId: 1, fecha: 1 });
 workSessionSchema.index({ userId: 1, timestampEntrada: 1 });
 workSessionSchema.index({ estado: 1 });
-
-workSessionSchema.pre('save', function(next) {
-  if (this.timestampSalida) {
-    this.aplicarCalculoLaboral(this.metadata?.minutosOrdinariosPrevios || 0);
-    this.estado = 'completada';
-  }
-  next();
-});
-
-workSessionSchema.methods.aplicarCalculoLaboral = function(minutosOrdinariosPrevios = 0) {
-  if (!this.timestampEntrada || !this.timestampSalida) return null;
-
-  const entrada = new Date(this.timestampEntrada);
-  const salida = new Date(this.timestampSalida);
-  const minutos = Math.max(0, Math.floor((salida - entrada) / 60000));
-  const calculo = ColombianLaborLawService.calcularRecargosConAcumulado(
-    entrada,
-    salida,
-    minutosOrdinariosPrevios,
-    minutos
-  );
-
-  this.tiempoLaboradoMinutos = calculo.tiempoTotal.minutos;
-  this.tiempoLaboradoHoras = calculo.tiempoTotal.formato;
-  this.esFinDeSemana = ColombianLaborLawService.esDomingo(entrada);
-  this.esFestivo = ColombianLaborLawService.esFestivo(entrada);
-
-  this.tiempoJornadaOrdinariaDiurna = calculo.horasOrdinarias.diurnas.minutos;
-  this.tiempoJornadaOrdinariaNocturna = calculo.horasOrdinarias.nocturnas.minutos;
-  this.tiempoJornadaOrdinariaNoturna = calculo.horasOrdinarias.nocturnas.minutos;
-  this.tiempoHorasExtrasDiurnas = calculo.horasExtras.diurnas.minutos;
-  this.tiempoHorasExtrasNocturnas = calculo.horasExtras.nocturnas.minutos;
-  // Tiempo realmente clasificado como extra dentro de un dia dominical/festivo
-  this.tiempoHorasExtrasDominicales = calculo.metadata.esDomingoOFestivo
-    ? calculo.horasExtras.total.minutos
-    : 0;
-
-  this.recargos.recargoNocturno = calculo.recargos.nocturnoOrdinario.minutos;
-  this.recargos.recargoHorasExtrasDiurnas = calculo.recargos.extraDiurno.minutos;
-  this.recargos.recargoHorasExtrasNocturnas = calculo.recargos.extraNocturno.minutos;
-  // Agrupa los 4 conceptos dominicales/festivos (ordinario diurno/nocturno y
-  // extra diurno/nocturno) en el unico campo existente del esquema.
-  this.recargos.recargoDominicalesFestivos =
-    calculo.recargos.dominicalDiurno.minutos +
-    calculo.recargos.dominicalNocturno.minutos +
-    (calculo.recargos.extraDominicalDiurno?.minutos || 0) +
-    (calculo.recargos.extraDominicalNocturno?.minutos || 0);
-
-  this.recargos.recargoTotal = calculo.recargos.totalRecargos.minutos;
-  this.metadata.minutosOrdinariosPrevios = minutosOrdinariosPrevios;
-
-  return calculo;
-};
-
-workSessionSchema.methods.toLaborSummary = function() {
-  const entrada = this.timestampEntrada;
-  const salida = this.timestampSalida || new Date();
-  const minutos = Math.max(0, Math.floor((new Date(salida) - new Date(entrada)) / 60000));
-  const calculo = this.timestampSalida
-    ? ColombianLaborLawService.calcularRecargosConAcumulado(
-        entrada,
-        salida,
-        this.metadata?.minutosOrdinariosPrevios || 0,
-        minutos
-      )
-    : ColombianLaborLawService.calcularRecargos(entrada, salida, minutos);
-
-  return {
-    tiempoTotal: calculo.tiempoTotal,
-    horasOrdinarias: calculo.horasOrdinarias,
-    horasExtras: calculo.horasExtras,
-    recargos: calculo.recargos,
-    metadata: calculo.metadata
-  };
-};
+workSessionSchema.index(
+  { userId: 1 },
+  { unique: true, partialFilterExpression: { estado: 'activa' } }
+);
 
 workSessionSchema.statics.obtenerSesionActiva = async function(userId) {
   return this.findOne({

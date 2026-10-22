@@ -23,7 +23,9 @@ const attendanceSchema = new mongoose.Schema({
   },
   timestamp: {
     type: Date,
-    default: Date.now
+    required: true,
+    default: Date.now,
+    immutable: true
   },
   // Campos adicionales para búsquedas más eficientes
   date: {
@@ -46,45 +48,39 @@ const attendanceSchema = new mongoose.Schema({
 
 // Índices para mejorar búsquedas
 attendanceSchema.index({ userId: 1, timestamp: 1 });
-attendanceSchema.index({ userId: 1, type: 1, date: 1 });
+attendanceSchema.index({ date: 1, userId: 1 });
 
-// Middleware para formatear fecha y hora ANTES de la validación.
-// Debe ser pre('validate') (no pre('save')) porque Mongoose ejecuta la
-// validación antes de los hooks pre('save'); de lo contrario los campos
-// requeridos 'date' y 'time' aún estarían vacíos y la validación fallaría.
 attendanceSchema.pre('validate', function(next) {
-  // Solo actualizar si timestamp ha sido modificado
   if (this.isModified('timestamp') || !this.date || !this.time) {
-
     const datetime = new Date(this.timestamp);
-    
-    // Formatear fecha en formato español
-    this.date = datetime.toLocaleDateString('es-ES', {
-      day: '2-digit',
+    const parts = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/Bogota',
+      year: 'numeric',
       month: '2-digit',
-      year: 'numeric'
-    });
-    
-    // Formatear hora en formato español
-    this.time = datetime.toLocaleTimeString('es-ES', {
+      day: '2-digit',
+    }).formatToParts(datetime).reduce((result, part) => {
+      result[part.type] = part.value;
+      return result;
+    }, {});
+    this.date = `${parts.year}-${parts.month}-${parts.day}`;
+    this.time = new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'America/Bogota',
       hour: '2-digit',
       minute: '2-digit',
-      second: '2-digit'
-    });
+      second: '2-digit',
+      hourCycle: 'h23'
+    }).format(datetime);
   }
   next();
 });
 
-// Método estático para verificar si ya existe un registro del mismo tipo para el usuario en una fecha
 attendanceSchema.statics.existsForUserAndDate = async function(userId, type, date) {
-  // Crear fecha de inicio y fin para el día específico
   const startOfDay = new Date(date);
   startOfDay.setHours(0, 0, 0, 0);
   
   const endOfDay = new Date(date);
   endOfDay.setHours(23, 59, 59, 999);
   
-  // Buscar registro existente
   const existingRecord = await this.findOne({
     userId,
     type,

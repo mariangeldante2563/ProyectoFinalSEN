@@ -15,7 +15,9 @@ const {
   getMonthlyStats,
   deleteAttendance,
   getAllAttendance,
-  getLaborHoursSummary
+  getLaborHoursSummary,
+  getActiveSession,
+  requestCorrection
 } = require('../controllers/attendanceController');
 
 // Importar middlewares
@@ -27,23 +29,29 @@ const {
 
 const { 
   attendanceRules,
-  validate 
+  attendanceQueryRules,
+  correctionRules,
+  attendanceIdRules,
+  userIdRules,
+  validate
 } = require('../middlewares/validation');
 
 // Todas las rutas requieren autenticación
 router.use(protect);
 
 // Ruta para registrar asistencia (entrada o salida)
-router.post('/', attendanceRules, validate, registerAttendance);
+router.post('/', authorize('empleado'), attendanceRules, validate, registerAttendance);
+router.get('/sessions/active', authorize('empleado'), getActiveSession);
+router.post('/corrections', authorize('empleado'), correctionRules, validate, requestCorrection);
 
 // Rutas para obtener registros y estadísticas de un usuario
-router.get('/user/:userId', checkUserOwnership, getUserAttendance);
+router.get('/user/:userId', userIdRules, attendanceQueryRules, validate, checkUserOwnership, getUserAttendance);
 router.get('/stats/weekly/:userId', checkUserOwnership, getWeeklyStats);
 router.get('/stats/monthly/:userId', checkUserOwnership, getMonthlyStats);
 
 // Rutas exclusivas para administradores
 router.get('/labor-hours', authorize('administrador'), getLaborHoursSummary);
-router.get('/all', authorize('administrador'), getAllAttendance);
-router.delete('/:id', authorize('administrador'), deleteAttendance);
+router.get('/all', attendanceQueryRules, validate, authorize('administrador'), getAllAttendance);
+router.delete('/:id', authorize('administrador'), attendanceIdRules, validate, deleteAttendance);
 
 module.exports = router;

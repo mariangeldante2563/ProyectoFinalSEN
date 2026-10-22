@@ -115,20 +115,15 @@ class AdminDashboard extends BaseDashboard {
       
       if (typeof window.apiService !== 'undefined' && typeof window.apiService.get === 'function') {
         try {
-          const response = await window.apiService.get('/users?limit=1000&tipoUsuario=empleado');
+          const response = await window.apiService.get('/users?limit=500&tipoUsuario=empleado');
           if (response && response.success && Array.isArray(response.data)) {
             employees = response.data;
           }
         } catch (apiError) {
-          console.warn('Error al cargar empleados desde la API, usando localStorage como fallback:', apiError);
+          console.warn('Error al cargar empleados desde la API:', apiError);
         }
       }
 
-      if (!employees.length) {
-        const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
-        employees = users.filter(user => user.tipoUsuario === 'empleado');
-      }
-      
       this.allEmployees = employees;
       
       if (employees.length === 0) {
@@ -196,11 +191,8 @@ class AdminDashboard extends BaseDashboard {
   
   viewEmployeeDetails(employeeId) {
     try {
-      // Obtener todos los usuarios registrados
-      const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
-      
       // Buscar el empleado por ID
-      const employee = this.allEmployees.find(user => (user.id || user._id) === employeeId) || users.find(user => (user.id || user._id) === employeeId);
+      const employee = this.allEmployees.find(user => (user.id || user._id) === employeeId);
       
       if (!employee) {
         // Usar NotificationManager si está disponible
@@ -220,8 +212,7 @@ class AdminDashboard extends BaseDashboard {
           return recordUserId === employeeId;
         });
       } else {
-        attendanceRecords = JSON.parse(localStorage.getItem('attendanceRecords') || '[]')
-          .filter(record => record.userId === employeeId);
+        attendanceRecords = [];
       }
       
       // Crear ventana modal
@@ -313,17 +304,13 @@ class AdminDashboard extends BaseDashboard {
       
       if (typeof window.apiService !== 'undefined' && typeof window.apiService.get === 'function') {
         try {
-          const response = await window.apiService.get('/attendance/all?limit=1000');
+          const response = await window.apiService.get('/attendance/all?limit=500');
           if (response && response.success && Array.isArray(response.data)) {
             attendanceRecords = response.data;
           }
         } catch (apiError) {
-          console.warn('Error al cargar registros de asistencia desde la API, usando localStorage como fallback:', apiError);
+          console.warn('Error al cargar registros de asistencia desde la API:', apiError);
         }
-      }
-
-      if (!attendanceRecords.length) {
-        attendanceRecords = JSON.parse(localStorage.getItem('attendanceRecords') || '[]');
       }
 
       this.allAttendanceRecords = attendanceRecords;
@@ -335,9 +322,6 @@ class AdminDashboard extends BaseDashboard {
         return;
       }
       
-      // Obtener lista de usuarios para mostrar nombres
-      const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
-      
       // Ordenar por fecha (más recientes primero)
       filteredRecords.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
       
@@ -346,9 +330,9 @@ class AdminDashboard extends BaseDashboard {
       recordsHTML += '<thead><tr><th>Empleado</th><th>Fecha</th><th>Hora</th><th>Tipo</th></tr></thead><tbody>';
       
       filteredRecords.forEach(record => {
-        const recordUserId = record.userId && typeof record.userId === 'object' ? (record.userId._id || record.userId.id) : record.userId;
-        const user = users.find(u => (u.id || u._id) === recordUserId);
-        const userName = record.userId && typeof record.userId === 'object' ? record.userId.nombreCompleto : (user ? user.nombreCompleto : 'Usuario desconocido');
+        const userName = record.userId && typeof record.userId === 'object'
+          ? record.userId.nombreCompleto
+          : 'Usuario desconocido';
         const typeClass = record.type === 'entrada' ? 'entry-record' : 'exit-record';
         const typeIcon = record.type === 'entrada' ? '⬆️' : '⬇️';
         
@@ -419,7 +403,7 @@ class AdminDashboard extends BaseDashboard {
 
       if (typeof window.apiService !== 'undefined' && typeof window.apiService.get === 'function') {
         try {
-          const usersResponse = await window.apiService.get('/users?limit=1000&tipoUsuario=empleado');
+          const usersResponse = await window.apiService.get('/users?limit=500&tipoUsuario=empleado');
           if (usersResponse && usersResponse.success && Array.isArray(usersResponse.data)) {
             employees = usersResponse.data;
           }
@@ -428,22 +412,13 @@ class AdminDashboard extends BaseDashboard {
         }
 
         try {
-          const attendanceResponse = await window.apiService.get('/attendance/all?limit=1000');
+          const attendanceResponse = await window.apiService.get('/attendance/all?limit=500');
           if (attendanceResponse && attendanceResponse.success && Array.isArray(attendanceResponse.data)) {
             attendanceRecords = attendanceResponse.data;
           }
         } catch (apiError) {
           console.warn('Error al obtener registros de asistencia desde la API:', apiError);
         }
-      }
-
-      if (!employees.length) {
-        const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
-        employees = users.filter(user => user.tipoUsuario === 'empleado');
-      }
-
-      if (!attendanceRecords.length) {
-        attendanceRecords = JSON.parse(localStorage.getItem('attendanceRecords') || '[]');
       }
 
       this.allEmployees = employees;
@@ -492,11 +467,8 @@ class AdminDashboard extends BaseDashboard {
         return;
       }
       
-      // Obtener todos los usuarios registrados
-      const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
-      
       // Filtrar empleados que coincidan con la búsqueda
-      const filteredEmployees = users.filter(user => 
+      const filteredEmployees = (this.allEmployees || []).filter(user =>
         user.tipoUsuario === 'empleado' && (
           user.nombreCompleto.toLowerCase().includes(searchTerm) ||
           user.numeroDocumento.includes(searchTerm) ||
@@ -544,18 +516,19 @@ class AdminDashboard extends BaseDashboard {
   
   exportData() {
     try {
-      // Obtener registros de asistencia filtrados
-      const attendanceRecords = JSON.parse(localStorage.getItem('attendanceRecords') || '[]');
+      const attendanceRecords = this.allAttendanceRecords || [];
       const filteredRecords = this.filterAttendanceByDate(attendanceRecords);
       
-      // Obtener lista de usuarios para mostrar nombres
-      const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+      const users = this.allEmployees || [];
       
       // Crear datos CSV
       let csv = 'Empleado,Documento,Fecha,Hora,Tipo\n';
       
       filteredRecords.forEach(record => {
-        const user = users.find(u => u.id === record.userId);
+        const recordUserId = record.userId && typeof record.userId === 'object'
+          ? (record.userId._id || record.userId.id)
+          : record.userId;
+        const user = users.find(u => String(u._id || u.id) === String(recordUserId));
         if (user) {
           csv += `"${user.nombreCompleto}","${user.numeroDocumento}","${record.date}","${record.time}","${record.type}"\n`;
         }

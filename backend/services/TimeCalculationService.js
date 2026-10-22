@@ -4,122 +4,137 @@ const Attendance = require('../models/Attendance');
 const ColombianLaborLawService = require('./ColombianLaborLawService');
 
 class TimeCalculationService {
-  static async procesarRegistroAsistencia(userId, type, timestamp = new Date(), location = null) {
-    if (!['entrada', 'salida'].includes(type)) {
-      throw new Error('Tipo de registro invalido. Debe ser entrada o salida');
+  static obtenerHorarioVigente(usuario, fecha) {
+    return (usuario.horariosLaborales || [])
+      .filter(horario => horario.vigenteDesde <= fecha &&
+        (!horario.vigenteHasta || horario.vigenteHasta > fecha))
+      .sort((a, b) => b.vigenteDesde - a.vigenteDesde)[0] || null;
+  }
+
+  /**
+   * Clasifica una sesión usando la versión de horario y las reglas legales vigentes.
+   * Los cálculos se ejecutan exclusivamente en el backend.
+   * @param {Object} options Marcas, horario y acumulado semanal previo
+   * @returns {Object} Totales y desglose de la jornada
+   */
+  static calcularSesion({ entrada, salida, horario, minutosSemanalesPrevios = 0 }) {
+    const inicio = new Date(entrada);
+    const fin = new Date(salida);
+    if (!Number.isFinite(inicio.getTime()) || !Number.isFinite(fin.getTime()) || fin <= inicio) {
+      throw new Error('La sesión requiere una entrada y salida válidas.');
+    }
+    if (!horario?.minutosOrdinariosPorDia) {
+      const minutes = Math.floor((fin - inicio) / 60000);
+      return {
+        estadoCalculo: 'pendiente_horario',
+        tiempoTotal: { minutos: minutes, formato: `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}` }
+      };
     }
 
-    const marca = new Date(timestamp);
-    const attendance = new Attendance({
-      userId,
-      type,
-      timestamp: marca,
-      // Se envian explicitamente 'date' y 'time' (refuerzo defensivo) para no
-      // depender unicamente del hook del modelo al satisfacer los campos requeridos.
-      date: marca.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }),
-      time: marca.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
-    });
-    await attendance.save();
-
-
-    let workSession = await WorkSession.obtenerSesionActiva(userId);
-    const resultado = {
-      registro: attendance,
-      sesion: null,
-      estadisticas: null,
-      accion: '',
-      mensaje: ''
+    const totals = {
+      total: 0,
+      ordinariaDiurna: 0,
+      ordinariaNocturna: 0,
+      extraDiurna: 0,
+      extraNocturna: 0,
+      dominicalDiurna: 0,
+      dominicalNocturna: 0,
+      nocturnaOrdinaria: 0
     };
+    const workedByDate = new Map();
+    let weeklyMinutes = minutosSemanalesPrevios;
+    let cursor = Math.ceil(inicio.getTime() / 60000) * 60000;
 
-    if (type === 'entrada') {
-      if (workSession) {
-        const salidaAnterior = this._calcularSalidaAutomatica(workSession.timestampEntrada, marca);
-        workSession.horaSalida = this.formatearHora(salidaAnterior);
-        workSession.timestampSalida = salidaAnterior;
-        workSession.ubicacionSalida = location;
-        workSession.metadata.cierreAutomatico = true;
-        workSession.metadata.observaciones = 'Sesion cerrada automaticamente por nueva entrada';
-        await workSession.save();
-        await DailyStats.crearOActualizarEstadisticas(userId, this._inicioDia(workSession.timestampEntrada));
-        resultado.mensaje += 'Sesion anterior cerrada automaticamente. ';
-      }
+    while (cursor < fin.getTime()) {
+      const instant = new Date(cursor);
+      const localDate = ColombianLaborLawService.obtenerFechaLocal(instant);
+      const localParts = new Intl.DateTimeFormat('en-GB', {
+        timeZone: 'America/Bogota',
+        hour: '2-digit',
+        minute: '2-digit',
+        hourCycle: 'h23'
+      }).formatToParts(instant).reduce((parts, part) => {
+        parts[part.type] = part.value;
+        return parts;
+      }, {});
+      const minuteOfDay = Number(localParts.hour) * 60 + Number(localParts.minute);
+      const isoDay = ColombianLaborLawService.obtenerDiaISOLocal(instant);
+      const map = horario.minutosOrdinariosPorDia;
+      const scheduledMinutes = Number(map instanceof Map ? map.get(String(isoDay)) : map[String(isoDay)]) || 0;
+      const dateWorked = workedByDate.get(localDate) || 0;
+      const rules = ColombianLaborLawService.obtenerReglasVigentes(instant, horario);
+      const isRestDay = isoDay === horario.diaDescansoObligatorio ||
+        ColombianLaborLawService.esFestivoColombiano(instant);
+      const isOvertime = dateWorked >= scheduledMinutes;
+      const isNight = minuteOfDay >= rules.inicioNocturno * 60 || minuteOfDay < 6 * 60;
+      const key = isRestDay
+        ? (isNight ? 'dominicalNocturna' : 'dominicalDiurna')
+        : (isOvertime
+          ? (isNight ? 'extraNocturna' : 'extraDiurna')
+          : (isNight ? 'ordinariaNocturna' : 'ordinariaDiurna'));
 
-      workSession = new WorkSession({
-        userId,
-        fecha: this.formatearFecha(marca),
-        horaEntrada: this.formatearHora(marca),
-        timestampEntrada: marca,
-        ubicacionEntrada: location,
-        estado: 'activa'
-      });
-      await workSession.save();
-
-      resultado.sesion = workSession;
-      resultado.accion = 'entrada_registrada';
-      resultado.mensaje += 'Nueva sesion de trabajo iniciada.';
-      return resultado;
+      totals[key] += 1;
+      totals.total += 1;
+      if (!isRestDay && !isOvertime && isNight) totals.nocturnaOrdinaria += 1;
+      workedByDate.set(localDate, dateWorked + 1);
+      weeklyMinutes += 1;
+      cursor += 60000;
     }
 
-    if (!workSession) {
-      const entradaEstimada = new Date(marca.getTime() - (8 * 60 * 60 * 1000));
-      workSession = new WorkSession({
-        userId,
-        fecha: this.formatearFecha(entradaEstimada),
-        horaEntrada: this.formatearHora(entradaEstimada),
-        timestampEntrada: entradaEstimada,
-        horaSalida: this.formatearHora(marca),
-        timestampSalida: marca,
-        ubicacionSalida: location,
-        estado: 'completada',
-        metadata: {
-          entradaEstimada: true,
-          observaciones: 'Entrada estimada por salida sin entrada previa'
-        }
-      });
-
-      resultado.accion = 'salida_con_entrada_estimada';
-      resultado.mensaje = 'Salida registrada con entrada estimada.';
-    } else {
-      if (marca <= workSession.timestampEntrada) {
-        throw new Error('La salida debe ser posterior a la entrada registrada');
+    const format = minutes => `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`;
+    const sum = (...keys) => keys.reduce((total, key) => total + totals[key], 0);
+    const firstRules = ColombianLaborLawService.obtenerReglasVigentes(inicio, horario);
+    const esDescanso = totals.dominicalDiurna + totals.dominicalNocturna > 0;
+    return {
+      estadoCalculo: 'calculado',
+      tiempoTotal: { minutos: totals.total, formato: format(totals.total) },
+      horasOrdinarias: {
+        diurnas: { minutos: totals.ordinariaDiurna, formato: format(totals.ordinariaDiurna) },
+        nocturnas: { minutos: totals.ordinariaNocturna, formato: format(totals.ordinariaNocturna) },
+        total: { minutos: sum('ordinariaDiurna', 'ordinariaNocturna'), formato: format(sum('ordinariaDiurna', 'ordinariaNocturna')) }
+      },
+      horasExtras: {
+        diurnas: { minutos: totals.extraDiurna, formato: format(totals.extraDiurna) },
+        nocturnas: { minutos: totals.extraNocturna, formato: format(totals.extraNocturna) },
+        total: { minutos: sum('extraDiurna', 'extraNocturna'), formato: format(sum('extraDiurna', 'extraNocturna')) }
+      },
+      recargos: {
+        nocturnoOrdinario: { minutos: totals.nocturnaOrdinaria, formato: format(totals.nocturnaOrdinaria), porcentaje: firstRules.recargoNocturnoOrdinario },
+        extraDiurno: { minutos: totals.extraDiurna, formato: format(totals.extraDiurna), porcentaje: firstRules.recargoExtraDiurna },
+        extraNocturno: { minutos: totals.extraNocturna, formato: format(totals.extraNocturna), porcentaje: firstRules.recargoExtraNocturna },
+        dominicalDiurno: { minutos: totals.dominicalDiurna, formato: format(totals.dominicalDiurna), porcentaje: firstRules.recargoDescanso },
+        dominicalNocturno: { minutos: totals.dominicalNocturna, formato: format(totals.dominicalNocturna), porcentaje: firstRules.recargoDescanso + firstRules.recargoNocturnoOrdinario },
+        totalRecargos: { minutos: sum('nocturnaOrdinaria', 'extraDiurna', 'extraNocturna', 'dominicalDiurna', 'dominicalNocturna'), formato: format(sum('nocturnaOrdinaria', 'extraDiurna', 'extraNocturna', 'dominicalDiurna', 'dominicalNocturna')) }
+      },
+      metadata: {
+        calculoVersion: firstRules.calculoVersion,
+        minutosSemanalesPrevios,
+        excedeTopeSemanal: weeklyMinutes > firstRules.maxHorasSemanales * 60,
+        esDomingoOFestivo: esDescanso
       }
-
-      workSession.horaSalida = this.formatearHora(marca);
-      workSession.timestampSalida = marca;
-      workSession.ubicacionSalida = location;
-      workSession.estado = 'completada';
-      resultado.accion = 'salida_registrada';
-      resultado.mensaje = 'Sesion de trabajo completada exitosamente.';
-    }
-
-    await workSession.save();
-    const estadisticas = await DailyStats.crearOActualizarEstadisticas(
-      userId,
-      this._inicioDia(workSession.timestampEntrada)
-    );
-
-    resultado.sesion = workSession;
-    resultado.estadisticas = estadisticas;
-    return resultado;
+    };
   }
 
   static async obtenerSesionActiva(userId) {
     const sesionActiva = await WorkSession.obtenerSesionActiva(userId);
     if (!sesionActiva) return null;
 
+    const User = require('../models/User');
+    const user = await User.findById(userId);
+    if (!user) throw new Error('Empleado de la jornada activa no encontrado.');
     const ahora = new Date();
-    const duracionMinutos = Math.max(0, Math.floor((ahora - sesionActiva.timestampEntrada) / 60000));
-    const calculo = ColombianLaborLawService.calcularRecargos(
-      sesionActiva.timestampEntrada,
-      ahora,
-      duracionMinutos
-    );
+    const horario = this.obtenerHorarioVigente(user, sesionActiva.timestampEntrada);
+    const calculo = this.calcularSesion({
+      entrada: sesionActiva.timestampEntrada,
+      salida: ahora,
+      horario
+    });
 
     return {
       ...sesionActiva.toObject(),
       duracionActual: {
-        minutos: duracionMinutos,
-        formato: this.formatearTiempo(duracionMinutos)
+        ...calculo.tiempoTotal,
+        estadoCalculo: calculo.estadoCalculo
       },
       clasificacionActual: calculo,
       activa: true
@@ -132,7 +147,6 @@ class TimeCalculationService {
 
     if (!estadisticas) {
       estadisticas = new DailyStats({ userId, fecha: hoy });
-      await estadisticas.save();
     }
 
     const sesionActiva = await this.obtenerSesionActiva(userId);
@@ -393,21 +407,19 @@ class TimeCalculationService {
   }
 
   static _inicioDia(fecha) {
-    const d = new Date(fecha);
-    d.setHours(0, 0, 0, 0);
-    return d;
-  }
-
-  static _calcularSalidaAutomatica(entrada, nuevaEntrada) {
-    const sugerida = new Date(new Date(nuevaEntrada).getTime() - 60000);
-    if (sugerida > entrada) return sugerida;
-    return new Date(new Date(entrada).getTime() + 60000);
+    const localDate = ColombianLaborLawService.obtenerFechaLocal(fecha);
+    return new Date(`${localDate}T00:00:00.000Z`);
   }
 
   static _mapearFilaLaboral(sesion) {
     const user = sesion.userId || {};
-    const resumen = sesion.toLaborSummary();
-    const totalMinutos = resumen.tiempoTotal.minutos;
+    const totalMinutos = sesion.tiempoLaboradoMinutos;
+    const calculatedMinutes = value => totalMinutos == null ? null : value;
+    const format = minutes => minutes == null
+      ? 'Pendiente de revisión'
+      : ColombianLaborLawService.formatearTiempo(minutes);
+    const recargoTotal = sesion.recargos?.recargoTotal ?? null;
+    const esDescanso = sesion.esFinDeSemana || sesion.esFestivo;
 
     return {
       id: sesion._id,
@@ -424,24 +436,25 @@ class TimeCalculationService {
       estado: sesion.estado,
       totalHorasLaboradas: {
         minutos: totalMinutos,
-        formato: resumen.tiempoTotal.formato,
-        decimal: Math.round((totalMinutos / 60) * 100) / 100
+        formato: format(totalMinutos),
+        decimal: totalMinutos == null ? null : Math.round((totalMinutos / 60) * 100) / 100
       },
       clasificacion: {
-        ordinariaDiurna: resumen.horasOrdinarias.diurnas,
-        ordinariaNocturna: resumen.horasOrdinarias.nocturnas,
-        extraDiurna: resumen.horasExtras.diurnas,
-        extraNocturna: resumen.horasExtras.nocturnas,
+        ordinariaDiurna: { minutos: calculatedMinutes(sesion.tiempoJornadaOrdinariaDiurna), formato: format(calculatedMinutes(sesion.tiempoJornadaOrdinariaDiurna)) },
+        ordinariaNocturna: { minutos: calculatedMinutes(sesion.tiempoJornadaOrdinariaNocturna), formato: format(calculatedMinutes(sesion.tiempoJornadaOrdinariaNocturna)) },
+        extraDiurna: { minutos: calculatedMinutes(sesion.tiempoHorasExtrasDiurnas), formato: format(calculatedMinutes(sesion.tiempoHorasExtrasDiurnas)) },
+        extraNocturna: { minutos: calculatedMinutes(sesion.tiempoHorasExtrasNocturnas), formato: format(calculatedMinutes(sesion.tiempoHorasExtrasNocturnas)) },
         dominicalFestiva: {
-          minutos: resumen.metadata.esDomingoOFestivo ? totalMinutos : 0,
-          formato: resumen.metadata.esDomingoOFestivo ? resumen.tiempoTotal.formato : '00:00'
+          minutos: totalMinutos == null ? null : esDescanso ? (sesion.tiempoHorasExtrasDominicales || totalMinutos) : 0,
+          formato: totalMinutos == null ? 'Pendiente de revisión' : esDescanso ? format(sesion.tiempoHorasExtrasDominicales || totalMinutos) : '00:00'
         },
-        recargos: resumen.recargos
+        recargos: {
+          totalRecargos: { minutos: calculatedMinutes(recargoTotal), formato: format(calculatedMinutes(recargoTotal)) }
+        }
       },
       metadata: {
-        esDomingoOFestivo: resumen.metadata.esDomingoOFestivo,
-        jornadaNocturna: '19:00-06:00',
-        jornadaDiurna: '06:00-19:00'
+        esDomingoOFestivo: Boolean(esDescanso),
+        calculoVersion: sesion.metadata?.calculoVersion || null
       }
     };
   }

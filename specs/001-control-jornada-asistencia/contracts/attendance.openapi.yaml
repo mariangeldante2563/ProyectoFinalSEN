@@ -1,0 +1,732 @@
+openapi: 3.1.0
+info:
+  title: InOutManager Attendance API
+  version: 1.0.0
+  description: >
+    Attendance, correction, statistics and monthly-report contracts. All timestamps are UTC
+    instants; local calendar interpretation uses America/Bogota. Business calculations are
+    returned by the server and are not performed by clients.
+servers:
+  - url: /
+security:
+  - bearerAuth: []
+tags:
+  - name: Attendance
+  - name: Corrections
+  - name: Statistics
+  - name: Reports
+paths:
+  /api/attendance:
+    post:
+      tags: [Attendance]
+      operationId: registerAttendance
+      summary: Register an employee entry or exit mark
+      description: The server assigns the timestamp. Client-supplied timestamp/location are not accepted.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MarkRequest'
+            examples:
+              entry:
+                value: { type: entrada }
+              exit:
+                value: { type: salida }
+      responses:
+        '201':
+          description: Mark accepted and session projection updated atomically.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarkResult'
+        '400':
+          $ref: '#/components/responses/InvalidInput'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          description: Duplicate entry, missing active session, or state conflict.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /api/attendance/user/{userId}:
+    get:
+      tags: [Attendance]
+      operationId: getUserAttendance
+      summary: Query marks and sessions for one employee
+      description: The caller must own the records or be an administrator.
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+        - $ref: '#/components/parameters/StartDate'
+        - $ref: '#/components/parameters/EndDate'
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [entrada, salida]
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Inclusive Colombia-local date range, newest marks first.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttendancePage'
+        '400':
+          $ref: '#/components/responses/InvalidInput'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/attendance/all:
+    get:
+      tags: [Attendance]
+      operationId: getAllAttendance
+      summary: Query organization attendance
+      description: Administrator-only; supports employee and local-date filters.
+      parameters:
+        - $ref: '#/components/parameters/StartDate'
+        - $ref: '#/components/parameters/EndDate'
+        - name: userId
+          in: query
+          schema: { type: string }
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [entrada, salida]
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Matching marks and pagination.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttendancePage'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/attendance/{attendanceId}/cancellations:
+    post:
+      tags: [Attendance]
+      operationId: cancelAttendanceMark
+      summary: Logically cancel a mark without deleting its source (administrator only)
+      parameters:
+        - name: attendanceId
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [reason]
+              properties:
+                reason: { type: string, minLength: 1, maxLength: 500 }
+      responses:
+        '200':
+          description: Cancellation audit event committed; original attendance mark remains available.
+        '400':
+          $ref: '#/components/responses/InvalidInput'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Mark not found.
+
+  /api/attendance/sessions/active:
+    get:
+      tags: [Attendance]
+      operationId: getActiveSession
+      summary: Get the caller's active session
+      responses:
+        '200':
+          description: Active session details, or null when no session is active.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    oneOf:
+                      - $ref: '#/components/schemas/WorkSession'
+                      - type: 'null'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/attendance/sessions:
+    get:
+      tags: [Attendance]
+      operationId: getWorkSessionHistory
+      summary: Query session details for the caller or a filtered employee
+      parameters:
+        - name: userId
+          in: query
+          description: Employees may omit this or use their own ID; administrators may filter by employee.
+          schema: { type: string }
+        - $ref: '#/components/parameters/StartDate'
+        - $ref: '#/components/parameters/EndDate'
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [activa, incompleta, completada]
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Matching sessions and their server-calculated classification.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, pagination, summary]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/WorkSession'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+                  summary:
+                    $ref: '#/components/schemas/PeriodSummary'
+        '400':
+          $ref: '#/components/responses/InvalidInput'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/attendance/stats/daily:
+    get:
+      tags: [Statistics]
+      operationId: getDailyStats
+      summary: Get administrator daily attendance aggregates
+      parameters:
+        - name: date
+          in: query
+          required: true
+          description: Colombia-local calendar date.
+          schema:
+            type: string
+            format: date
+        - name: userId
+          in: query
+          description: Optional employee filter.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Daily totals and pending-session counts.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DailyAggregate'
+        '400':
+          $ref: '#/components/responses/InvalidInput'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/corrections:
+    post:
+      tags: [Corrections]
+      operationId: requestAttendanceCorrection
+      summary: Request a correction to a mark or missing exit
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CorrectionRequest'
+            examples:
+              forgottenExit:
+                value:
+                  targetType: workSession
+                  targetId: 64f123456789012345678901
+                  proposedValues:
+                    timestampSalida: '2025-08-14T22:30:00Z'
+                  reason: Olvidé registrar mi salida; esta es la hora real.
+              incorrectMark:
+                value:
+                  targetType: attendance
+                  targetId: 64f123456789012345678902
+                  proposedValues:
+                    timestamp: '2025-08-14T12:05:00Z'
+                  reason: La marca duplicada corresponde a un error de registro.
+      responses:
+        '201':
+          description: Immutable pending request recorded; source marks remain unchanged.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Correction'
+        '400':
+          $ref: '#/components/responses/InvalidInput'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: Target is not owned by the requesting employee.
+        '409':
+          description: Another correction is already pending or the target is not correctable.
+    get:
+      tags: [Corrections]
+      operationId: getCorrectionQueue
+      summary: List correction requests for administrators
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, approved, rejected]
+        - name: employeeId
+          in: query
+          schema: { type: string }
+        - $ref: '#/components/parameters/StartDate'
+        - $ref: '#/components/parameters/EndDate'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Filtered administrator correction queue.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, pagination]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Correction'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/corrections/mine:
+    get:
+      tags: [Corrections]
+      operationId: getMyCorrections
+      summary: List the caller's correction requests
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, approved, rejected]
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Caller-owned correction requests and decisions.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, pagination]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Correction'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/corrections/{requestId}:
+    patch:
+      tags: [Corrections]
+      operationId: decideCorrection
+      summary: Approve or reject a correction (administrator only)
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CorrectionDecision'
+      responses:
+        '200':
+          description: Decision and updated session projection committed atomically.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Correction'
+        '400':
+          $ref: '#/components/responses/InvalidInput'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Request not found.
+        '409':
+          description: Request already has a decision.
+
+  /api/admin/users/{userId}/status:
+    patch:
+      tags: [Attendance]
+      operationId: setAttendanceEligibility
+      summary: Enable or disable future attendance marks (administrator only)
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [active]
+              properties:
+                active: { type: boolean }
+                reason: { type: string, minLength: 1, maxLength: 500 }
+      responses:
+        '200':
+          description: Updated eligibility; attendance history remains intact.
+        '400':
+          $ref: '#/components/responses/InvalidInput'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: User not found.
+
+  /api/users/{userId}/work-schedule:
+    patch:
+      tags: [Attendance]
+      operationId: setEmployeeWorkSchedule
+      summary: Add or replace an effective-dated employee schedule version (administrator only)
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkScheduleVersion'
+      responses:
+        '200':
+          description: Schedule version saved; previous versions remain available and change is audited.
+        '400':
+          $ref: '#/components/responses/InvalidInput'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: User not found.
+        '409':
+          description: Effective dates overlap or conflict with an existing version.
+
+  /api/admin/reports/monthly:
+    get:
+      tags: [Reports]
+      operationId: generateMonthlyAttendanceReport
+      summary: Generate a monthly attendance workbook (administrator only)
+      parameters:
+        - name: month
+          in: query
+          required: true
+          description: Colombia-local calendar month.
+          schema:
+            type: string
+            pattern: '^\\d{4}-(0[1-9]|1[0-2])$'
+            example: '2025-08'
+      responses:
+        '200':
+          description: Workbook generated, including a valid no-data workbook for an empty month.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [reportUrl, fileName, month]
+                properties:
+                  reportUrl: { type: string }
+                  fileName: { type: string }
+                  month: { type: string }
+        '400':
+          $ref: '#/components/responses/InvalidInput'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/reports/download/{fileName}:
+    get:
+      tags: [Reports]
+      operationId: downloadAttendanceReport
+      summary: Download a generated workbook
+      description: Administrator-only; a filename alone is not authorization.
+      parameters:
+        - name: fileName
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Excel workbook attachment. Administrator role required.
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Report does not exist or has expired.
+
+  /api/audit/asistencia/{attendanceId}:
+    get:
+      tags: [Attendance]
+      operationId: getAttendanceAuditTrail
+      summary: Get an attendance mark and its correction audit trail (administrator only)
+      parameters:
+        - name: attendanceId
+          in: path
+          required: true
+          schema: { type: string }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Original mark and linked immutable audit events.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Mark not found.
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    UserId:
+      name: userId
+      in: path
+      required: true
+      schema: { type: string }
+    StartDate:
+      name: startDate
+      in: query
+      required: true
+      description: Inclusive Colombia-local date.
+      schema: { type: string, format: date }
+    EndDate:
+      name: endDate
+      in: query
+      required: true
+      description: Inclusive Colombia-local date; must be on or after startDate.
+      schema: { type: string, format: date }
+    Page:
+      name: page
+      in: query
+      schema: { type: integer, minimum: 1, default: 1 }
+    Limit:
+      name: limit
+      in: query
+      schema: { type: integer, minimum: 1, maximum: 500, default: 30 }
+  schemas:
+    MarkRequest:
+      type: object
+      additionalProperties: false
+      required: [type]
+      properties:
+        type:
+          type: string
+          enum: [entrada, salida]
+    MarkResult:
+      type: object
+      required: [success, data, workSession]
+      properties:
+        success: { type: boolean, const: true }
+        data:
+          $ref: '#/components/schemas/AttendanceMark'
+        workSession:
+          $ref: '#/components/schemas/WorkSession'
+    AttendanceMark:
+      type: object
+      required: [id, userId, type, timestamp, localDate]
+      properties:
+        id: { type: string }
+        userId: { type: string }
+        type: { type: string, enum: [entrada, salida] }
+        timestamp: { type: string, format: date-time }
+        localDate: { type: string, format: date }
+    WorkSession:
+      type: object
+      required: [id, userId, status, timestampEntrada]
+      properties:
+        id: { type: string }
+        userId: { type: string }
+        status: { type: string, enum: [activa, incompleta, completada] }
+        timestampEntrada: { type: string, format: date-time }
+        timestampSalida: { type: [string, 'null'], format: date-time }
+        durationMinutes: { type: [integer, 'null'], minimum: 0 }
+        calculationStatus: { type: string, enum: [final, pendiente_revision] }
+        lawRuleVersion: { type: [string, 'null'] }
+        breakdown:
+          type: object
+          properties:
+            ordinaryMinutes: { type: integer, minimum: 0 }
+            overtimeMinutes: { type: integer, minimum: 0 }
+            nightMinutes: { type: integer, minimum: 0 }
+            restDayMinutes: { type: integer, minimum: 0 }
+            premiums: { type: object, additionalProperties: { type: number, minimum: 0 } }
+    AttendancePage:
+      type: object
+      required: [data, pagination]
+      properties:
+        data:
+          type: array
+          items:
+            oneOf:
+              - $ref: '#/components/schemas/AttendanceMark'
+              - $ref: '#/components/schemas/WorkSession'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+    Pagination:
+      type: object
+      required: [page, limit, total, pages]
+      properties:
+        page: { type: integer }
+        limit: { type: integer }
+        total: { type: integer }
+        pages: { type: integer }
+    DailyAggregate:
+      type: object
+      required: [date, employeesMarked, ordinaryMinutes, overtimeMinutes, premiumMinutes, pendingSessions]
+      properties:
+        date: { type: string, format: date }
+        employeesMarked: { type: integer, minimum: 0 }
+        ordinaryMinutes: { type: integer, minimum: 0 }
+        overtimeMinutes: { type: integer, minimum: 0 }
+        premiumMinutes: { type: integer, minimum: 0 }
+        pendingSessions: { type: integer, minimum: 0 }
+    PeriodSummary:
+      type: object
+      required: [workedMinutes, ordinaryMinutes, overtimeMinutes, nightMinutes, restDayMinutes, premiumMinutes, calculationStatus]
+      properties:
+        workedMinutes: { type: integer, minimum: 0 }
+        ordinaryMinutes: { type: integer, minimum: 0 }
+        overtimeMinutes: { type: integer, minimum: 0 }
+        nightMinutes: { type: integer, minimum: 0 }
+        restDayMinutes: { type: integer, minimum: 0 }
+        premiumMinutes: { type: integer, minimum: 0 }
+        calculationStatus: { type: string, enum: [final, incluye_pendientes] }
+    CorrectionRequest:
+      type: object
+      additionalProperties: false
+      required: [targetType, targetId, proposedValues, reason]
+      properties:
+        targetType: { type: string, enum: [attendance, workSession] }
+        targetId: { type: string }
+        proposedValues:
+          type: object
+          description: Only allowed timestamp or effective-exit fields for the target type.
+        reason: { type: string, minLength: 1, maxLength: 500 }
+    CorrectionDecision:
+      type: object
+      additionalProperties: false
+      required: [decision]
+      properties:
+        decision: { type: string, enum: [approve, reject] }
+        reason: { type: string, minLength: 1, maxLength: 500 }
+    Correction:
+      type: object
+      required: [requestId, status, targetType, targetId, reason, requestedAt]
+      properties:
+        requestId: { type: string }
+        status: { type: string, enum: [pending, approved, rejected] }
+        targetType: { type: string, enum: [attendance, workSession] }
+        targetId: { type: string }
+        proposedValues: { type: object }
+        reason: { type: string }
+        requestedAt: { type: string, format: date-time }
+        decidedAt: { type: [string, 'null'], format: date-time }
+        decidedBy: { type: [string, 'null'] }
+    WorkScheduleVersion:
+      type: object
+      additionalProperties: false
+      required: [regimenLaboral, vigenteDesde, modalidad, minutosOrdinariosPorDia, minutosOrdinariosSemanales, diaDescansoObligatorio]
+      properties:
+        regimenLaboral:
+          type: string
+          enum: [CST, especial]
+        vigenteDesde: { type: string, format: date }
+        vigenteHasta: { type: [string, 'null'], format: date }
+        modalidad:
+          type: string
+          enum: [fija, flexible, turnos_continuos]
+        minutosOrdinariosPorDia:
+          type: object
+          additionalProperties: { type: integer, minimum: 0 }
+          description: Keys are ISO weekdays 1 (Monday) through 7 (Sunday).
+        minutosOrdinariosSemanales: { type: integer, minimum: 0 }
+        diaDescansoObligatorio: { type: integer, minimum: 1, maximum: 7 }
+        pausaNoLaboralMinutos:
+          oneOf:
+            - type: integer
+              minimum: 0
+            - type: object
+              additionalProperties: { type: integer, minimum: 0 }
+        adopcionJornadaSemanal42Desde: { type: [string, 'null'], format: date }
+        adopcionRecargoDescanso100Desde: { type: [string, 'null'], format: date }
+    Error:
+      type: object
+      required: [success, message]
+      properties:
+        success: { type: boolean, const: false }
+        message: { type: string }
+        code: { type: string }
+  responses:
+    InvalidInput:
+      description: Invalid, malformed or inconsistent request.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Unauthorized:
+      description: Missing or invalid JWT.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Forbidden:
+      description: Authenticated user lacks required role or ownership.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    ServerError:
+      description: Operation failed; no successful state transition was committed.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }

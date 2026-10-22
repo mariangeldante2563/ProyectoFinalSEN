@@ -6,28 +6,38 @@
 
 const mongoose = require('mongoose');
 
-// Opciones de configuración para Mongoose
 const mongooseOptions = {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   autoIndex: true // Importante para los índices únicos y búsquedas eficientes
 };
 
+const supportsTransactions = (connection = mongoose.connection) => {
+  const topologyType = connection.client?.topology?.description?.type;
+  return topologyType === 'ReplicaSetWithPrimary' || topologyType === 'Sharded';
+};
+
 /**
  * Establece la conexión a MongoDB
- * @returns {Promise} Promesa de conexión a MongoDB
+ * @returns {Promise<import('mongoose').Mongoose>} Promesa de conexión a MongoDB
  */
 const connectDB = async () => {
   try {
     const conn = await mongoose.connect(process.env.MONGODB_URI, mongooseOptions);
-    
+    if (!supportsTransactions(conn.connection)) {
+      await mongoose.disconnect();
+      throw new Error(
+        'MongoDB debe ejecutarse como replica set o clúster sharded para soportar transacciones.'
+      );
+    }
+
     console.log(` MongoDB conectado: ${conn.connection.host}`);
     console.log(` Base de datos: ${conn.connection.name}`);
     
     return conn;
   } catch (error) {
     console.error(` Error de conexión a MongoDB: ${error.message}`);
-    process.exit(1);
+    throw error;
   }
 };
 
@@ -54,5 +64,6 @@ const isConnected = () => {
 module.exports = {
   connectDB,
   closeConnection,
-  isConnected
+  isConnected,
+  supportsTransactions
 };

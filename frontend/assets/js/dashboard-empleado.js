@@ -72,12 +72,11 @@ class EmployeeDashboard extends BaseDashboard {
   async refreshDashboard() {
     // Invalidar cache para forzar datos frescos del backend
     this.allRecords = null;
-    const registros = await this._obtenerRegistros();
-    if (!registros) return;
-
-    this.loadAttendanceStats();
-    this.loadAttendanceRecords();
-    this.loadAttendanceChart();
+    await Promise.all([
+      this.loadAttendanceStats(),
+      this.loadAttendanceRecords(),
+      this.loadAttendanceChart()
+    ]);
   }
 
 
@@ -230,9 +229,6 @@ class EmployeeDashboard extends BaseDashboard {
           'success'
         );
 
-        // Guardar en localStorage - incluye datos de workSession (clasificación de horas)
-        this._guardarEnLocalStorage(type, data.data, data.workSession);
-
         // Recargar datos después de registrar (una sola petición compartida)
         setTimeout(() => {
           this.refreshDashboard();
@@ -267,29 +263,29 @@ class EmployeeDashboard extends BaseDashboard {
    */
   async loadAttendanceStats() {
     try {
-      // Reutiliza el cache compartido (evita una petición redundante)
-      const registros = await this._obtenerRegistros();
-      if (!registros) return;
-
-      console.log('📈 Cargando estadísticas de trabajo...');
-
-
-      // ---- ESTADÍSTICA 1: Tiempo Trabajado Hoy ----
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      const todayRecords = registros.filter(r => {
-        const rDate = new Date(r.timestamp);
-        rDate.setHours(0, 0, 0, 0);
-        return rDate.getTime() === today.getTime();
-      });
-
-      const tiempoHoy = this.calcularTiempoTrabajado(todayRecords);
+      const authToken = localStorage.getItem('authToken');
+      if (!authToken) return;
+      const headers = { Authorization: `Bearer ${authToken}`, Accept: 'application/json' };
+      const [todayResponse, weeklyResponse, monthlyResponse, activeResponse] = await Promise.all([
+        fetch(`${this.apiBaseUrl}/stats/today`, { headers }),
+        fetch(`${this.apiBaseUrl}/stats/weekly`, { headers }),
+        fetch(`${this.apiBaseUrl}/stats/monthly`, { headers }),
+        fetch(`${this.apiBaseUrl}/stats/active-session`, { headers })
+      ]);
+      if (![todayResponse, weeklyResponse, monthlyResponse, activeResponse].every(response => response.ok)) {
+        throw new Error('No fue posible cargar las estadísticas oficiales de asistencia.');
+      }
+      const [todayResult, weeklyResult, monthlyResult, activeResult] = await Promise.all([
+        todayResponse.json(), weeklyResponse.json(), monthlyResponse.json(), activeResponse.json()
+      ]);
+      const todayData = todayResult.data;
+      const weeklyData = weeklyResult.data;
+      const monthlyData = monthlyResult.data;
+      const stats = todayData?.estadisticas;
       const elTiempoHoy = document.getElementById('tiempoTrabajadoHoy');
-      if (elTiempoHoy) elTiempoHoy.textContent = tiempoHoy.formato;
+      if (elTiempoHoy) elTiempoHoy.textContent = stats?.tiempoTotal?.formato || '00:00';
 
-      // Calcular porcentaje de cumplimiento (asumiendo jornada de 8 horas = 480 min)
-      const porcentaje = Math.min(Math.round((tiempoHoy.totalMinutos / 480) * 100), 100);
+      const porcentaje = Math.min(stats?.estadisticas?.cumplimientoJornada?.porcentajeCumplimiento || 0, 100);
       const elPorcentaje = document.querySelector('.stat-card[data-stat="tiempo-hoy"] .stat-percentage');
       if (elPorcentaje) {
         elPorcentaje.textContent = `${porcentaje}%`;
@@ -299,154 +295,41 @@ class EmployeeDashboard extends BaseDashboard {
         else elPorcentaje.classList.add('text-danger');
       }
 
-      // ---- ESTADÍSTICA 2: Promedio Semanal ----
-      const startOfWeek = new Date(today);
-      startOfWeek.setDate(today.getDate() - today.getDay());
-      
-      const weekRecords = registros.filter(r => {
-        const rDate = new Date(r.timestamp);
-        return rDate >= startOfWeek;
-      });
-
-      const promedioSemanal = this.calcularPromedioSemanal(weekRecords);
       const elPromedio = document.getElementById('promedioSemanal');
-      if (elPromedio) elPromedio.textContent = `${promedioSemanal.toFixed(1)}h`;
+      if (elPromedio) elPromedio.textContent = `${Number(weeklyData?.promedioHorasDiarias || 0).toFixed(1)}h`;
 
-      // ---- ESTADÍSTICA 3: Días Trabajados (este mes) ----
-      const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-      const monthRecords = registros.filter(r => {
-        const rDate = new Date(r.timestamp);
-        return rDate >= startOfMonth;
-      });
-
-      const diasTrabajados = this.calcularDiasTrabajados(monthRecords);
       const elDias = document.getElementById('diasTrabajadosMes');
-      if (elDias) elDias.textContent = diasTrabajados;
+      if (elDias) elDias.textContent = monthlyData?.diasTrabajados || 0;
 
-      // ---- ESTADÍSTICA 4: Horas Extras Hoy ----
-      // Horas extras = tiempo trabajado hoy - 8 horas (480 min), mínimo 0
-      const horasExtrasMinutos = Math.max(0, tiempoHoy.totalMinutos - 480);
-      const horasExtrasFormato = this.formatearMinutos(horasExtrasMinutos);
       const elHorasExtras = document.getElementById('horasExtrasHoy');
-      if (elHorasExtras) elHorasExtras.textContent = horasExtrasFormato;
+      if (elHorasExtras) elHorasExtras.textContent = stats?.horasExtras?.total?.formato || '00:00';
 
-      // Actualizar estado de sesión activa
-      this.updateSessionStatus(todayRecords);
-
-      console.log('✅ Estadísticas cargadas correctamente');
+      this.updateSessionStatus(activeResult.data);
     } catch (error) {
       console.error('❌ Error al cargar estadísticas:', error);
     }
   }
 
   /**
-   * Calcula el tiempo trabajado a partir de registros de entrada/salida
-   * @param {Array} records - Registros del día
-   * @returns {{ formato: string, totalMinutos: number }}
-   */
-  _emparejarSesiones(records) {
-    const ordenados = [...records].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-    const sesiones = [];
-    let entradaPendiente = null;
-
-    ordenados.forEach(r => {
-      if (r.type === 'entrada') {
-        entradaPendiente = r;
-      } else if (r.type === 'salida' && entradaPendiente) {
-        const minutos = (new Date(r.timestamp) - new Date(entradaPendiente.timestamp)) / (1000 * 60);
-        if (minutos > 0) {
-          sesiones.push({ entrada: entradaPendiente.timestamp, salida: r.timestamp, minutos });
-        }
-        entradaPendiente = null;
-      }
-    });
-
-    return sesiones;
-  }
-
-  calcularTiempoTrabajado(records) {
-    const totalMinutes = this._emparejarSesiones(records).reduce((acc, s) => acc + s.minutos, 0);
-    return {
-      totalMinutos: totalMinutes,
-      formato: this.formatearMinutos(totalMinutes)
-    };
-  }
-
-
-  /**
-   * Formatea minutos a formato HH:MM
-   * @param {number} totalMinutes
-   * @returns {string}
-   */
-  formatearMinutos(totalMinutes) {
-    if (totalMinutes < 0) totalMinutes = 0;
-    const horas = Math.floor(totalMinutes / 60);
-    const minutos = Math.floor(totalMinutes % 60);
-    return `${String(horas).padStart(2, '0')}:${String(minutos).padStart(2, '0')}`;
-  }
-
-  /**
-   * Calcula el promedio de horas trabajadas por día en la semana
-   * @param {Array} records - Registros de la semana
-   * @returns {number}
-   */
-  calcularPromedioSemanal(records) {
-    const sesiones = this._emparejarSesiones(records);
-    if (sesiones.length === 0) return 0;
-
-    // Agrupar minutos trabajados por día (solo días con jornada efectiva)
-    const minutosPorDia = {};
-    sesiones.forEach(s => {
-      const dia = new Date(s.entrada).toDateString();
-      minutosPorDia[dia] = (minutosPorDia[dia] || 0) + s.minutos;
-    });
-
-    const dias = Object.keys(minutosPorDia).length;
-    if (dias === 0) return 0;
-    const totalMinutes = Object.values(minutosPorDia).reduce((a, b) => a + b, 0);
-    return (totalMinutes / 60) / dias;
-  }
-
-  /**
-   * Calcula la cantidad de días trabajados (días con al menos una sesión efectiva)
-   * @param {Array} records
-   * @returns {number}
-   */
-  calcularDiasTrabajados(records) {
-    const sesiones = this._emparejarSesiones(records);
-    return new Set(sesiones.map(s => new Date(s.entrada).toDateString())).size;
-  }
-
-
-  /**
    * Actualiza el indicador de sesión activa
-   * @param {Array} records - Registros del día
+   * @param {Object|null} session - Sesión activa calculada por el backend
    */
-  updateSessionStatus(records) {
+  updateSessionStatus(session) {
     if (!this.sesionActivaEl) return;
 
-    const entries = records.filter(r => r.type === 'entrada');
-    const exits = records.filter(r => r.type === 'salida');
-
-    if (entries.length > exits.length) {
-      const lastEntry = entries[entries.length - 1];
-      const entryTime = new Date(lastEntry.timestamp).toLocaleTimeString('es-ES', {
+    if (session) {
+      const entryTime = new Date(session.timestampEntrada).toLocaleTimeString('es-CO', {
         hour: '2-digit',
         minute: '2-digit'
       });
-
-      // Calcular tiempo transcurrido desde la última entrada
-      const now = new Date();
-      const entryDate = new Date(lastEntry.timestamp);
-      const diffMinutos = Math.floor((now - entryDate) / (1000 * 60));
-      const horasActivas = Math.floor(diffMinutos / 60);
-      const minutosActivos = diffMinutos % 60;
-      const tiempoActivo = `${String(horasActivas).padStart(2, '0')}:${String(minutosActivos).padStart(2, '0')}`;
+      const durationText = session.duracionActual?.estadoCalculo === 'calculado'
+        ? ` (${session.duracionActual.formato})`
+        : ' (cálculo pendiente de horario)';
 
       this.sesionActivaEl.innerHTML = `
         <div class="status-active">
           <i class="fas fa-play-circle text-success"></i>
-          <span>Sesión activa desde ${entryTime} (${tiempoActivo})</span>
+          <span>Sesión activa desde ${entryTime}${durationText}</span>
         </div>
       `;
     } else {
@@ -472,6 +355,17 @@ class EmployeeDashboard extends BaseDashboard {
 
       if (!this.employeeRecords) return;
 
+      const authToken = localStorage.getItem('authToken');
+      const sessionsResponse = await fetch(`${this.apiBaseUrl}/stats/sessions?page=1&limit=500`, {
+        headers: { Authorization: `Bearer ${authToken}`, Accept: 'application/json' }
+      });
+      if (!sessionsResponse.ok) throw new Error('No fue posible cargar las jornadas calculadas.');
+      const sessionsResult = await sessionsResponse.json();
+      const sessionsByDate = {};
+      (sessionsResult.data?.sesiones || []).forEach(session => {
+        if (!sessionsByDate[session.fecha]) sessionsByDate[session.fecha] = [];
+        sessionsByDate[session.fecha].push(session);
+      });
 
       if (records.length === 0) {
         this.employeeRecords.innerHTML = '<p>No hay registros disponibles.</p>';
@@ -481,25 +375,34 @@ class EmployeeDashboard extends BaseDashboard {
       // Agrupar registros por fecha
       const recordsByDate = {};
       records.forEach(record => {
-        const date = new Date(record.timestamp).toLocaleDateString('es-ES', {
+        const dateKey = record.date || new Intl.DateTimeFormat('en-CA', {
+          timeZone: 'America/Bogota'
+        }).format(new Date(record.timestamp));
+        const date = new Date(`${dateKey}T12:00:00`).toLocaleDateString('es-CO', {
           weekday: 'long',
           year: 'numeric',
           month: 'long',
           day: 'numeric'
         });
-        if (!recordsByDate[date]) {
-          recordsByDate[date] = [];
+        if (!recordsByDate[dateKey]) {
+          recordsByDate[dateKey] = { label: date, records: [] };
         }
-        recordsByDate[date].push(record);
+        recordsByDate[dateKey].records.push(record);
       });
 
       let html = '';
-      for (const [date, dateRecords] of Object.entries(recordsByDate)) {
+      for (const [dateKey, group] of Object.entries(recordsByDate)) {
+        const dateRecords = group.records;
+        const sessions = sessionsByDate[dateKey] || [];
+        const dayTime = sessions.length
+          ? sessions.map(session => session.tiempoLaboradoHoras ||
+            (session.estado === 'incompleta' ? 'Pendiente de corrección' : 'Pendiente de horario')).join(', ')
+          : 'Sin jornada calculada';
         html += `
           <div class="records-group">
             <div class="records-date">
               <i class="fas fa-calendar-alt"></i>
-              <strong>${date}</strong>
+              <strong>${group.label}</strong>
             </div>
             <div class="records-table-wrapper">
               <table class="records-table">
@@ -541,13 +444,6 @@ class EmployeeDashboard extends BaseDashboard {
           `;
         });
 
-        // Calcular tiempo trabajado para este grupo de fecha (emparejamiento unificado)
-        const totalMin = this._emparejarSesiones(dateRecords).reduce((acc, s) => acc + s.minutos, 0);
-        const h = Math.floor(totalMin / 60);
-        const m = Math.floor(totalMin % 60);
-        const dayTime = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
-
-
         html += `
                 </tbody>
                 <tfoot>
@@ -576,19 +472,17 @@ class EmployeeDashboard extends BaseDashboard {
   async loadAttendanceChart() {
     try {
       console.log(`📊 Cargando gráfica de ${this.currentPeriod === 'week' ? 'semana' : 'mes'}...`);
-
-      // La gráfica se construye desde los MISMOS registros reales que las
-      // estadísticas, garantizando consistencia y sin peticiones adicionales.
-      const records = await this._obtenerRegistros();
-      if (!records) {
-        this.renderEmptyChart();
-        return;
-      }
-
-      const chartData = this._buildChartData(records, this.currentPeriod);
-      const tieneDatos = chartData.datasets.entries.some(v => v > 0) ||
-                         chartData.datasets.exits.some(v => v > 0) ||
-                         chartData.datasets.workHours.some(v => v > 0);
+      const token = localStorage.getItem('authToken');
+      if (!token) throw new Error('La sesión expiró.');
+      const days = this.currentPeriod === 'week' ? 7 : 31;
+      const response = await fetch(`${this.apiBaseUrl}/stats/charts?days=${days}`, {
+        headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' }
+      });
+      if (!response.ok) throw new Error('No fue posible cargar la gráfica.');
+      const result = await response.json();
+      const chartData = result.data;
+      const values = Object.values(chartData?.datasets || {}).flat();
+      const tieneDatos = values.some(value => value > 0);
 
       if (!tieneDatos) {
         this.renderEmptyChart();
@@ -603,62 +497,6 @@ class EmployeeDashboard extends BaseDashboard {
     }
   }
 
-  /**
-   * Construye los datasets de la gráfica (entradas, salidas y horas trabajadas)
-   * agregando los registros reales por día para el período indicado.
-   * @param {Array} records
-   * @param {string} period - 'week' o 'month'
-   * @returns {{labels:string[], datasets:{entries:number[], exits:number[], workHours:number[]}}}
-   */
-  _buildChartData(records, period) {
-    const hoy = new Date();
-    const dias = [];
-
-    if (period === 'week') {
-      const inicio = new Date(hoy);
-      inicio.setDate(hoy.getDate() - hoy.getDay());
-      inicio.setHours(0, 0, 0, 0);
-      for (let i = 0; i < 7; i++) {
-        const d = new Date(inicio);
-        d.setDate(inicio.getDate() + i);
-        dias.push(d);
-      }
-    } else {
-      const ultimoDia = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0).getDate();
-      for (let i = 1; i <= ultimoDia; i++) {
-        dias.push(new Date(hoy.getFullYear(), hoy.getMonth(), i));
-      }
-    }
-
-    const sesiones = this._emparejarSesiones(records);
-    const labels = [];
-    const entries = [];
-    const exits = [];
-    const workHours = [];
-
-    dias.forEach(d => {
-      const key = d.toDateString();
-      labels.push(d.toLocaleDateString('es-ES', period === 'week'
-        ? { weekday: 'short' }
-        : { day: 'numeric' }));
-
-      entries.push(records.filter(r => r.type === 'entrada' && new Date(r.timestamp).toDateString() === key).length);
-      exits.push(records.filter(r => r.type === 'salida' && new Date(r.timestamp).toDateString() === key).length);
-
-      const minutos = sesiones
-        .filter(s => new Date(s.entrada).toDateString() === key)
-        .reduce((acc, s) => acc + s.minutos, 0);
-      workHours.push(Math.round((minutos / 60) * 100) / 100);
-    });
-
-    return { labels, datasets: { entries, exits, workHours } };
-  }
-
-
-  /**
-   * Renderiza la gráfica de asistencia
-   * @param {Object} statsData - Datos de la API
-   */
   renderChart(statsData) {
     const canvas = this.attendanceChartCanvas;
     if (!canvas) return;
@@ -670,9 +508,9 @@ class EmployeeDashboard extends BaseDashboard {
     }
 
     const labels = statsData.labels || [];
-    const entriesData = statsData.datasets?.entries || [];
-    const exitsData = statsData.datasets?.exits || [];
-    const workHoursData = statsData.datasets?.workHours || [];
+    const workHoursData = statsData.datasets?.horasTrabajadas || [];
+    const overtimeData = statsData.datasets?.horasExtras || [];
+    const surchargeData = statsData.datasets?.recargos || [];
 
     this.attendanceChart = new Chart(ctx, {
       type: 'bar',
@@ -680,24 +518,24 @@ class EmployeeDashboard extends BaseDashboard {
         labels: labels,
         datasets: [
           {
-            label: 'Entradas',
-            data: entriesData,
+            label: 'Horas trabajadas',
+            data: workHoursData,
             backgroundColor: '#28a745',
             borderColor: '#1e7e34',
             borderWidth: 1
           },
           {
-            label: 'Salidas',
-            data: exitsData,
-            backgroundColor: '#dc3545',
-            borderColor: '#a02622',
+            label: 'Horas extra',
+            data: overtimeData,
+            backgroundColor: '#ffc107',
+            borderColor: '#d39e00',
             borderWidth: 1
           },
           {
-            label: 'Horas Trabajadas',
-            data: workHoursData,
-            backgroundColor: 'rgba(255, 193, 7, 0.5)',
-            borderColor: '#ffc107',
+            label: 'Recargos',
+            data: surchargeData,
+            backgroundColor: 'rgba(23, 162, 184, 0.35)',
+            borderColor: '#17a2b8',
             borderWidth: 2,
             type: 'line',
             fill: false,
@@ -724,7 +562,7 @@ class EmployeeDashboard extends BaseDashboard {
           tooltip: {
             callbacks: {
               label: function(context) {
-                if (context.dataset.label === 'Horas Trabajadas') {
+                if (['Horas trabajadas', 'Horas extra', 'Recargos'].includes(context.dataset.label)) {
                   return `${context.dataset.label}: ${context.raw}h`;
                 }
                 return `${context.dataset.label}: ${context.raw}`;
@@ -737,7 +575,7 @@ class EmployeeDashboard extends BaseDashboard {
             beginAtZero: true,
             title: {
               display: true,
-              text: 'Cantidad de registros'
+              text: 'Horas'
             },
             ticks: {
               stepSize: 1
@@ -820,223 +658,6 @@ class EmployeeDashboard extends BaseDashboard {
           reader.readAsDataURL(file);
         }
       });
-    }
-  }
-
-  _guardarEnLocalStorage(type, record, workSession) {
-    try {
-      const attendanceRecords = JSON.parse(localStorage.getItem('attendanceRecords') || '[]');
-      const userId = this.currentUser?.id || 'unknown';
-      const userName = this.currentUser?.nombreCompleto || 'Desconocido';
-      const now = new Date();
-      const recordTimestamp = record?.timestamp || now.toISOString();
-      
-      // Clasificar la hora según legislación colombiana
-      const hora = new Date(recordTimestamp).getHours();
-      const esDiurno = hora >= 6 && hora < 19; // Diurno 06:00-19:00 (fuente: backend ColombianLaborLawService)
-
-      const clasificacion = esDiurno ? 'Ordinaria Diurna' : 'Ordinaria Nocturna';
-      const porcentajeRecargo = esDiurno ? 0 : 35; // Nocturno = 35% recargo
-
-      attendanceRecords.push({
-        userId: userId,
-        userName: userName,
-        type: type,
-        timestamp: recordTimestamp,
-        date: record?.date || now.toLocaleDateString('es-ES'),
-        time: record?.time || now.toLocaleTimeString('es-ES'),
-        hora: hora,
-        clasificacion: clasificacion,
-        recargo: porcentajeRecargo,
-        id: record?._id || `local_${Date.now()}`
-      });
-
-      // Si el backend devolvió workSession con clasificación, guardarla directamente
-      if (type === 'salida' && workSession && workSession._id) {
-        this._guardarWorkSessionDesdeBackend(userId, workSession);
-      } else if (type === 'salida') {
-        // Fallback: calcular desde registros locales
-        this._calcularSesionYCargos(userId, attendanceRecords);
-      }
-
-      // Mantener solo los últimos 500 registros
-      if (attendanceRecords.length > 500) {
-        attendanceRecords.splice(0, attendanceRecords.length - 500);
-      }
-      localStorage.setItem('attendanceRecords', JSON.stringify(attendanceRecords));
-      console.log(`💾 Registro guardado en localStorage (${attendanceRecords.length} totales)`);
-    } catch (error) {
-      console.error('Error al guardar en localStorage:', error);
-    }
-  }
-
-  /**
-   * Guarda la sesión de trabajo calculada por el backend (con clasificación según ley colombiana)
-   * @param {string} userId - ID del usuario
-   * @param {Object} workSession - Objeto workSession devuelto por el backend
-   */
-  _guardarWorkSessionDesdeBackend(userId, workSession) {
-    try {
-      const hoy = new Date().toLocaleDateString('es-ES');
-      const sesionesStorage = JSON.parse(localStorage.getItem('workSessions') || '[]');
-      
-      const sesion = {
-        userId: userId,
-        userName: this.currentUser?.nombreCompleto || 'Desconocido',
-        fecha: hoy,
-        entrada: workSession.horaEntrada || workSession.horaEntrada || '--',
-        salida: workSession.horaSalida || '--',
-        totalMinutos: workSession.tiempoLaboradoMinutos || 0,
-        totalHoras: workSession.tiempoLaboradoHoras || '0h',
-        clasificacion: {
-          ordinariaDiurna: Math.round((workSession.tiempoJornadaOrdinariaDiurna || 0) / 60 * 100) / 100,
-          ordinariaNocturna: Math.round((workSession.tiempoJornadaOrdinariaNocturna || 0) / 60 * 100) / 100,
-          extrasDiurnas: Math.round((workSession.tiempoHorasExtrasDiurnas || 0) / 60 * 100) / 100,
-          extrasNocturnas: Math.round((workSession.tiempoHorasExtrasNocturnas || 0) / 60 * 100) / 100,
-          dominicales: Math.round((workSession.tiempoHorasExtrasDominicales || 0) / 60 * 100) / 100
-        },
-        recargos: {
-          nocturno: Math.round((workSession.recargos?.recargoNocturno || 0) / 60 * 100) / 100,
-          extraDiurno: Math.round((workSession.recargos?.recargoHorasExtrasDiurnas || 0) / 60 * 100) / 100,
-          extraNocturno: Math.round((workSession.recargos?.recargoHorasExtrasNocturnas || 0) / 60 * 100) / 100,
-          dominical: Math.round((workSession.recargos?.recargoDominicalesFestivos || 0) / 60 * 100) / 100
-        },
-        timestamp: new Date().toISOString()
-      };
-
-      const idx = sesionesStorage.findIndex(s => s.userId === userId && s.fecha === hoy);
-      if (idx >= 0) {
-        sesionesStorage[idx] = sesion;
-      } else {
-        sesionesStorage.push(sesion);
-      }
-
-      if (sesionesStorage.length > 100) {
-        sesionesStorage.splice(0, sesionesStorage.length - 100);
-      }
-      localStorage.setItem('workSessions', JSON.stringify(sesionesStorage));
-      console.log('📋 Sesión guardada desde backend (con ley colombiana):', sesion);
-    } catch (error) {
-      console.error('Error al guardar workSession del backend:', error);
-    }
-  }
-
-  /**
-   * Calcula la sesión completa cuando se registra una salida
-   * @param {string} userId - ID del usuario
-   * @param {Array} records - Todos los registros actuales
-   */
-  _calcularSesionYCargos(userId, records) {
-    try {
-      // Obtener registros de HOY ordenados
-      const hoy = new Date().toLocaleDateString('es-ES');
-      const recordsHoy = records.filter(r => r.date === hoy && r.userId === userId)
-        .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-
-      // Encontrar el último par entrada-salida
-      const entradas = recordsHoy.filter(r => r.type === 'entrada');
-      const salidas = recordsHoy.filter(r => r.type === 'salida');
-      
-      if (entradas.length === 0 || salidas.length === 0) return;
-
-      const ultimaEntrada = entradas[entradas.length - 1];
-      const ultimaSalida = salidas[salidas.length - 1];
-
-      // Calcular tiempo trabajado en minutos
-      const diffMs = new Date(ultimaSalida.timestamp) - new Date(ultimaEntrada.timestamp);
-      const totalMinutos = Math.floor(diffMs / (1000 * 60));
-      const totalHoras = totalMinutos / 60;
-
-      // Clasificación de horas según legislación colombiana
-      const horaEntrada = new Date(ultimaEntrada.timestamp).getHours();
-      const horaSalida = new Date(ultimaSalida.timestamp).getHours();
-
-      // Limites legales Colombia. Fuente unica de verdad: backend ColombianLaborLawService.
-      // Este calculo local es solo un respaldo offline cuando el backend no responde.
-      const JORNADA_DIURNA_INICIO = 6;
-      const JORNADA_DIURNA_FIN = 19; // Jornada diurna 06:00-19:00
-
-      const MAX_HORAS_NORMALES = 8;
-
-      let minutosDiurnos = 0;
-      let minutosNocturnos = 0;
-      let minutosExtrasDiurnas = 0;
-      let minutosExtrasNocturnas = 0;
-      let minutosDominicales = 0;
-
-      const esFinDeSemana = new Date().getDay() === 0; // Domingo
-      const totalMinutosOrdinarios = Math.min(totalMinutos, MAX_HORAS_NORMALES * 60);
-      const minutosExtras = Math.max(0, totalMinutos - totalMinutosOrdinarios);
-
-      // Distribuir entre diurno y nocturno
-      for (let h = horaEntrada; h < horaSalida || (h >= horaEntrada && h < horaEntrada + Math.ceil(totalHoras)); h++) {
-        const horaActual = h % 24;
-        const esDiurno = horaActual >= JORNADA_DIURNA_INICIO && horaActual < JORNADA_DIURNA_FIN;
-        const minutosEnHora = 60;
-
-        if (esFinDeSemana) {
-          minutosDominicales += minutosEnHora;
-        } else if (h - horaEntrada < MAX_HORAS_NORMALES) {
-          // Jornada ordinaria
-          if (esDiurno) minutosDiurnos += minutosEnHora;
-          else minutosNocturnos += minutosEnHora;
-        } else {
-          // Horas extras
-          if (esDiurno) minutosExtrasDiurnas += minutosEnHora;
-          else minutosExtrasNocturnas += minutosEnHora;
-        }
-
-        // Si ya procesamos todas las horas reales, salir
-        if (h - horaEntrada >= Math.ceil(totalHoras)) break;
-      }
-
-      // Guardar la sesión calculada en localStorage
-      const sesionesStorage = JSON.parse(localStorage.getItem('workSessions') || '[]');
-      
-      // Buscar si ya existe una sesión para hoy para este usuario
-      const idx = sesionesStorage.findIndex(s => 
-        s.userId === userId && s.fecha === hoy
-      );
-
-      const sesion = {
-        userId: userId,
-        userName: this.currentUser?.nombreCompleto || 'Desconocido',
-        fecha: hoy,
-        entrada: ultimaEntrada.time,
-        salida: ultimaSalida.time,
-        totalMinutos: totalMinutos,
-        totalHoras: `${Math.floor(totalMinutos / 60)}h ${totalMinutos % 60}m`,
-        clasificacion: {
-          ordinariaDiurna: Math.round(minutosDiurnos / 60 * 100) / 100,
-          ordinariaNocturna: Math.round(minutosNocturnos / 60 * 100) / 100,
-          extrasDiurnas: Math.round(minutosExtrasDiurnas / 60 * 100) / 100,
-          extrasNocturnas: Math.round(minutosExtrasNocturnas / 60 * 100) / 100,
-          dominicales: Math.round(minutosDominicales / 60 * 100) / 100
-        },
-        recargos: {
-          nocturno: Math.round(minutosNocturnos * 0.35 / 60 * 100) / 100,
-          extraDiurno: Math.round(minutosExtrasDiurnas * 0.25 / 60 * 100) / 100,
-          extraNocturno: Math.round(minutosExtrasNocturnas * 0.75 / 60 * 100) / 100,
-          dominical: Math.round(minutosDominicales * 1.0 / 60 * 100) / 100
-        },
-        timestamp: new Date().toISOString()
-      };
-
-      if (idx >= 0) {
-        sesionesStorage[idx] = sesion;
-      } else {
-        sesionesStorage.push(sesion);
-      }
-
-      // Mantener últimas 100 sesiones
-      if (sesionesStorage.length > 100) {
-        sesionesStorage.splice(0, sesionesStorage.length - 100);
-      }
-      localStorage.setItem('workSessions', JSON.stringify(sesionesStorage));
-      console.log('📋 Sesión calculada y guardada:', sesion);
-
-    } catch (error) {
-      console.error('Error al calcular sesión:', error);
     }
   }
 

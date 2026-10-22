@@ -4,10 +4,8 @@
  * @description Archivo principal del servidor backend
  */
 
-// Cargar variables de entorno desde .env (ruta absoluta)
-const dotenv = require('dotenv');
-const path = require('path');
-dotenv.config({ path: path.join(__dirname, '.env') });
+// Cargar variables de entorno desde .env
+require('dotenv').config();
 
 // Importaciones
 const express = require('express');
@@ -15,6 +13,8 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const path = require('path');
+const { connectDB } = require('./config/db');
 
 // Importar rutas
 const authRoutes = require('./routes/auth');
@@ -93,12 +93,9 @@ app.use(notFoundHandler);
 app.use(errorHandler);
 
 // Conexión a MongoDB
-mongoose.set('strictQuery', false); // Eliminar advertencia de deprecación
+mongoose.set('strictQuery', false);
 
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
+connectDB()
 .then(() => {
   console.log('✅ Conexión establecida con MongoDB');
   

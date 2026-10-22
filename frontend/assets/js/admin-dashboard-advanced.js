@@ -83,12 +83,11 @@ class AdminDashboard {
 
     async _cargarDashboard() {
         try {
-            const [usuarios, registros] = await Promise.all([
+            const [usuarios, registros, horasLaborales] = await Promise.all([
                 this._cargarUsuarios(),
-                this._cargarRegistros()
+                this._cargarRegistros(),
+                this._obtenerHorasLaborales()
             ]);
-            // Obtener horas laborales desde localStorage directamente
-            const horasLaborales = this._obtenerHorasLaborales();
             const kpis = this._calcularKPIs(usuarios, registros, horasLaborales);
             this._renderizarKPIs(kpis);
             this._renderizarSesiones(horasLaborales);
@@ -99,163 +98,20 @@ class AdminDashboard {
 
     async _cargarUsuarios() {
         const apiUsers = await this._fetchApi('/users');
-        if (Array.isArray(apiUsers) && apiUsers.length > 0) return apiUsers;
-        return JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+        return Array.isArray(apiUsers) ? apiUsers : [];
     }
 
     async _cargarRegistros() {
-        const apiReg = await this._fetchApi('/attendance/all?limit=1000');
-        if (Array.isArray(apiReg) && apiReg.length > 0) return apiReg;
-        return JSON.parse(localStorage.getItem('attendanceRecords') || '[]');
+        const apiReg = await this._fetchApi('/attendance/all?limit=500');
+        return Array.isArray(apiReg) ? apiReg : [];
     }
 
     /**
-     * Obtiene las horas laborales desde workSessions (calculadas por el empleado)
-     * o las calcula desde attendanceRecords si workSessions está vacío
+     * Obtiene las jornadas laborales ya calculadas y persistidas en el backend.
      */
-    _obtenerHorasLaborales() {
-        let sesiones = JSON.parse(localStorage.getItem('workSessions') || '[]');
-
-        // Si workSessions está vacío, calcular desde attendanceRecords
-        if (sesiones.length === 0) {
-            sesiones = this._calcularSesionesDesdeRegistros();
-            if (sesiones.length > 0) {
-                localStorage.setItem('workSessions', JSON.stringify(sesiones));
-            }
-        }
-
-        // Mapear al formato esperado por _renderizarSesiones
-        return sesiones.map(s => ({
-            id: s.id || `${s.userId}-${s.entrada}`,
-            empleado: {
-                nombre: s.userName || 'Empleado',
-                numeroDocumento: s.numeroDocumento || '--'
-            },
-            diaLaborado: s.fecha || '--',
-            entrada: s.entrada || '--',
-            salida: s.salida || '--',
-            estado: s.salida ? 'completada' : 'activa',
-            totalHorasLaboradas: { formato: s.totalHoras || '00:00', minutos: s.totalMinutos || 0 },
-            clasificacion: {
-                ordinariaDiurna: { formato: this._formatoHora(s.clasificacion?.ordinariaDiurna) },
-                ordinariaNocturna: { formato: this._formatoHora(s.clasificacion?.ordinariaNocturna) },
-                extraDiurna: { formato: this._formatoHora(s.clasificacion?.extrasDiurnas) },
-                extraNocturna: { formato: this._formatoHora(s.clasificacion?.extrasNocturnas) },
-                dominicalFestiva: { formato: this._formatoHora(s.clasificacion?.dominicales) },
-                recargos: {
-                    totalRecargos: { formato: this._formatoRecargo(s.recargos) }
-                }
-            }
-        }));
-    }
-
-    /**
-     * Calcula sesiones de trabajo a partir de attendanceRecords (cuando workSessions no existe)
-     */
-    _calcularSesionesDesdeRegistros() {
-        const registros = JSON.parse(localStorage.getItem('attendanceRecords') || '[]');
-        const hoy = new Date().toLocaleDateString('es-ES');
-        const sesiones = [];
-
-        // Agrupar por usuario
-        const usuarios = {};
-        registros.forEach(r => {
-            if (!r.date || r.date !== hoy) return;
-            const uid = r.userId || 'unknown';
-            if (!usuarios[uid]) usuarios[uid] = { userId: uid, userName: r.userName || 'Empleado', registros: [] };
-            usuarios[uid].registros.push(r);
-        });
-
-        Object.values(usuarios).forEach(u => {
-            const entradas = u.registros.filter(r => r.type === 'entrada').sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-            const salidas = u.registros.filter(r => r.type === 'salida').sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-            if (entradas.length === 0 || salidas.length === 0) return;
-
-            for (let i = 0; i < Math.min(entradas.length, salidas.length); i++) {
-                const entrada = entradas[i];
-                const salida = salidas[i];
-                const diffMs = new Date(salida.timestamp) - new Date(entrada.timestamp);
-                const totalMin = Math.floor(diffMs / (1000 * 60));
-                if (totalMin <= 0) continue;
-
-                const horaEnt = new Date(entrada.timestamp).getHours();
-                const clasif = this._clasificarJornada(horaEnt, totalMin);
-
-                sesiones.push({
-                    userId: u.userId,
-                    userName: u.userName,
-                    fecha: hoy,
-                    entrada: entrada.time || new Date(entrada.timestamp).toLocaleTimeString('es-ES'),
-                    salida: salida.time || new Date(salida.timestamp).toLocaleTimeString('es-ES'),
-                    totalMinutos: totalMin,
-                    totalHoras: `${Math.floor(totalMin / 60)}h ${totalMin % 60}m`,
-                    clasificacion: clasif.clasificacion,
-                    recargos: clasif.recargos,
-                    timestamp: new Date(salida.timestamp).toISOString()
-                });
-            }
-        });
-
-        return sesiones.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-    }
-
-    /**
-     * Clasifica una jornada según legislación colombiana
-     */
-    _clasificarJornada(horaEntrada, totalMinutos) {
-        const MAX_HORAS_NORMALES = 8;
-        const esFinDeSemana = new Date().getDay() === 0;
-
-        let minutosDiurnos = 0, minutosNocturnos = 0;
-        let minutosExtrasDiurnas = 0, minutosExtrasNocturnas = 0, minutosDominicales = 0;
-
-        for (let h = horaEntrada; h < horaEntrada + Math.ceil(totalMinutos / 60); h++) {
-            const horaActual = h % 24;
-            const esDiurno = horaActual >= 6 && horaActual < 19; // Diurno 06:00-19:00 (fuente: backend ColombianLaborLawService)
-
-            const horasDesdeEntrada = h - horaEntrada;
-
-            if (esFinDeSemana) {
-                minutosDominicales += 60;
-            } else if (horasDesdeEntrada < MAX_HORAS_NORMALES) {
-                if (esDiurno) minutosDiurnos += 60;
-                else minutosNocturnos += 60;
-            } else {
-                if (esDiurno) minutosExtrasDiurnas += 60;
-                else minutosExtrasNocturnas += 60;
-            }
-        }
-
-        return {
-            clasificacion: {
-                ordinariaDiurna: Math.round(minutosDiurnos / 60 * 100) / 100,
-                ordinariaNocturna: Math.round(minutosNocturnos / 60 * 100) / 100,
-                extrasDiurnas: Math.round(minutosExtrasDiurnas / 60 * 100) / 100,
-                extrasNocturnas: Math.round(minutosExtrasNocturnas / 60 * 100) / 100,
-                dominicales: Math.round(minutosDominicales / 60 * 100) / 100
-            },
-            recargos: {
-                nocturno: Math.round(minutosNocturnos * 0.35 / 60 * 100) / 100,
-                extraDiurno: Math.round(minutosExtrasDiurnas * 0.25 / 60 * 100) / 100,
-                extraNocturno: Math.round(minutosExtrasNocturnas * 0.75 / 60 * 100) / 100,
-                dominical: Math.round(minutosDominicales * 1.0 / 60 * 100) / 100
-            }
-        };
-    }
-
-    _formatoHora(valor) {
-        if (!valor || valor === 0) return '00:00';
-        const horas = Math.floor(Number(valor));
-        const minutos = Math.round((Number(valor) - horas) * 60);
-        return `${String(horas).padStart(2, '0')}:${String(minutos).padStart(2, '0')}`;
-    }
-
-    _formatoRecargo(recargos) {
-        if (!recargos) return '00:00';
-        const total = (recargos.nocturno || 0) + (recargos.extraDiurno || 0) + (recargos.extraNocturno || 0) + (recargos.dominical || 0);
-        const horas = Math.floor(total);
-        const minutos = Math.round((total - horas) * 60);
-        return `${String(horas).padStart(2, '0')}:${String(minutos).padStart(2, '0')}`;
+    async _obtenerHorasLaborales() {
+        const rows = await this._fetchApi('/attendance/labor-hours?limit=500');
+        return Array.isArray(rows) ? rows : [];
     }
 
     _calcularKPIs(usuarios, registros, horasLaborales) {
@@ -362,10 +218,10 @@ class AdminDashboard {
                             <th>Jornada</th>
                             <th>Total</th>
                             <th>Ord Diurna</th>
-                            <th>Ord Nocturna (+35%)</th>
-                            <th>Extra Diurna (+25%)</th>
-                            <th>Extra Nocturna (+75%)</th>
-                            <th>Dominical (+100%)</th>
+                            <th>Ord. nocturna</th>
+                            <th>Extra diurna</th>
+                            <th>Extra nocturna</th>
+                            <th>Descanso/festivo</th>
                             <th>Recargos</th>
                         </tr>
                     </thead>
@@ -373,13 +229,13 @@ class AdminDashboard {
                 </table>
             </div>
             <div class="hc-legend" style="margin-top:10px;padding:8px;background:#f1f5f9;border-radius:8px;font-size:0.8rem;">
-                <span><span class="hc-dot ok"></span> Ordinaria Diurna (6:00-19:00)</span>
-                <span><span class="hc-dot warn"></span> Ordinaria Nocturna (19:00-6:00) +35%</span>
+                <span><span class="hc-dot ok"></span> Ordinaria diurna</span>
+                <span><span class="hc-dot warn"></span> Ordinaria nocturna</span>
 
-                <span><span class="hc-dot warn"></span> Extra Diurna +25%</span>
-                <span><span class="hc-dot danger"></span> Extra Nocturna +75%</span>
-                <span><span class="hc-dot danger"></span> Dominical/Festivo +100%</span>
-                <span><i class="fas fa-gavel"></i> Ley 2101/2021 - CST Colombia</span>
+                <span><span class="hc-dot warn"></span> Extra diurna</span>
+                <span><span class="hc-dot danger"></span> Extra nocturna</span>
+                <span><span class="hc-dot danger"></span> Descanso/festivo</span>
+                <span><i class="fas fa-gavel"></i> Reglas vigentes registradas en cada jornada</span>
                 <span style="margin-left:auto;"><strong>Total recargos: ${totalRecargos}</strong></span>
             </div>`;
     }
@@ -586,28 +442,7 @@ class AdminDashboard {
     }
 
     _obtenerHorasEmpleado(emp) {
-        try {
-            const id = String(emp._id || emp.id || '');
-            const sesiones = JSON.parse(localStorage.getItem('workSessions') || '[]');
-            const propias = sesiones.filter(s => {
-                const sid = String(s.userId || s.usuarioId || '');
-                const sNombre = String(s.userName || s.nombre || '').toLowerCase();
-                const empNombre = String(emp.nombreCompleto || '').toLowerCase();
-                return (id && sid === id) || (empNombre && sNombre === empNombre);
-            });
-            if (!propias.length) return '00:00';
-            let totalMin = 0;
-            propias.forEach(s => {
-                totalMin += (s.totalMinutos || 0);
-                if (!s.totalMinutos && s.totalHoras) {
-                    const m = String(s.totalHoras).match(/(\d+)h\s*(\d+)m/);
-                    if (m) totalMin += parseInt(m[1]) * 60 + parseInt(m[2]);
-                }
-            });
-            const h = Math.floor(totalMin / 60);
-            const m = totalMin % 60;
-            return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
-        } catch (_) { return '--'; }
+        return emp.resumenJornada?.tiempoTotal?.formato || 'Consulte el reporte de jornada';
     }
 
     _formatoUltimaActividad(emp) {

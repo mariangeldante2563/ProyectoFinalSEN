@@ -42,7 +42,7 @@ class EnhancedApiClient {
     window.addEventListener('offline', () => {
       this.isOnline = false;
       if (typeof NotificationManager !== 'undefined') {
-        NotificationManager.showToast('Sin conexión. Los datos se guardarán localmente.', 'warning');
+        NotificationManager.showToast('Sin conexión. Las marcas de asistencia requieren conexión y no se guardarán offline.', 'warning');
       }
     });
   }
@@ -54,17 +54,7 @@ class EnhancedApiClient {
   async _syncOfflineData() {
     try {
       // Obtener datos pendientes de sincronización
-      const pendingAttendance = JSON.parse(localStorage.getItem('pendingAttendance') || '[]');
       const pendingPhotos = JSON.parse(localStorage.getItem('pendingPhotos') || '[]');
-      
-      // Sincronizar registros de asistencia
-      for (const record of pendingAttendance) {
-        try {
-          await this.registerAttendance(record.userId, record.type, record.timestamp, true);
-        } catch (error) {
-          console.error('Error al sincronizar registro de asistencia:', error);
-        }
-      }
       
       // Sincronizar fotos pendientes
       for (const photoData of pendingPhotos) {
@@ -81,7 +71,6 @@ class EnhancedApiClient {
       }
       
       // Limpiar datos pendientes
-      localStorage.removeItem('pendingAttendance');
       localStorage.removeItem('pendingPhotos');
       
       if (typeof NotificationManager !== 'undefined') {
@@ -315,83 +304,25 @@ class EnhancedApiClient {
    * Registra entrada o salida del empleado
    * @param {string} userId - ID del usuario
    * @param {string} type - Tipo de registro ('entrada' o 'salida')
-   * @param {string} timestamp - Timestamp ISO (opcional, usa la fecha actual si no se proporciona)
-   * @param {boolean} skipOfflineStorage - Si es true, no guarda en localStorage (para sincronización)
+   * El timestamp y el usuario se determinan exclusivamente en el servidor.
    * @returns {Promise} - Registro creado
    */
-  async registerAttendance(userId, type, timestamp = null, skipOfflineStorage = false) {
+  async registerAttendance(userId, type, timestamp = undefined) {
     try {
       // Validar tipo
       if (!['entrada', 'salida'].includes(type)) {
         throw new Error('Tipo de registro inválido. Debe ser "entrada" o "salida"');
       }
       
-      // Usar timestamp proporcionado o crear uno nuevo
-      const recordTime = timestamp ? new Date(timestamp) : new Date();
-      
-      // Preparar datos del registro
-      const attendanceData = {
-        userId,
-        type,
-        timestamp: recordTime.toISOString(),
-        date: recordTime.toLocaleDateString('es-ES'),
-        time: recordTime.toLocaleTimeString('es-ES')
-      };
-      
-      // Verificar conexión
       const serverAvailable = await this.checkServerConnection();
-      
-      if (serverAvailable) {
-        // Registrar en el servidor
-        const response = await this.post('/attendance', attendanceData);
-        
-        // Guardar también en localStorage para acceso rápido
-        this._saveAttendanceToLocalStorage(attendanceData);
-        
-        return response;
-      } else {
-        // Modo offline: guardar en localStorage
-        attendanceData.id = `att_${Date.now()}`;
-        this._saveAttendanceToLocalStorage(attendanceData);
-        
-        // Guardar para sincronización posterior, a menos que skipOfflineStorage sea true
-        if (!skipOfflineStorage) {
-          const pendingAttendance = JSON.parse(localStorage.getItem('pendingAttendance') || '[]');
-          pendingAttendance.push(attendanceData);
-          localStorage.setItem('pendingAttendance', JSON.stringify(pendingAttendance));
-        }
-        
-        return {
-          ...attendanceData,
-          mode: 'offline'
-        };
+      if (!serverAvailable) throw new Error('No hay conexión con el servidor; no se registró la marca.');
+      if (timestamp !== undefined && timestamp !== null) {
+        throw new Error('El timestamp de asistencia lo asigna el servidor.');
       }
+      return await this.post('/attendance', { type });
     } catch (error) {
       console.error('Error al registrar asistencia:', error);
       throw error;
-    }
-  }
-  
-  /**
-   * Guarda un registro de asistencia en localStorage
-   * @param {Object} attendanceData - Datos del registro
-   * @private
-   */
-  _saveAttendanceToLocalStorage(attendanceData) {
-    try {
-      // Obtener registros actuales
-      const attendanceRecords = JSON.parse(localStorage.getItem('attendanceRecords') || '[]');
-      
-      // Añadir nuevo registro
-      attendanceRecords.push({
-        ...attendanceData,
-        id: attendanceData.id || `att_${Date.now()}`
-      });
-      
-      // Guardar registros actualizados
-      localStorage.setItem('attendanceRecords', JSON.stringify(attendanceRecords));
-    } catch (error) {
-      console.error('Error al guardar registro en localStorage:', error);
     }
   }
   
@@ -405,44 +336,13 @@ class EnhancedApiClient {
     try {
       // Construir query string para filtros
       const queryParams = new URLSearchParams();
-      if (filters.fechaInicio) queryParams.append('fechaInicio', filters.fechaInicio);
-      if (filters.fechaFin) queryParams.append('fechaFin', filters.fechaFin);
-      if (filters.tipo) queryParams.append('tipo', filters.tipo);
-      
-      // Verificar conexión
+      if (filters.fechaInicio) queryParams.append('startDate', filters.fechaInicio);
+      if (filters.fechaFin) queryParams.append('endDate', filters.fechaFin);
+      if (filters.tipo) queryParams.append('type', filters.tipo);
       const serverAvailable = await this.checkServerConnection();
-      
-      if (serverAvailable) {
-        // Obtener del servidor
-        const endpoint = `/attendance/${userId}?${queryParams.toString()}`;
-        return await this.get(endpoint);
-      } else {
-        // Modo offline: obtener de localStorage
-        const attendanceRecords = JSON.parse(localStorage.getItem('attendanceRecords') || '[]');
-        
-        // Filtrar por usuario
-        let records = attendanceRecords.filter(record => record.userId === userId);
-        
-        // Aplicar filtros adicionales
-        if (filters.fechaInicio) {
-          const startDate = new Date(filters.fechaInicio);
-          records = records.filter(record => new Date(record.timestamp) >= startDate);
-        }
-        
-        if (filters.fechaFin) {
-          const endDate = new Date(filters.fechaFin);
-          records = records.filter(record => new Date(record.timestamp) <= endDate);
-        }
-        
-        if (filters.tipo) {
-          records = records.filter(record => record.type === filters.tipo);
-        }
-        
-        return {
-          records,
-          mode: 'offline'
-        };
-      }
+      if (!serverAvailable) throw new Error('El historial de asistencia requiere conexión con el servidor.');
+      const endpoint = `/attendance/user/${encodeURIComponent(userId)}?${queryParams.toString()}`;
+      return await this.get(endpoint);
     } catch (error) {
       console.error('Error al obtener registros de asistencia:', error);
       throw error;
@@ -457,59 +357,10 @@ class EnhancedApiClient {
    */
   async getAttendanceStats(userId, period = 'week') {
     try {
-      // Verificar conexión
       const serverAvailable = await this.checkServerConnection();
-      
-      if (serverAvailable) {
-        // Obtener del servidor
-        return await this.get(`/attendance/stats/${userId}?period=${period}`);
-      } else {
-        // Modo offline: calcular estadísticas localmente
-        const attendanceRecords = JSON.parse(localStorage.getItem('attendanceRecords') || '[]');
-        
-        // Filtrar por usuario
-        const records = attendanceRecords.filter(record => record.userId === userId);
-        
-        // Determinar fechas de inicio y fin según período
-        const today = new Date();
-        let startDate, endDate;
-        
-        if (period === 'week') {
-          // Primera fecha de la semana actual (domingo)
-          startDate = new Date(today);
-          startDate.setDate(today.getDate() - today.getDay());
-          startDate.setHours(0, 0, 0, 0);
-          
-          // Última fecha de la semana actual (sábado)
-          endDate = new Date(startDate);
-          endDate.setDate(startDate.getDate() + 6);
-          endDate.setHours(23, 59, 59, 999);
-        } else {
-          // Primer día del mes actual
-          startDate = new Date(today.getFullYear(), today.getMonth(), 1);
-          
-          // Último día del mes actual
-          endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-          endDate.setHours(23, 59, 59, 999);
-        }
-        
-        // Filtrar registros por rango de fechas
-        const filteredRecords = records.filter(record => {
-          const recordDate = new Date(record.timestamp);
-          return recordDate >= startDate && recordDate <= endDate;
-        });
-        
-        // Procesar estadísticas (estructura simplificada)
-        const stats = {
-          period,
-          totalEntries: filteredRecords.filter(r => r.type === 'entrada').length,
-          totalExits: filteredRecords.filter(r => r.type === 'salida').length,
-          dailyStats: [],
-          mode: 'offline'
-        };
-        
-        return stats;
-      }
+      if (!serverAvailable) throw new Error('Las estadísticas de asistencia requieren conexión con el servidor.');
+      const endpoint = period === 'month' ? '/stats/monthly' : '/stats/weekly';
+      return await this.get(endpoint);
     } catch (error) {
       console.error('Error al obtener estadísticas de asistencia:', error);
       throw error;

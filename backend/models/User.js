@@ -9,6 +9,42 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const config = require('../config/config');
 
+const scheduleSchema = new mongoose.Schema({
+  regimenLaboral: {
+    type: String,
+    required: true,
+    enum: ['codigo_sustantivo_trabajo', 'especial_pendiente']
+  },
+  vigenteDesde: { type: Date, required: true },
+  vigenteHasta: { type: Date, default: null },
+  modalidad: {
+    type: String,
+    required: true,
+    enum: ['fija', 'flexible_semanal', 'turno_continuo']
+  },
+  minutosOrdinariosPorDia: {
+    type: Map,
+    of: { type: Number, min: 0 },
+    required: true,
+    validate: {
+      validator(value) {
+        const weekdays = new Set(['1', '2', '3', '4', '5', '6', '7']);
+        return value instanceof Map &&
+          value.size > 0 &&
+          [...value.entries()].every(([day, minutes]) =>
+            weekdays.has(day) && Number.isFinite(minutes) && minutes >= 0
+          );
+      },
+      message: 'El horario debe usar días ISO (1-7) y minutos no negativos'
+    }
+  },
+  minutosOrdinariosSemanales: { type: Number, required: true, min: 0 },
+  diaDescansoObligatorio: { type: Number, required: true, min: 1, max: 7 },
+  pausaNoLaboralMinutos: { type: Number, min: 0, default: null },
+  adopcionJornadaSemanal42Desde: { type: Date, default: null },
+  adopcionRecargoDescanso100Desde: { type: Date, default: null }
+}, { _id: true });
+
 // Definir el esquema de usuario
 const userSchema = new mongoose.Schema({
   nombreCompleto: {
@@ -106,6 +142,10 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
+  horariosLaborales: {
+    type: [scheduleSchema],
+    default: []
+  },
   fechaDesactivacion: {
     type: Date,
     default: null
@@ -114,6 +154,18 @@ const userSchema = new mongoose.Schema({
   timestamps: true, // Crear automáticamente createdAt y updatedAt
   versionKey: false // No incluir __v
 });
+
+userSchema.path('horariosLaborales').validate(function(schedules) {
+  const ordered = [...schedules].sort((a, b) => a.vigenteDesde - b.vigenteDesde);
+  return ordered.every((schedule, index) => {
+    if (!schedule.vigenteDesde || !schedule.modalidad || !schedule.regimenLaboral) return false;
+    if (schedule.vigenteHasta && schedule.vigenteHasta <= schedule.vigenteDesde) return false;
+    if (!schedule.minutosOrdinariosPorDia?.size) return false;
+    if (index === 0) return true;
+    const previous = ordered[index - 1];
+    return previous.vigenteHasta && previous.vigenteHasta <= schedule.vigenteDesde;
+  });
+}, 'Las versiones de horario deben tener fechas válidas y no solaparse');
 
 // Índices para mejorar búsquedas
 userSchema.index({ numeroDocumento: 1 });

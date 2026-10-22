@@ -106,38 +106,60 @@ dailyStatsSchema.statics.formatearTiempo = function(minutos) {
   return ColombianLaborLawService.formatearTiempo(minutos);
 };
 
-dailyStatsSchema.statics.crearOActualizarEstadisticas = async function(userId, fecha) {
+dailyStatsSchema.statics.crearOActualizarEstadisticas = async function(userId, fecha, options = {}) {
   const WorkSession = require('./WorkSession');
-
-  const fechaNormalizada = new Date(fecha);
-  fechaNormalizada.setHours(0, 0, 0, 0);
-  const fechaFin = new Date(fechaNormalizada);
-  fechaFin.setDate(fechaFin.getDate() + 1);
-  const fechaStr = fechaNormalizada.toISOString().slice(0, 10);
+  const User = require('./User');
+  const TimeCalculationService = require('../services/TimeCalculationService');
+  const fechaStr = ColombianLaborLawService.obtenerFechaLocal(fecha);
+  const fechaNormalizada = new Date(`${fechaStr}T00:00:00.000Z`);
 
   const sesiones = await WorkSession.find({
     userId,
     fecha: fechaStr,
     timestampSalida: { $ne: null },
     estado: 'completada'
-  }).sort({ timestampEntrada: 1 });
+  }).sort({ timestampEntrada: 1 }).session(options.session || null);
+  const user = await User.findById(userId).session(options.session || null);
 
-  let minutosOrdinariosAcumulados = 0;
-  const calculos = [];
+  const total = {
+    tiempo: 0, ordinariaDiurna: 0, ordinariaNocturna: 0, extraDiurna: 0, extraNocturna: 0,
+    nocturna: 0, dominicalDiurna: 0, dominicalNocturna: 0
+  };
   const sesionesResumen = [];
+  const initialRules = ColombianLaborLawService.obtenerReglasVigentes(new Date(`${fechaStr}T12:00:00.000Z`));
+  let percentages = {
+    nocturnoOrdinario: initialRules.recargoNocturnoOrdinario,
+    extraDiurno: initialRules.recargoExtraDiurna,
+    extraNocturno: initialRules.recargoExtraNocturna,
+    descanso: initialRules.recargoDescanso,
+    descansoNocturno: initialRules.recargoDescanso + initialRules.recargoNocturnoOrdinario
+  };
 
   for (const sesion of sesiones) {
-    const duracion = Math.max(0, Math.floor((sesion.timestampSalida - sesion.timestampEntrada) / 60000));
-    const calculo = ColombianLaborLawService.calcularRecargosConAcumulado(
-      sesion.timestampEntrada,
-      sesion.timestampSalida,
-      minutosOrdinariosAcumulados,
-      duracion
-    );
+    const horario = TimeCalculationService.obtenerHorarioVigente(user, sesion.timestampEntrada);
+    const calculo = TimeCalculationService.calcularSesion({
+      entrada: sesion.timestampEntrada,
+      salida: sesion.timestampSalida,
+      horario
+    });
+    if (calculo.estadoCalculo !== 'calculado') continue;
+    percentages = {
+      nocturnoOrdinario: calculo.recargos.nocturnoOrdinario.porcentaje,
+      extraDiurno: calculo.recargos.extraDiurno.porcentaje,
+      extraNocturno: calculo.recargos.extraNocturno.porcentaje,
+      descanso: calculo.recargos.dominicalDiurno.porcentaje,
+      descansoNocturno: calculo.recargos.dominicalNocturno.porcentaje
+    };
 
-    minutosOrdinariosAcumulados += calculo.horasOrdinarias.total.minutos;
-    calculos.push(calculo);
-
+    const duracion = calculo.tiempoTotal.minutos;
+    total.tiempo += duracion;
+    total.ordinariaDiurna += calculo.horasOrdinarias.diurnas.minutos;
+    total.ordinariaNocturna += calculo.horasOrdinarias.nocturnas.minutos;
+    total.extraDiurna += calculo.horasExtras.diurnas.minutos;
+    total.extraNocturna += calculo.horasExtras.nocturnas.minutos;
+    total.nocturna += calculo.recargos.nocturnoOrdinario.minutos;
+    total.dominicalDiurna += calculo.recargos.dominicalDiurno.minutos;
+    total.dominicalNocturna += calculo.recargos.dominicalNocturno.minutos;
     const esDominical = calculo.metadata.esDomingoOFestivo;
     const tieneExtras = calculo.horasExtras.total.minutos > 0;
     const tieneNocturnas = calculo.horasOrdinarias.nocturnas.minutos > 0 || calculo.horasExtras.nocturnas.minutos > 0;
@@ -154,8 +176,14 @@ dailyStatsSchema.statics.crearOActualizarEstadisticas = async function(userId, f
       { _id: sesion._id },
       {
         $set: {
-          tiempoLaboradoMinutos: calculo.tiempoTotal.minutos,
+          tiempoLaboradoMinutos: duracion,
           tiempoLaboradoHoras: calculo.tiempoTotal.formato,
+          'horasOrdinarias.diurnas': calculo.horasOrdinarias.diurnas.minutos,
+          'horasOrdinarias.nocturnas': calculo.horasOrdinarias.nocturnas.minutos,
+          'horasOrdinarias.total': calculo.horasOrdinarias.total.minutos,
+          'horasExtras.diurnas': calculo.horasExtras.diurnas.minutos,
+          'horasExtras.nocturnas': calculo.horasExtras.nocturnas.minutos,
+          'horasExtras.total': calculo.horasExtras.total.minutos,
           tiempoJornadaOrdinariaDiurna: calculo.horasOrdinarias.diurnas.minutos,
           tiempoJornadaOrdinariaNocturna: calculo.horasOrdinarias.nocturnas.minutos,
           tiempoJornadaOrdinariaNoturna: calculo.horasOrdinarias.nocturnas.minutos,
@@ -165,71 +193,82 @@ dailyStatsSchema.statics.crearOActualizarEstadisticas = async function(userId, f
           'recargos.recargoNocturno': calculo.recargos.nocturnoOrdinario.minutos,
           'recargos.recargoHorasExtrasDiurnas': calculo.recargos.extraDiurno.minutos,
           'recargos.recargoHorasExtrasNocturnas': calculo.recargos.extraNocturno.minutos,
-          'recargos.recargoDominicalesFestivos':
-            calculo.recargos.dominicalDiurno.minutos +
-            calculo.recargos.dominicalNocturno.minutos +
-            (calculo.recargos.extraDominicalDiurno?.minutos || 0) +
-            (calculo.recargos.extraDominicalNocturno?.minutos || 0),
-
+          'recargos.recargoDominicalesFestivos': calculo.recargos.dominicalDiurno.minutos + calculo.recargos.dominicalNocturno.minutos,
           'recargos.recargoTotal': calculo.recargos.totalRecargos.minutos,
-          'metadata.minutosOrdinariosPrevios': calculo.metadata.minutosOrdinariosPrevios
+          'metadata.minutosOrdinariosPrevios': calculo.metadata.minutosSemanalesPrevios,
+          'metadata.calculoVersion': calculo.metadata.calculoVersion
         }
-      }
+      },
+      { session: options.session }
     );
   }
 
-  const total = ColombianLaborLawService.sumarCalculos(calculos);
-  // El esquema de DailyStats no define campos separados para extras dominicales;
-  // se consolidan dentro de las categorias dominicales para que la suma del
-  // desglose coincida con totalRecargos (que ya las incluye).
-  total.recargos.dominicalDiurno.minutos += total.recargos.extraDominicalDiurno?.minutos || 0;
-  total.recargos.dominicalNocturno.minutos += total.recargos.extraDominicalNocturno?.minutos || 0;
+  const format = minutes => ColombianLaborLawService.formatearTiempo(minutes);
+  const value = minutes => ({ minutos: minutes, formato: format(minutes) });
+  const ordinarias = total.ordinariaDiurna + total.ordinariaNocturna;
+  const extras = total.extraDiurna + total.extraNocturna;
+  const recargos = total.nocturna + total.extraDiurna + total.extraNocturna +
+    total.dominicalDiurna + total.dominicalNocturna;
+  const primeraEntrada = sesionesResumen[0]?.entrada || null;
+  const ultimaSalida = sesionesResumen[sesionesResumen.length - 1]?.salida || null;
   const stats = await this.findOneAndUpdate(
-
     { userId, fecha: fechaNormalizada },
     {
       $set: {
         userId,
         fecha: fechaNormalizada,
-        esDomingoOFestivo: ColombianLaborLawService.esDomingoOFestivo(fechaNormalizada),
-        tiempoTotal: total.tiempoTotal,
-        horasOrdinarias: total.horasOrdinarias,
-        horasExtras: total.horasExtras,
-        recargos: total.recargos,
+        esDomingoOFestivo: ColombianLaborLawService.esFestivoColombiano(new Date(`${fechaStr}T12:00:00.000Z`)) ||
+          ColombianLaborLawService.obtenerDiaISOLocal(new Date(`${fechaStr}T12:00:00.000Z`)) === 7,
+        tiempoTotal: value(total.tiempo),
+        horasOrdinarias: {
+          diurnas: value(total.ordinariaDiurna),
+          nocturnas: value(total.ordinariaNocturna),
+          total: value(ordinarias)
+        },
+        horasExtras: {
+          diurnas: value(total.extraDiurna),
+          nocturnas: value(total.extraNocturna),
+          total: value(extras)
+        },
+        recargos: {
+          nocturnoOrdinario: { ...value(total.nocturna), porcentaje: percentages.nocturnoOrdinario },
+          extraDiurno: { ...value(total.extraDiurna), porcentaje: percentages.extraDiurno },
+          extraNocturno: { ...value(total.extraNocturna), porcentaje: percentages.extraNocturno },
+          dominicalDiurno: { ...value(total.dominicalDiurna), porcentaje: percentages.descanso },
+          dominicalNocturno: { ...value(total.dominicalNocturna), porcentaje: percentages.descansoNocturno },
+          totalRecargos: value(recargos)
+        },
         sesiones: sesionesResumen,
         'estadisticas.numeroSesiones': sesionesResumen.length,
-        'estadisticas.primeraEntrada': sesiones[0]?.timestampEntrada || null,
-        'estadisticas.ultimaSalida': sesiones[sesiones.length - 1]?.timestampSalida || null,
+        'estadisticas.primeraEntrada': primeraEntrada,
+        'estadisticas.ultimaSalida': ultimaSalida,
         'estadisticas.tiempoPausa': calcularPausas(sesiones),
-        'estadisticas.cumplimientoJornada.cumplioOchoHoras': total.tiempoTotal.minutos >= 480,
-        'estadisticas.cumplimientoJornada.excedioJornada': total.tiempoTotal.minutos > 480,
-        'estadisticas.cumplimientoJornada.porcentajeCumplimiento': Math.round((total.tiempoTotal.minutos / 480) * 100),
+        'estadisticas.cumplimientoJornada.cumplioOchoHoras': total.tiempo >= 480,
+        'estadisticas.cumplimientoJornada.excedioJornada': extras > 0,
+        'estadisticas.cumplimientoJornada.porcentajeCumplimiento': Math.round((total.tiempo / 480) * 100),
         'metadata.ultimaActualizacion': new Date(),
         'metadata.origenDatos': 'automatico'
       },
       $inc: { 'metadata.numeroActualizaciones': 1 }
     },
-    { upsert: true, new: true, setDefaultsOnInsert: true }
+    { upsert: true, new: true, setDefaultsOnInsert: true, session: options.session }
   );
 
-  // Evita que fechaFin quede como variable no usada tras optimizaciones futuras.
-  void fechaFin;
   return stats;
 };
 
 dailyStatsSchema.statics.obtenerEstadisticasSemanales = async function(userId) {
   const hoy = new Date();
-  const inicioSemana = new Date(hoy);
-  inicioSemana.setDate(hoy.getDate() - hoy.getDay());
-  inicioSemana.setHours(0, 0, 0, 0);
-
+  const todayKey = ColombianLaborLawService.obtenerFechaLocal(hoy);
+  const inicioSemana = new Date(`${todayKey}T00:00:00.000Z`);
+  const day = ColombianLaborLawService.obtenerDiaISOLocal(hoy);
+  inicioSemana.setUTCDate(inicioSemana.getUTCDate() - day + 1);
   const finSemana = new Date(inicioSemana);
-  finSemana.setDate(inicioSemana.getDate() + 6);
-  finSemana.setHours(23, 59, 59, 999);
+  finSemana.setUTCDate(inicioSemana.getUTCDate() + 7);
 
   const estadisticasSemana = await this.find({
     userId,
-    fecha: { $gte: inicioSemana, $lte: finSemana }
+    fecha: { $gte: inicioSemana, $lt: finSemana }
   }).sort({ fecha: 1 });
 
   let tiempoTotalSemana = 0;
@@ -268,13 +307,13 @@ dailyStatsSchema.statics.obtenerEstadisticasSemanales = async function(userId) {
 
 dailyStatsSchema.statics.obtenerEstadisticasMensuales = async function(userId) {
   const hoy = new Date();
-  const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
-  const finMes = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0);
-  finMes.setHours(23, 59, 59, 999);
+  const [year, month] = ColombianLaborLawService.obtenerFechaLocal(hoy).split('-').map(Number);
+  const inicioMes = new Date(Date.UTC(year, month - 1, 1));
+  const finMes = new Date(Date.UTC(year, month, 1));
 
   const estadisticasMes = await this.find({
     userId,
-    fecha: { $gte: inicioMes, $lte: finMes }
+    fecha: { $gte: inicioMes, $lt: finMes }
   }).sort({ fecha: 1 });
 
   let tiempoTotalMes = 0;
@@ -315,14 +354,16 @@ dailyStatsSchema.statics.obtenerEstadisticasMensuales = async function(userId) {
 };
 
 dailyStatsSchema.statics.obtenerDatosGraficas = async function(userId, ultimosDias = 7) {
-  const fechaInicio = new Date();
-  fechaInicio.setDate(fechaInicio.getDate() - ultimosDias);
-  fechaInicio.setHours(0, 0, 0, 0);
+  const dateKey = ColombianLaborLawService.obtenerFechaLocal(new Date());
+  const fechaFin = new Date(`${dateKey}T00:00:00.000Z`);
+  const fechaInicio = new Date(fechaFin);
+  fechaInicio.setUTCDate(fechaInicio.getUTCDate() - ultimosDias + 1);
 
   const estadisticas = await this.find({
     userId,
-    fecha: { $gte: fechaInicio }
+    fecha: { $gte: fechaInicio, $lt: new Date(fechaFin.getTime() + 86400000) }
   }).sort({ fecha: 1 });
+  const byDate = new Map(estadisticas.map(item => [item.fecha.toISOString().slice(0, 10), item]));
 
   const labels = [];
   const horasTrabajadas = [];
@@ -331,10 +372,10 @@ dailyStatsSchema.statics.obtenerDatosGraficas = async function(userId, ultimosDi
 
   for (let i = 0; i < ultimosDias; i++) {
     const fecha = new Date(fechaInicio);
-    fecha.setDate(fechaInicio.getDate() + i);
-    labels.push(fecha.toLocaleDateString('es-CO', { weekday: 'short', day: 'numeric' }));
+    fecha.setUTCDate(fechaInicio.getUTCDate() + i);
+    labels.push(fecha.toLocaleDateString('es-CO', { timeZone: 'UTC', weekday: 'short', day: 'numeric' }));
 
-    const stat = estadisticas.find(item => item.fecha.toDateString() === fecha.toDateString());
+    const stat = byDate.get(fecha.toISOString().slice(0, 10));
     horasTrabajadas.push(stat ? Math.round((stat.tiempoTotal.minutos / 60) * 100) / 100 : 0);
     horasExtras.push(stat ? Math.round((stat.horasExtras.total.minutos / 60) * 100) / 100 : 0);
     recargos.push(stat ? Math.round((stat.recargos.totalRecargos.minutos / 60) * 100) / 100 : 0);
@@ -381,11 +422,6 @@ function calcularPausas(sesiones) {
 
 function normalizarTiempos(doc) {
   doc.tiempoTotal.formato = ColombianLaborLawService.formatearTiempo(doc.tiempoTotal.minutos);
-  doc.horasOrdinarias.total.minutos =
-    doc.horasOrdinarias.diurnas.minutos + doc.horasOrdinarias.nocturnas.minutos;
-  doc.horasExtras.total.minutos =
-    doc.horasExtras.diurnas.minutos + doc.horasExtras.nocturnas.minutos;
-
   doc.horasOrdinarias.diurnas.formato = ColombianLaborLawService.formatearTiempo(doc.horasOrdinarias.diurnas.minutos);
   doc.horasOrdinarias.nocturnas.formato = ColombianLaborLawService.formatearTiempo(doc.horasOrdinarias.nocturnas.minutos);
   doc.horasOrdinarias.total.formato = ColombianLaborLawService.formatearTiempo(doc.horasOrdinarias.total.minutos);
@@ -397,12 +433,6 @@ function normalizarTiempos(doc) {
     doc.recargos[tipo].formato = ColombianLaborLawService.formatearTiempo(doc.recargos[tipo].minutos);
   });
 
-  doc.recargos.totalRecargos.minutos =
-    doc.recargos.nocturnoOrdinario.minutos +
-    doc.recargos.extraDiurno.minutos +
-    doc.recargos.extraNocturno.minutos +
-    doc.recargos.dominicalDiurno.minutos +
-    doc.recargos.dominicalNocturno.minutos;
   doc.recargos.totalRecargos.formato = ColombianLaborLawService.formatearTiempo(doc.recargos.totalRecargos.minutos);
   doc.estadisticas.tiempoPausa.formato = ColombianLaborLawService.formatearTiempo(doc.estadisticas.tiempoPausa.minutos);
 }

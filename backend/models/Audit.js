@@ -38,13 +38,21 @@ const auditSchema = new mongoose.Schema({
   // Tipo de acción realizada
   accion: {
     type: String,
-    enum: ['crear', 'actualizar', 'eliminar', 'restaurar', 'cambiar_contraseña', 'cambiar_estado'],
+    enum: [
+      'crear', 'actualizar', 'eliminar', 'restaurar', 'cambiar_contraseña', 'cambiar_estado',
+      'marcar_entrada', 'marcar_salida', 'solicitar_correccion', 'aprobar_correccion',
+      'rechazar_correccion', 'cancelar_marca', 'generar_reporte', 'descargar_reporte'
+    ],
     required: true
   },
   // Detalles adicionales (campos afectados, valores anteriores, etc.)
   detalles: {
     type: Object,
     default: {}
+  },
+  requestId: {
+    type: mongoose.Schema.Types.ObjectId,
+    default: null
   },
   // Dirección IP desde donde se realizó la acción
   ipAddress: {
@@ -69,6 +77,15 @@ auditSchema.index({ usuarioId: 1, timestamp: -1 });
 auditSchema.index({ entidad: 1, entidadId: 1 });
 auditSchema.index({ accion: 1 });
 auditSchema.index({ timestamp: -1 });
+auditSchema.index(
+  { requestId: 1 },
+  {
+    unique: true,
+    partialFilterExpression: {
+      requestId: { $type: 'objectId' }
+    }
+  }
+);
 
 // Crear y exportar el modelo
 const Audit = mongoose.model('Audit', auditSchema);

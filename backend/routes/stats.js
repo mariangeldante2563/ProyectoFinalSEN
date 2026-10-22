@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const StatsController = require('../controllers/StatsController');
 const { protect } = require('../middlewares/auth');
+const { hasRole } = require('../middlewares/roles');
+const { attendanceRules, validate } = require('../middlewares/validation');
 
 /**
  * Rutas de Estadísticas - /api/stats
@@ -17,7 +19,7 @@ const { protect } = require('../middlewares/auth');
  * @access  Private
  * @body    { type: 'entrada'|'salida', timestamp?: Date, location?: String }
  */
-router.post('/attendance', protect, async (req, res) => {
+router.post('/attendance', protect, hasRole('empleado'), attendanceRules, validate, async (req, res) => {
     return await StatsController.registrarAsistencia(req, res);
 });
 

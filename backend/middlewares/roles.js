@@ -1,8 +1,10 @@
-/**
- * IN OUT MANAGER - MIDDLEWARE DE ROLES
- * @version 1.0.0
- * @description Middleware para verificación de roles de usuario
- */
+const ROLE_ALIASES = {
+  admin: 'administrador',
+  administrador: 'administrador',
+  empleado: 'empleado'
+};
+
+const getUserRole = user => ROLE_ALIASES[user?.tipoUsuario || user?.role] || null;
 
 /**
  * Verifica si el usuario tiene rol de administrador
@@ -21,7 +23,7 @@ const isAdmin = (req, res, next) => {
     }
     
     // Comprobar si el usuario tiene rol de administrador
-    if (req.user.role !== 'admin') {
+    if (getUserRole(req.user) !== 'administrador') {
       return res.status(403).json({
         success: false,
         msg: 'Acceso denegado. Se requiere rol de administrador'
@@ -57,10 +59,11 @@ const hasRole = (roles) => {
       }
       
       // Convertir roles a array si es string
-      const allowedRoles = Array.isArray(roles) ? roles : [roles];
+      const allowedRoles = (Array.isArray(roles) ? roles : [roles])
+        .map(role => ROLE_ALIASES[role] || role);
       
       // Comprobar si el usuario tiene alguno de los roles permitidos
-      if (!allowedRoles.includes(req.user.role)) {
+      if (!allowedRoles.includes(getUserRole(req.user))) {
         return res.status(403).json({
           success: false,
           msg: 'Acceso denegado. No tiene los permisos necesarios'
@@ -97,7 +100,7 @@ const isOwnerOrAdmin = (getResourceUserId) => {
       }
       
       // Si es admin, permitir acceso directo
-      if (req.user.role === 'admin') {
+      if (getUserRole(req.user) === 'administrador') {
         return next();
       }
       
@@ -113,7 +116,7 @@ const isOwnerOrAdmin = (getResourceUserId) => {
       }
       
       // Comprobar si el usuario es propietario del recurso
-      if (resourceUserId.toString() !== req.user.id.toString()) {
+      if (resourceUserId.toString() !== (req.user._id || req.user.id).toString()) {
         return res.status(403).json({
           success: false,
           msg: 'Acceso denegado. No es propietario del recurso'
@@ -136,5 +139,6 @@ const isOwnerOrAdmin = (getResourceUserId) => {
 module.exports = {
   isAdmin,
   hasRole,
-  isOwnerOrAdmin
+  isOwnerOrAdmin,
+  getUserRole
 };

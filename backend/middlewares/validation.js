@@ -4,7 +4,7 @@
  * @description Middlewares para validación de datos de entrada
  */
 
-const { body, param, validationResult } = require('express-validator');
+const { body, param, query, validationResult } = require('express-validator');
 
 /**
  * Middleware para verificar resultados de validación
@@ -139,5 +139,61 @@ exports.resetPasswordRules = [
 exports.attendanceRules = [
   body('type')
     .notEmpty().withMessage('El tipo de registro es requerido')
-    .isIn(['entrada', 'salida']).withMessage('Tipo de registro no válido')
+    .isIn(['entrada', 'salida']).withMessage('Tipo de registro no válido'),
+  body('timestamp').custom((_, { req }) => {
+    if (Object.prototype.hasOwnProperty.call(req.body, 'timestamp')) {
+      throw new Error('La marca de tiempo la asigna el servidor.');
+    }
+    return true;
+  })
+];
+
+exports.attendanceQueryRules = [
+  query('startDate').optional().isISO8601({ strict: true }).withMessage('Fecha inicial inválida'),
+  query('endDate').optional().isISO8601({ strict: true }).withMessage('Fecha final inválida'),
+  query('type').optional().isIn(['entrada', 'salida']).withMessage('Tipo de registro no válido'),
+  query('userId').optional().isMongoId().withMessage('ID de usuario inválido'),
+  query('page').optional().isInt({ min: 1 }).withMessage('La página debe ser un entero positivo'),
+  query('limit').optional().isInt({ min: 1, max: 500 }).withMessage('El límite debe estar entre 1 y 500'),
+  query('endDate').custom((endDate, { req }) => {
+    const { startDate } = req.query;
+    if (startDate && endDate && startDate > endDate) {
+      throw new Error('La fecha inicial no puede ser posterior a la fecha final');
+    }
+    return true;
+  }).optional()
+];
+
+exports.attendanceIdRules = [
+  param('id').isMongoId().withMessage('ID de asistencia inválido'),
+  body('reason').trim().notEmpty().isLength({ max: 500 }).withMessage('El motivo es obligatorio y no puede superar 500 caracteres')
+];
+
+exports.correctionRules = [
+  body('targetType').isIn(['attendance', 'session']).withMessage('Tipo de objetivo no válido'),
+  body('targetId').isMongoId().withMessage('ID de objetivo inválido'),
+  body('reason').trim().notEmpty().isLength({ max: 500 }).withMessage('El motivo es obligatorio y no puede superar 500 caracteres'),
+  body('proposedValues').isObject().withMessage('Los valores propuestos deben ser un objeto')
+];
+
+exports.correctionDecisionRules = [
+  param('requestId').isMongoId().withMessage('ID de solicitud inválido'),
+  body('decision').isIn(['approve', 'reject']).withMessage('La decisión debe ser approve o reject'),
+  body('reason').if(body('decision').equals('reject')).trim().notEmpty().isLength({ max: 500 })
+    .withMessage('El motivo de rechazo es obligatorio y no puede superar 500 caracteres')
+];
+
+exports.dateRangeRules = [
+  query('startDate').isISO8601({ strict: true }).withMessage('Fecha inicial inválida'),
+  query('endDate').isISO8601({ strict: true }).withMessage('Fecha final inválida'),
+  query('endDate').custom((endDate, { req }) => {
+    if (req.query.startDate > endDate) {
+      throw new Error('La fecha inicial no puede ser posterior a la fecha final');
+    }
+    return true;
+  })
+];
+
+exports.userIdRules = [
+  param('userId').isMongoId().withMessage('ID de usuario inválido')
 ];

@@ -2,6 +2,7 @@ const TimeCalculationService = require('../services/TimeCalculationService');
 const ColombianLaborLawService = require('../services/ColombianLaborLawService');
 const WorkSession = require('../models/WorkSession');
 const DailyStats = require('../models/DailyStats');
+const AttendanceService = require('../services/attendanceService');
 
 /**
  * StatsController - Controlador de Estadísticas
@@ -18,43 +19,39 @@ class StatsController {
      */
     static async registrarAsistencia(req, res) {
         try {
-            const { type, timestamp, location } = req.body;
+            const { type } = req.body;
             const userId = req.user.id;
 
             console.log(` Nueva asistencia - Usuario: ${userId}, Tipo: ${type}`);
 
-            // Validar datos de entrada
-            if (!type || !['entrada', 'salida'].includes(type)) {
+            if (req.body.timestamp !== undefined) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Tipo de asistencia inválido. Debe ser "entrada" o "salida"'
+                    message: 'El timestamp de la marca lo asigna el servidor.'
                 });
             }
 
-            // Procesar el registro
-            const resultado = await TimeCalculationService.procesarRegistroAsistencia(
+            const resultado = await AttendanceService.registerMark({
                 userId,
                 type,
-                timestamp ? new Date(timestamp) : new Date(),
-                location
-            );
+                req,
+                timestamp: new Date()
+            });
 
             res.status(201).json({
                 success: true,
-                message: resultado.mensaje,
+                message: `Marca de ${type} registrada.`,
                 data: {
-                    registro: resultado.registro,
-                    sesion: resultado.sesion,
-                    estadisticas: resultado.estadisticas,
-                    accion: resultado.accion
+                    registro: resultado.attendance,
+                    sesion: resultado.workSession
                 }
             });
 
         } catch (error) {
             console.error(' Error en registrarAsistencia:', error);
-            res.status(500).json({
+            res.status(error.status || 500).json({
                 success: false,
-                message: 'Error al registrar asistencia',
+                message: error.message || 'Error al registrar asistencia',
                 error: error.message
             });
         }

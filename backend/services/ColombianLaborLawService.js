@@ -6,6 +6,101 @@
  */
 
 class ColombianLaborLawService {
+  static obtenerReglasVigentes(fecha, horario = {}) {
+    const date = this.obtenerFechaLocal(fecha);
+    const rules = {
+      maxHorasSemanales: date >= '2026-07-15'
+        ? 42
+        : date >= '2025-07-15' ? 44 : 46,
+      inicioNocturno: date >= '2025-12-25' ? 19 : 21,
+      recargoDescanso: date >= '2027-07-01'
+        ? 100
+        : date >= '2026-07-01'
+          ? 90
+          : date >= '2025-07-01' ? 80 : 75,
+      recargoNocturnoOrdinario: 35,
+      recargoExtraDiurna: 25,
+      recargoExtraNocturna: 75,
+      calculoVersion: 'co-ley-2101-2466-2025'
+    };
+    if (horario.adopcionJornadaSemanal42Desde &&
+        date >= this.obtenerFechaLocal(horario.adopcionJornadaSemanal42Desde)) {
+      rules.maxHorasSemanales = 42;
+    }
+    if (horario.adopcionRecargoDescanso100Desde &&
+        date >= this.obtenerFechaLocal(horario.adopcionRecargoDescanso100Desde)) {
+      rules.recargoDescanso = 100;
+    }
+    return rules;
+  }
+
+  static obtenerFechaLocal(fecha) {
+    const parts = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/Bogota',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    }).formatToParts(new Date(fecha)).reduce((result, part) => {
+      result[part.type] = part.value;
+      return result;
+    }, {});
+    return `${parts.year}-${parts.month}-${parts.day}`;
+  }
+
+  static obtenerDiaISOLocal(fecha) {
+    const weekday = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/Bogota',
+      weekday: 'short'
+    }).format(new Date(fecha));
+    return ({ Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6, Sun: 7 })[weekday];
+  }
+
+  static esFestivoColombiano(fecha) {
+    const localDate = this.obtenerFechaLocal(fecha);
+    const [year, month, day] = localDate.split('-').map(Number);
+    const fixed = new Set(['01-01', '05-01', '07-20', '08-07', '12-08', '12-25']);
+    if (fixed.has(`${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`)) return true;
+
+    const mondayFestivals = [
+      [1, 6], [3, 19], [6, 29], [8, 15], [10, 12], [11, 1], [11, 11]
+    ];
+    for (const [festivalMonth, festivalDay] of mondayFestivals) {
+      const candidate = new Date(Date.UTC(year, festivalMonth - 1, festivalDay));
+      const weekday = candidate.getUTCDay();
+      if (weekday !== 1) candidate.setUTCDate(candidate.getUTCDate() + ((8 - weekday) % 7));
+      if (candidate.toISOString().slice(0, 10) === localDate) return true;
+    }
+
+    const easter = this._easterSunday(year);
+    return [-3, -2, 39, 60, 68].some(offset => {
+      const festival = new Date(easter);
+      festival.setUTCDate(festival.getUTCDate() + offset);
+      const weekday = festival.getUTCDay();
+      if (![-3, -2].includes(offset) && weekday !== 1) {
+        festival.setUTCDate(festival.getUTCDate() + ((8 - weekday) % 7));
+      }
+      return festival.toISOString().slice(0, 10) === localDate;
+    });
+  }
+
+  static _easterSunday(year) {
+    const a = year % 19;
+    const b = Math.floor(year / 100);
+    const c = year % 100;
+    const d = Math.floor(b / 4);
+    const e = b % 4;
+    const f = Math.floor((b + 8) / 25);
+    const g = Math.floor((b - f + 1) / 3);
+    const h = (19 * a + b - d - g + 15) % 30;
+    const i = Math.floor(c / 4);
+    const k = c % 4;
+    const l = (32 + 2 * e + 2 * i - h - k) % 7;
+    const m = Math.floor((a + 11 * h + 22 * l) / 451);
+    const month = Math.floor((h + l - 7 * m + 114) / 31);
+    const day = ((h + l - 7 * m + 114) % 31) + 1;
+    return new Date(Date.UTC(year, month - 1, day));
+  }
+
   static JORNADAS = {
     MAXIMA_DIARIA: 8,
     MAXIMA_SEMANAL: 42,
@@ -68,20 +163,11 @@ class ColombianLaborLawService {
   }
 
   static obtenerMaximaSemanal(fecha = new Date()) {
-    const ref = new Date(fecha);
-    if (ref >= new Date(2026, 6, 15)) return 42;
-    if (ref >= new Date(2025, 6, 15)) return 44;
-    if (ref >= new Date(2024, 6, 15)) return 46;
-    if (ref >= new Date(2023, 6, 15)) return 47;
-    return 48;
+    return this.obtenerReglasVigentes(fecha).maxHorasSemanales;
   }
 
   static obtenerRecargoDominical(fecha = new Date()) {
-    const ref = new Date(fecha);
-    if (ref >= new Date(2027, 6, 1)) return 100;
-    if (ref >= new Date(2026, 6, 1)) return 90;
-    if (ref >= new Date(2025, 6, 1)) return 80;
-    return 75;
+    return this.obtenerReglasVigentes(fecha).recargoDescanso;
   }
 
   static esDomingo(fecha) {

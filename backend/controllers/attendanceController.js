@@ -1,54 +1,63 @@
 const Attendance = require('../models/Attendance');
 const DailyStats = require('../models/DailyStats');
 const TimeCalculationService = require('../services/TimeCalculationService');
-const AuditService = require('../services/auditService');
+const AttendanceService = require('../services/attendanceService');
+const AttendanceCorrectionService = require('../services/attendanceCorrectionService');
 
 exports.registerAttendance = async (req, res) => {
   try {
-    const { type, timestamp, location } = req.body;
-    const userId = req.user._id;
-
-    if (!['entrada', 'salida'].includes(type)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Tipo de registro invalido. Debe ser "entrada" o "salida"'
-      });
-    }
-
-    const resultado = await TimeCalculationService.procesarRegistroAsistencia(
-      userId,
-      type,
-      timestamp ? new Date(timestamp) : new Date(),
-      location || null
-    );
-
-    await AuditService.registrarAccion(
-      req.user,
-      'asistencia',
-      resultado.registro._id,
-      type,
-      {
-        accion: resultado.accion,
-        mensaje: resultado.mensaje,
-        sesionId: resultado.sesion?._id,
-        estadisticasActualizadas: !!resultado.estadisticas
-      },
+    const resultado = await AttendanceService.registerMark({
+      userId: req.user._id,
+      type: req.body.type,
       req
-    );
+    });
 
     res.status(201).json({
       success: true,
-      message: resultado.mensaje,
-      data: resultado.registro,
-      workSession: resultado.sesion,
-      estadisticas: resultado.estadisticas,
-      accion: resultado.accion
+      message: 'Marca registrada correctamente.',
+      data: resultado.attendance,
+      workSession: resultado.workSession
     });
   } catch (error) {
     console.error('Error al registrar asistencia:', error);
-    res.status(500).json({
+    res.status(error.status || 500).json({
       success: false,
       message: 'Error al registrar asistencia',
+      error: error.message
+    });
+  }
+};
+
+exports.getActiveSession = async (req, res) => {
+  try {
+    const workSession = await AttendanceService.getActiveSession(req.user._id);
+    res.status(200).json({ success: true, data: workSession });
+  } catch (error) {
+    console.error('Error al consultar jornada activa:', error);
+    res.status(500).json({ success: false, message: 'Error al consultar jornada activa' });
+  }
+};
+
+exports.requestCorrection = async (req, res) => {
+  try {
+    const event = await AttendanceCorrectionService.requestCorrection({
+      user: req.user,
+      targetType: req.body.targetType,
+      targetId: req.body.targetId,
+      proposedValues: req.body.proposedValues,
+      reason: req.body.reason,
+      req
+    });
+    res.status(201).json({
+      success: true,
+      message: 'Solicitud de corrección registrada; la jornada permanece incompleta hasta aprobación.',
+      data: { requestId: event._id }
+    });
+  } catch (error) {
+    console.error('Error al solicitar corrección:', error);
+    res.status(error.status || 500).json({
+      success: false,
+      message: 'No fue posible registrar la solicitud de corrección.',
       error: error.message
     });
   }
@@ -117,28 +126,10 @@ exports.getMonthlyStats = async (req, res) => {
 };
 
 exports.deleteAttendance = async (req, res) => {
-  try {
-    const attendance = await Attendance.findById(req.params.id);
-    if (!attendance) {
-      return res.status(404).json({
-        success: false,
-        message: 'Registro de asistencia no encontrado'
-      });
-    }
-
-    await attendance.deleteOne();
-    res.status(200).json({
-      success: true,
-      message: 'Registro de asistencia eliminado correctamente'
-    });
-  } catch (error) {
-    console.error('Error al eliminar registro de asistencia:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Error al eliminar registro de asistencia',
-      error: error.message
-    });
-  }
+  res.status(501).json({
+    success: false,
+    message: 'La eliminación física de marcas está deshabilitada; use el flujo de corrección auditable.'
+  });
 };
 
 exports.getAllAttendance = async (req, res) => {
@@ -208,15 +199,10 @@ exports.getLaborHoursSummary = async (req, res) => {
 function buildDateFilter(query) {
   if (!query.startDate && !query.endDate) return {};
 
-  const timestamp = {};
-  if (query.startDate) timestamp.$gte = new Date(query.startDate);
-  if (query.endDate) {
-    const endDate = new Date(query.endDate);
-    endDate.setHours(23, 59, 59, 999);
-    timestamp.$lte = endDate;
-  }
-
-  return { timestamp };
+  const date = {};
+  if (query.startDate) date.$gte = query.startDate;
+  if (query.endDate) date.$lte = query.endDate;
+  return { date };
 }
 
 function buildTypeFilter(query) {
