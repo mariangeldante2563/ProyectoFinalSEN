@@ -6,6 +6,14 @@
  */
 
 class ColombianLaborLawService {
+  static obtenerPeriodoEfectivo(fecha, cambios) {
+    const localDate = this.obtenerFechaLocal(fecha);
+    const effectiveDates = [...new Set(cambios.filter(Boolean).map(date => this.obtenerFechaLocal(date)))].sort();
+    const previous = effectiveDates.filter(date => date <= localDate).pop() || null;
+    const next = effectiveDates.find(date => date > localDate) || null;
+    return { from: previous, to: next };
+  }
+
   static obtenerReglasVigentes(fecha, horario = {}) {
     const date = this.obtenerFechaLocal(fecha);
     const rules = {
@@ -21,6 +29,39 @@ class ColombianLaborLawService {
       recargoNocturnoOrdinario: 35,
       recargoExtraDiurna: 25,
       recargoExtraNocturna: 75,
+      limiteHorasExtrasDiarias: 2,
+      limiteHorasExtrasSemanales: 12,
+      excepcionesLimiteHorasExtras: ['seguridad', 'salud'],
+      jornadaFlexible: {
+        minimoMinutosContinuos: 240,
+        maximoMinutosDiariosSinRecargo: 540,
+        maximoDiasSemanales: 6,
+        maximoMinutosSemanales: 2520
+      },
+      // Art. 161 literal d CST según Ley 2466 de 2025: hasta 6 h/día y 36 h/semana, sin recargos nocturnos ni de descanso.
+      jornadaTurnoContinuo: {
+        maximoMinutosDiarios: 360,
+        maximoMinutosSemanales: 2160,
+        aplicaRecargoNocturno: false,
+        aplicaRecargoDescanso: false
+      },
+      regimenLaboral: horario.regimenLaboral || null,
+      effectivePeriod: {
+        maxHorasSemanales: this.obtenerPeriodoEfectivo(fecha, [
+          '2024-07-15', '2025-07-15', '2026-07-15',
+          horario.adopcionJornadaSemanal42Desde
+        ]),
+        inicioNocturno: this.obtenerPeriodoEfectivo(fecha, ['2025-12-25']),
+        recargoDescanso: this.obtenerPeriodoEfectivo(fecha, [
+          '2025-07-01', '2026-07-01', '2027-07-01',
+          horario.adopcionRecargoDescanso100Desde
+        ]),
+        // Constantes históricas no modificadas por Ley 2466 de 2025; vigentes desde antes de 2024 y sin fecha de derogación conocida.
+        recargosBase: { from: '2024-01-01', to: null },
+        limitesHorasExtras: this.obtenerPeriodoEfectivo(fecha, ['2025-06-25']),
+        jornadaFlexible: this.obtenerPeriodoEfectivo(fecha, ['2025-06-25']),
+        jornadaTurnoContinuo: this.obtenerPeriodoEfectivo(fecha, ['2025-06-25'])
+      },
       calculoVersion: 'co-ley-2101-2466-2025'
     };
     if (horario.adopcionJornadaSemanal42Desde &&

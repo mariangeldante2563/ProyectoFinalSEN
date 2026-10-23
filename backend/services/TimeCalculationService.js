@@ -4,6 +4,43 @@ const Attendance = require('../models/Attendance');
 const ColombianLaborLawService = require('./ColombianLaborLawService');
 
 class TimeCalculationService {
+  static formatearTiempo(minutos) {
+    const total = Math.max(0, Math.round(Number(minutos) || 0));
+    const hours = Math.floor(total / 60);
+    const remainingMinutes = total % 60;
+    return `${String(hours).padStart(2, '0')}:${String(remainingMinutes).padStart(2, '0')}`;
+  }
+
+  static _minutosProgramados(horario, isoDay) {
+    const schedule = horario?.minutosOrdinariosPorDia;
+    const value = schedule instanceof Map
+      ? schedule.get(String(isoDay))
+      : schedule?.[String(isoDay)];
+    return Number.isFinite(Number(value)) ? Math.max(0, Number(value)) : 0;
+  }
+
+  static _minutosSemanalesProgramados(horario) {
+    const weeklyMinutes = Number(horario?.minutosOrdinariosSemanales);
+    if (Number.isFinite(weeklyMinutes) && weeklyMinutes > 0) return weeklyMinutes;
+
+    const schedule = horario?.minutosOrdinariosPorDia;
+    const values = schedule instanceof Map ? [...schedule.values()] : Object.values(schedule || {});
+    return values.reduce((total, value) => total + Math.max(0, Number(value) || 0), 0);
+  }
+
+  static _inicioSemanaLocal(fecha) {
+    const localDate = this._fechaLocal(fecha);
+    const [year, month, day] = localDate.split('-').map(Number);
+    const date = new Date(Date.UTC(year, month - 1, day));
+    const weekday = date.getUTCDay() || 7;
+    date.setUTCDate(date.getUTCDate() - weekday + 1);
+    return date.toISOString().slice(0, 10);
+  }
+
+  static _fechaLocal(fecha) {
+    return ColombianLaborLawService.obtenerFechaLocal(fecha);
+  }
+
   static obtenerHorarioVigente(usuario, fecha) {
     return (usuario.horariosLaborales || [])
       .filter(horario => horario.vigenteDesde <= fecha &&
