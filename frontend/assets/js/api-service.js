@@ -325,6 +325,30 @@ class EnhancedApiClient {
       throw error;
     }
   }
+
+  /**
+   * Solicita una corrección de salida olvidada para una jornada propia.
+   * @param {string} targetId - ID de la jornada incompleta
+   * @param {string} timestampSalida - Fecha y hora propuesta para la salida
+   * @param {string} reason - Motivo de la solicitud
+   * @returns {Promise<Object>} Solicitud pendiente creada por el servidor
+   */
+  async requestAttendanceCorrection(targetId, timestampSalida, reason) {
+    const proposedExit = new Date(timestampSalida);
+    if (!targetId || Number.isNaN(proposedExit.getTime()) || !reason?.trim()) {
+      throw new Error('Indique una fecha de salida válida y el motivo de la corrección.');
+    }
+
+    const serverAvailable = await this.checkServerConnection();
+    if (!serverAvailable) throw new Error('La solicitud de corrección requiere conexión con el servidor.');
+
+    return this.post('/corrections', {
+      targetType: 'workSession',
+      targetId,
+      proposedValues: { timestampSalida: proposedExit.toISOString() },
+      reason: reason.trim()
+    });
+  }
   
   /**
    * Obtiene los registros de asistencia de un empleado

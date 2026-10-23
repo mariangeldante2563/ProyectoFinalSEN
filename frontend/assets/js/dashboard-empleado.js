@@ -266,17 +266,18 @@ class EmployeeDashboard extends BaseDashboard {
       const authToken = localStorage.getItem('authToken');
       if (!authToken) return;
       const headers = { Authorization: `Bearer ${authToken}`, Accept: 'application/json' };
-      const [todayResponse, weeklyResponse, monthlyResponse, activeResponse] = await Promise.all([
+      const [todayResponse, weeklyResponse, monthlyResponse, activeResponse, sessionsResponse] = await Promise.all([
         fetch(`${this.apiBaseUrl}/stats/today`, { headers }),
         fetch(`${this.apiBaseUrl}/stats/weekly`, { headers }),
         fetch(`${this.apiBaseUrl}/stats/monthly`, { headers }),
-        fetch(`${this.apiBaseUrl}/stats/active-session`, { headers })
+        fetch(`${this.apiBaseUrl}/stats/active-session`, { headers }),
+        fetch(`${this.apiBaseUrl}/stats/sessions?page=1&limit=500`, { headers })
       ]);
-      if (![todayResponse, weeklyResponse, monthlyResponse, activeResponse].every(response => response.ok)) {
+      if (![todayResponse, weeklyResponse, monthlyResponse, activeResponse, sessionsResponse].every(response => response.ok)) {
         throw new Error('No fue posible cargar las estadísticas oficiales de asistencia.');
       }
-      const [todayResult, weeklyResult, monthlyResult, activeResult] = await Promise.all([
-        todayResponse.json(), weeklyResponse.json(), monthlyResponse.json(), activeResponse.json()
+      const [todayResult, weeklyResult, monthlyResult, activeResult, sessionsResult] = await Promise.all([
+        todayResponse.json(), weeklyResponse.json(), monthlyResponse.json(), activeResponse.json(), sessionsResponse.json()
       ]);
       const todayData = todayResult.data;
       const weeklyData = weeklyResult.data;
@@ -304,7 +305,9 @@ class EmployeeDashboard extends BaseDashboard {
       const elHorasExtras = document.getElementById('horasExtrasHoy');
       if (elHorasExtras) elHorasExtras.textContent = stats?.horasExtras?.total?.formato || '00:00';
 
-      this.updateSessionStatus(activeResult.data);
+      const incompleteSession = (sessionsResult.data?.sesiones || [])
+        .find(session => session.estado === 'incompleta');
+      this.updateSessionStatus(activeResult.data || incompleteSession || null);
     } catch (error) {
       console.error('❌ Error al cargar estadísticas:', error);
     }
@@ -316,6 +319,16 @@ class EmployeeDashboard extends BaseDashboard {
    */
   updateSessionStatus(session) {
     if (!this.sesionActivaEl) return;
+
+    if (session?.estado === 'incompleta') {
+      this.sesionActivaEl.innerHTML = `
+        <div class="status-pending">
+          <i class="fas fa-clock text-warning"></i>
+          <span>Salida pendiente de aprobación</span>
+        </div>
+      `;
+      return;
+    }
 
     if (session) {
       const entryTime = new Date(session.timestampEntrada).toLocaleTimeString('es-CO', {
@@ -332,6 +345,49 @@ class EmployeeDashboard extends BaseDashboard {
           <span>Sesión activa desde ${entryTime}${durationText}</span>
         </div>
       `;
+
+      const correctionButton = document.createElement('button');
+      correctionButton.type = 'button';
+      correctionButton.className = 'correction-request-button';
+      correctionButton.textContent = 'Solicitar corrección de salida';
+
+      const correctionForm = document.createElement('form');
+      correctionForm.className = 'correction-request-form';
+      correctionForm.hidden = true;
+      correctionForm.innerHTML = `
+        <label>
+          Hora real de salida
+          <input type="datetime-local" name="timestampSalida" required>
+        </label>
+        <label>
+          Motivo
+          <textarea name="reason" maxlength="500" required></textarea>
+        </label>
+        <button type="submit">Enviar solicitud</button>
+      `;
+
+      correctionButton.addEventListener('click', () => {
+        correctionForm.hidden = !correctionForm.hidden;
+      });
+      correctionForm.addEventListener('submit', async event => {
+        event.preventDefault();
+        const submitButton = correctionForm.querySelector('[type="submit"]');
+        const formData = new FormData(correctionForm);
+        submitButton.disabled = true;
+        try {
+          const result = await window.apiService.requestAttendanceCorrection(
+            session._id,
+            formData.get('timestampSalida'),
+            formData.get('reason')
+          );
+          this.mostrarNotificacion(result.message || 'Solicitud enviada y pendiente de aprobación.', 'success');
+          await this.refreshDashboard();
+        } catch (error) {
+          this.mostrarNotificacion(error.message, 'error');
+          submitButton.disabled = false;
+        }
+      });
+      this.sesionActivaEl.append(correctionButton, correctionForm);
     } else {
       this.sesionActivaEl.innerHTML = `
         <div class="status-idle">
