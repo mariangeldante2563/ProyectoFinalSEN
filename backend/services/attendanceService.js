@@ -84,9 +84,10 @@ class AttendanceService {
           if (!workSession) {
             throw createServiceError(409, 'La jornada ya fue cerrada por otra solicitud.');
           }
-          await DailyStats.crearOActualizarEstadisticas(userId, timestamp, { session });
           workSession = await WorkSession.findById(workSession._id).session(session);
         }
+
+        await DailyStats.crearOActualizarEstadisticas(userId, timestamp, { session });
 
         await AuditService.registrarAccion(
           user,

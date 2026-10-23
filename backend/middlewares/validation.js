@@ -6,6 +6,26 @@
 
 const { body, param, query, validationResult } = require('express-validator');
 
+const rejectUnknownFields = (source, allowedFields) => (req, res, next) => {
+  const values = req[source] || {};
+  if (typeof values !== 'object' || Array.isArray(values)) {
+    return res.status(400).json({
+      success: false,
+      message: `El formato de ${source} no es válido`
+    });
+  }
+
+  const unknownFields = Object.keys(values).filter(field => !allowedFields.includes(field));
+  if (unknownFields.length) {
+    return res.status(400).json({
+      success: false,
+      message: `Campos no permitidos en ${source}: ${unknownFields.join(', ')}`
+    });
+  }
+
+  next();
+};
+
 /**
  * Middleware para verificar resultados de validación
  */
@@ -137,7 +157,9 @@ exports.resetPasswordRules = [
  * Reglas de validación para registro de asistencia
  */
 exports.attendanceRules = [
+  rejectUnknownFields('body', ['type', 'timestamp']),
   body('type')
+    .trim()
     .notEmpty().withMessage('El tipo de registro es requerido')
     .isIn(['entrada', 'salida']).withMessage('Tipo de registro no válido'),
   body('timestamp').custom((_, { req }) => {
@@ -149,12 +171,13 @@ exports.attendanceRules = [
 ];
 
 exports.attendanceQueryRules = [
-  query('startDate').optional().isISO8601({ strict: true }).withMessage('Fecha inicial inválida'),
-  query('endDate').optional().isISO8601({ strict: true }).withMessage('Fecha final inválida'),
-  query('type').optional().isIn(['entrada', 'salida']).withMessage('Tipo de registro no válido'),
-  query('userId').optional().isMongoId().withMessage('ID de usuario inválido'),
-  query('page').optional().isInt({ min: 1 }).withMessage('La página debe ser un entero positivo'),
-  query('limit').optional().isInt({ min: 1, max: 500 }).withMessage('El límite debe estar entre 1 y 500'),
+  rejectUnknownFields('query', ['startDate', 'endDate', 'type', 'userId', 'page', 'limit']),
+  query('startDate').optional().trim().isISO8601({ strict: true }).withMessage('Fecha inicial inválida'),
+  query('endDate').optional().trim().isISO8601({ strict: true }).withMessage('Fecha final inválida'),
+  query('type').optional().trim().isIn(['entrada', 'salida']).withMessage('Tipo de registro no válido'),
+  query('userId').optional().trim().isMongoId().withMessage('ID de usuario inválido'),
+  query('page').optional().isInt({ min: 1 }).toInt().withMessage('La página debe ser un entero positivo'),
+  query('limit').optional().isInt({ min: 1, max: 500 }).toInt().withMessage('El límite debe estar entre 1 y 500'),
   query('endDate').custom((endDate, { req }) => {
     const { startDate } = req.query;
     if (startDate && endDate && startDate > endDate) {
@@ -165,18 +188,35 @@ exports.attendanceQueryRules = [
 ];
 
 exports.attendanceIdRules = [
+  rejectUnknownFields('body', ['reason']),
   param('id').isMongoId().withMessage('ID de asistencia inválido'),
   body('reason').trim().notEmpty().isLength({ max: 500 }).withMessage('El motivo es obligatorio y no puede superar 500 caracteres')
 ];
 
 exports.correctionRules = [
-  body('targetType').isIn(['attendance', 'session']).withMessage('Tipo de objetivo no válido'),
-  body('targetId').isMongoId().withMessage('ID de objetivo inválido'),
+  rejectUnknownFields('body', ['targetType', 'targetId', 'proposedValues', 'reason']),
+  body('targetType').trim().isIn(['attendance', 'workSession'])
+    .withMessage('Tipo de objetivo debe ser attendance o workSession'),
+  body('targetId').trim().isMongoId().withMessage('ID de objetivo inválido'),
   body('reason').trim().notEmpty().isLength({ max: 500 }).withMessage('El motivo es obligatorio y no puede superar 500 caracteres'),
-  body('proposedValues').isObject().withMessage('Los valores propuestos deben ser un objeto')
+  body('proposedValues').custom((values, { req }) => {
+    if (!values || typeof values !== 'object' || Array.isArray(values)) {
+      throw new Error('Los valores propuestos deben ser un objeto');
+    }
+
+    const expectedField = req.body.targetType === 'attendance' ? 'timestamp' : 'timestampSalida';
+    const fields = Object.keys(values);
+    const proposedValue = values[expectedField];
+    if (fields.length !== 1 || fields[0] !== expectedField ||
+        typeof proposedValue !== 'string' || Number.isNaN(Date.parse(proposedValue))) {
+      throw new Error(`Para ${req.body.targetType} se requiere únicamente ${expectedField} con fecha válida`);
+    }
+    return true;
+  })
 ];
 
 exports.correctionDecisionRules = [
+  rejectUnknownFields('body', ['decision', 'reason']),
   param('requestId').isMongoId().withMessage('ID de solicitud inválido'),
   body('decision').isIn(['approve', 'reject']).withMessage('La decisión debe ser approve o reject'),
   body('reason').if(body('decision').equals('reject')).trim().notEmpty().isLength({ max: 500 })
@@ -184,6 +224,7 @@ exports.correctionDecisionRules = [
 ];
 
 exports.dateRangeRules = [
+  rejectUnknownFields('query', ['startDate', 'endDate']),
   query('startDate').isISO8601({ strict: true }).withMessage('Fecha inicial inválida'),
   query('endDate').isISO8601({ strict: true }).withMessage('Fecha final inválida'),
   query('endDate').custom((endDate, { req }) => {

@@ -6,6 +6,7 @@
 
 const express = require('express');
 const router = express.Router();
+const correctionsRouter = express.Router();
 
 // Importar controladores
 const {
@@ -38,11 +39,12 @@ const {
 
 // Todas las rutas requieren autenticación
 router.use(protect);
+correctionsRouter.use(protect);
 
 // Ruta para registrar asistencia (entrada o salida)
 router.post('/', authorize('empleado'), attendanceRules, validate, registerAttendance);
 router.get('/sessions/active', authorize('empleado'), getActiveSession);
-router.post('/corrections', authorize('empleado'), correctionRules, validate, requestCorrection);
+correctionsRouter.post('/', authorize('empleado'), correctionRules, validate, requestCorrection);
 
 // Rutas para obtener registros y estadísticas de un usuario
 router.get('/user/:userId', userIdRules, attendanceQueryRules, validate, checkUserOwnership, getUserAttendance);
@@ -55,3 +57,4 @@ router.get('/all', attendanceQueryRules, validate, authorize('administrador'), g
 router.delete('/:id', authorize('administrador'), attendanceIdRules, validate, deleteAttendance);
 
 module.exports = router;
+module.exports.correctionsRouter = correctionsRouter;

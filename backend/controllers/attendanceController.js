@@ -50,7 +50,7 @@ exports.requestCorrection = async (req, res) => {
     });
     res.status(201).json({
       success: true,
-      message: 'Solicitud de corrección registrada; la jornada permanece incompleta hasta aprobación.',
+      message: 'Solicitud de corrección registrada y pendiente de aprobación.',
       data: { requestId: event._id }
     });
   } catch (error) {

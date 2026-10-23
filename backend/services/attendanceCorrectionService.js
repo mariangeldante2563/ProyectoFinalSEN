@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Attendance = require('../models/Attendance');
 const WorkSession = require('../models/WorkSession');
 const AuditService = require('./auditService');
 
@@ -15,42 +16,69 @@ class AttendanceCorrectionService {
     let requestEvent;
     try {
       await session.withTransaction(async () => {
-        if (targetType !== 'session') {
-          throw createServiceError(422, 'En este flujo solo se admite corregir una jornada.');
-        }
-        const workSession = await WorkSession.findOne({
-          _id: targetId,
-          userId: user._id,
-          estado: { $in: ['activa', 'incompleta'] },
-          timestampSalida: null
-        }).session(session);
-        if (!workSession) throw createServiceError(404, 'No se encontró una jornada incompleta propia.');
+        if (targetType === 'attendance') {
+          const attendance = await Attendance.findOne({
+            _id: targetId,
+            userId: user._id
+          }).session(session);
+          if (!attendance) throw createServiceError(404, 'No se encontró una marca propia.');
 
-        const exitValue = proposedValues.timestampSalida;
-        const proposedExit = new Date(exitValue);
-        if (!exitValue || Number.isNaN(proposedExit.getTime()) || proposedExit <= workSession.timestampEntrada) {
-          throw createServiceError(400, 'La hora de salida propuesta debe ser válida y posterior a la entrada.');
-        }
+          requestEvent = await AuditService.registrarAccion(
+            user,
+            'asistencia',
+            attendance._id,
+            'solicitar_correccion',
+            {
+              targetType,
+              targetId: attendance._id,
+              proposedValues,
+              reason: reason.trim(),
+              status: 'pending',
+              estadoAnterior: null,
+              estadoNuevo: null
+            },
+            req,
+            session
+          );
+          return;
+        } else if (targetType === 'workSession') {
+          const workSession = await WorkSession.findOne({
+            _id: targetId,
+            userId: user._id,
+            estado: { $in: ['activa', 'incompleta'] },
+            timestampSalida: null
+          }).session(session);
+          if (!workSession) throw createServiceError(404, 'No se encontró una jornada incompleta propia.');
 
-        const previousStatus = workSession.estado;
-        workSession.estado = 'incompleta';
-        await workSession.save({ session });
-        requestEvent = await AuditService.registrarAccion(
-          user,
-          'asistencia',
-          workSession._id,
-          'solicitar_correccion',
-          {
-            targetType,
-            targetId: workSession._id,
-            proposedValues: { timestampSalida: proposedExit },
-            reason: reason.trim(),
-            estadoAnterior: previousStatus,
-            estadoNuevo: 'incompleta'
-          },
-          req,
-          session
-        );
+          const exitValue = proposedValues.timestampSalida;
+          const proposedExit = new Date(exitValue);
+          if (!exitValue || Number.isNaN(proposedExit.getTime()) || proposedExit <= workSession.timestampEntrada) {
+            throw createServiceError(400, 'La hora de salida propuesta debe ser válida y posterior a la entrada.');
+          }
+
+          const previousStatus = workSession.estado;
+          workSession.estado = 'incompleta';
+          await workSession.save({ session });
+          requestEvent = await AuditService.registrarAccion(
+            user,
+            'asistencia',
+            workSession._id,
+            'solicitar_correccion',
+            {
+              targetType,
+              targetId: workSession._id,
+              proposedValues: { timestampSalida: proposedExit },
+              reason: reason.trim(),
+              status: 'pending',
+              estadoAnterior: previousStatus,
+              estadoNuevo: 'incompleta'
+            },
+            req,
+            session
+          );
+        } else {
+          throw createServiceError(400, 'Tipo de objetivo debe ser attendance o workSession.');
+        }
       });
       return requestEvent;
     } finally {

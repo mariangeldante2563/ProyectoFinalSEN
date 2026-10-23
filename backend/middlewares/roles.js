@@ -1,3 +1,5 @@
+const { protect } = require('./auth');
+
 const ROLE_ALIASES = {
   admin: 'administrador',
   administrador: 'administrador',
@@ -40,6 +42,10 @@ const isAdmin = (req, res, next) => {
       error: error.message
     });
   }
+};
+
+const requireAdmin = (req, res, next) => {
+  return protect(req, res, () => isAdmin(req, res, next));
 };
 
 /**
@@ -138,6 +144,7 @@ const isOwnerOrAdmin = (getResourceUserId) => {
 
 module.exports = {
   isAdmin,
+  requireAdmin,
   hasRole,
   isOwnerOrAdmin,
   getUserRole
